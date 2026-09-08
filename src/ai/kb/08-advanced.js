@@ -1,0 +1,65 @@
+  { id:'options-basics', cat:'advanced', kw:['options','call option','put option','strike price','expiration','premium','אופציות','קול','פוט','מחיר מימוש','פקיעה','פרמיה'],
+    he:`אופציה היא זכות (לא חובה) לקנות (Call) או למכור (Put) מניה במחיר קבוע מראש ("מחיר מימוש", Strike) עד תאריך מסוים ("פקיעה", Expiration). מחזיק האופציה משלם "פרמיה" (Premium) עבור הזכות הזו. אופציית Call מרוויחה אם המניה עולה מעל המחיר המימוש; אופציית Put מרוויחה אם המניה יורדת מתחתיו. אופציות הן כלי ממונף — ניתן להרוויח (או להפסיד) הרבה יותר, באחוזים, ממה שהיה קורה בהחזקת המניה עצמה.`,
+    en:`An option is a right (not an obligation) to buy (call) or sell (put) a stock at a predetermined price ("strike price") until a certain date ("expiration"). The option buyer pays a "premium" for that right. A call option profits if the stock rises above the strike price; a put option profits if the stock falls below it. Options are a leveraged tool — you can gain (or lose) far more, percentage-wise, than you would by simply holding the underlying stock.`,
+    related:['implied-volatility-greeks','leverage'] },
+
+  { id:'options-strategies', cat:'advanced', kw:['covered call','protective put','in the money','out of the money','at the money','itm','otm','option expires worthless','אופציה כתובה','קול מכוסה','פוט מגן','בתוך הכסף','מחוץ לכסף'],
+    he:`"קול מכוסה" (Covered Call) היא אסטרטגיה שבה מחזיקים מניה בפועל, וגם מוכרים (כותבים) אופציית Call עליה — כך מקבלים פרמיה מיידית כהכנסה נוספת, אבל מוותרים על חלק מהרווח הפוטנציאלי אם המניה תזנק הרבה מעל מחיר המימוש. "פוט מגן" (Protective Put) היא ההפך: מחזיקים מניה וגם קונים אופציית Put עליה, כמעין "ביטוח" שמגביל את ההפסד המקסימלי אם המניה תיפול, במחיר של תשלום הפרמיה. אופציה נחשבת "בתוך הכסף" (ITM) אם מימושה כרגע היה רווחי (למשל Call כשהמניה מעל מחיר המימוש), "מחוץ לכסף" (OTM) אם מימושה היה מפסיד, ו"בכסף" (ATM) אם מחיר המניה קרוב מאוד למחיר המימוש. אם אופציה פוקעת מחוץ לכסף, היא פשוט מאבדת את כל ערכה ומחזיקה מפסיד את מלוא הפרמיה ששילם.`,
+    en:`A "covered call" is a strategy where you actually hold the stock, and also sell (write) a call option on it — collecting the premium immediately as extra income, but giving up some of the upside if the stock rallies far above the strike price. A "protective put" is the opposite: you hold the stock and also buy a put option on it, acting like insurance that caps your maximum loss if the stock falls, at the cost of paying the premium. An option is "in the money" (ITM) if exercising it right now would be profitable (for example a call when the stock is above the strike price), "out of the money" (OTM) if exercising it would lose money, and "at the money" (ATM) if the stock price is very close to the strike price. If an option expires out of the money, it simply loses all its value and the holder loses the entire premium they paid.`,
+    related:['options-basics','implied-volatility-greeks'] },
+
+  { id:'implied-volatility-greeks', cat:'advanced', kw:['implied volatility','iv','greeks','delta','gamma','theta','vega','תנודתיות גלומה','היוונים'],
+    he:`תנודתיות גלומה (Implied Volatility) היא הערכת השוק לכמה תנודתי המניה תהיה בעתיד, כפי שהיא משתקפת במחיר האופציות עצמן — לא מדד היסטורי, אלא ציפייה קדימה. "Greeks" (היוונים) הם מספרים שמודדים כמה רגיש מחיר האופציה לגורמים שונים: Delta מודד רגישות לשינוי במחיר המניה, Theta מודד כמה ערך האופציה נשחק עם הזמן, Vega מודד רגישות לשינוי בתנודתיות הגלומה עצמה, ו-Gamma מודד כמה מהר ה-Delta עצמו משתנה.`,
+    en:`Implied volatility (IV) is the market's estimate of how volatile a stock will be in the future, as reflected in the options' own prices — not a historical measure, but a forward-looking expectation. "The Greeks" are numbers that measure how sensitive an option's price is to different factors: delta measures sensitivity to the stock's price change, theta measures how much value the option loses just from time passing, vega measures sensitivity to a change in implied volatility itself, and gamma measures how fast delta itself changes.`,
+    related:['options-basics','volatility'] },
+
+  { id:'futures', cat:'advanced', kw:['futures','futures contract','חוזים עתידיים','פיוצ\'רס'],
+    he:`חוזה עתידי (Futures) הוא הסכם לקנות או למכור נכס (סחורה, מדד, מטבע) במחיר קבוע מראש, בתאריך עתידי מוגדר — בניגוד לאופציה, כאן שני הצדדים מחויבים לבצע את העסקה (אלא אם סוגרים את הפוזיציה קודם). חוזים עתידיים נסחרים בממונף גבוה מאוד ומשמשים גם לגידור סיכונים (למשל חברת תעופה שנועלת מראש מחיר דלק) וגם לספקולציה.`,
+    en:`A futures contract is an agreement to buy or sell an asset (a commodity, index, or currency) at a predetermined price, on a defined future date — unlike an option, both sides here are obligated to complete the trade (unless they close the position beforehand). Futures trade with very high leverage and are used both for hedging risk (for example an airline locking in a fuel price in advance) and for speculation.`,
+    related:['leverage','options-basics'] },
+
+  { id:'leverage', cat:'advanced', kw:['leverage','leveraged trading','מינוף','לברג\'','לוורג\''],
+    he:`מינוף פירושו להשתמש בכסף מושאל (או במכשירים כמו אופציות וחוזים עתידיים) כדי לשלוט בפוזיציה גדולה בהרבה מהכסף שיש לך בפועל. הוא מגדיל פי כמה גם רווח פוטנציאלי וגם הפסד פוטנציאלי — מינוף גבוה יכול להפוך תנועת מחיר קטנה יחסית להפסד (או רווח) גדול מאוד, ולכן נחשב אחד הכלים המסוכנים ביותר למי שלא מנהל אותו בזהירות.`,
+    en:`Leverage means using borrowed money (or instruments like options and futures) to control a position much larger than the money you actually have. It multiplies both potential gain and potential loss — high leverage can turn a relatively small price move into a very large loss (or gain), which is why it's considered one of the riskiest tools for anyone not managing it carefully.`,
+    related:['margin','options-basics'] },
+
+  { id:'short-squeeze', cat:'advanced', kw:['short squeeze','שורט סקוויז'],
+    he:`Short Squeeze קורה כשמניה עם הרבה פוזיציות Short (הימור על ירידה) מתחילה דווקא לעלות — סוחרי ה-Short נאלצים לקנות בחזרה את המניה כדי לצמצם הפסדים ("לכסות" את הפוזיציה), וקנייה מסיבית כזו דוחפת את המחיר למעלה עוד יותר, מה שמכריח עוד סוחרי Short לקנות — לולאה שיכולה לגרום לעליות חדות וחדות במיוחד תוך זמן קצר.`,
+    en:`A short squeeze happens when a heavily shorted stock (one with many bets on it falling) instead starts to rise — short sellers are forced to buy the stock back to limit their losses ("cover" the position), and that massive buying pushes the price up even further, forcing more short sellers to buy — a loop that can cause especially sharp, fast rallies in a short amount of time.`,
+    related:['short-selling','margin'] },
+
+  { id:'options-flow', cat:'advanced', kw:['options flow','unusual options activity','זרימת אופציות'],
+    he:`Options Flow הוא מעקב אחרי עסקאות אופציות גדולות או חריגות בשוק, מתוך הנחה שלעיתים משקיעים "בעלי מידע" (כמו מוסדות גדולים) מבצעים עסקאות אופציות גדולות לפני מהלך מחיר משמעותי. חשוב לזכור: פעילות חריגה באופציות היא רק רמז אפשרי, לא הוכחה — היא יכולה גם לשקף גידור סיכונים רגיל ולא בהכרח "מידע פנימי" או תחזית.`,
+    en:`Options flow refers to tracking large or unusual options trades in the market, based on the idea that "informed" investors (like large institutions) sometimes make big options trades ahead of a significant price move. Worth remembering: unusual options activity is only a possible hint, not proof — it can also reflect ordinary risk hedging rather than necessarily "inside information" or a prediction.`,
+    related:['institutional-investors','options-basics'] },
+
+  { id:'earnings-season', cat:'advanced', kw:['earnings','earnings call','earnings season','earnings report','דוחות כספיים','עונת הדוחות','שיחת ועידה'],
+    he:`עונת הדוחות היא התקופה (בדרך כלל כמה שבועות אחרי סיום כל רבעון) שבה רוב החברות הציבוריות מפרסמות את התוצאות הכספיות הרבעוניות שלהן, ולרוב מקיימות גם "שיחת ועידה" (Earnings Call) עם אנליסטים. תגובת המניה ביום הדוח תלויה פחות ב"האם החברה הרוויחה" ויותר בהאם התוצאות וה-Guidance עמדו בציפיות השוק — ולכן אפשר לראות חברה רווחית שיורדת בחדות אם היא אכזבה ביחס לציפיות.`,
+    en:`Earnings season is the period (usually a few weeks after each quarter ends) when most public companies release their quarterly financial results, typically also holding an "earnings call" with analysts. The stock's reaction on earnings day depends less on "did the company make a profit" and more on whether the results and guidance met market expectations — which is why you can see a profitable company drop sharply if it disappointed relative to expectations.`,
+    related:['guidance','how-to-analyze'] },
+
+  { id:'stock-buybacks', cat:'advanced', kw:['stock buyback','share buyback','buybacks','רכישה עצמית','רכישת מניות חוזרת'],
+    he:`רכישה עצמית (Buyback) היא כשחברה קונה בחזרה את המניות שלה מהשוק ומבטלת אותן — כך שנשארות פחות מניות במחזור, ולכן ה-EPS (רווח למניה) עולה גם בלי שהרווח הכולל של החברה גדל. חברות מבצעות Buyback כשיש להן עודף מזומן ומאמינות שהמניה שלהן זולה, ולעיתים זו גם דרך "לתגמל" בעלי מניות בלי לחלק דיבידנד רשמי (שיש עליו לרוב חבות מס אחרת).`,
+    en:`A stock buyback is when a company buys back its own shares from the market and retires them — leaving fewer shares outstanding, so EPS rises even without the company's total profit increasing. Companies do buybacks when they have excess cash and believe their stock is cheap, and it's sometimes also a way to "reward" shareholders without paying a formal dividend (which usually has different tax treatment).`,
+    related:['eps','free-cash-flow'] },
+
+  { id:'insider-trading', cat:'advanced', kw:['insider trading','insider buying','insider selling','מסחר פנים','עסקאות פנים'],
+    he:`מסחר פנים (Insider Trading) הוא מסחר במניה מתוך שימוש במידע מהותי שאינו ציבורי, וזה בלתי חוקי. חשוב להבחין ממנו "Insider Buying/Selling" הלגיטימי והמדווח — עסקאות שמנהלים בכירים בחברה מבצעים במניית החברה שלהם עצמם, מדווחות באופן פומבי ובזמן, ומעקב אחריהן (במיוחד קניות משמעותיות של מנהלים) נחשב לעיתים אינדיקטור חיובי לביטחון ההנהלה בעתיד החברה.`,
+    en:`Insider trading is trading a stock using material non-public information, and it's illegal. It's important to distinguish this from legitimate, publicly disclosed "insider buying/selling" — trades company executives make in their own company's stock, reported publicly and on time — and tracking these (especially significant executive purchases) is sometimes seen as a positive indicator of management's confidence in the company's future.`,
+    related:['institutional-investors','guidance'] },
+
+  { id:'institutional-investors', cat:'advanced', kw:['institutional investors','institutions','משקיעים מוסדיים','גופים מוסדיים'],
+    he:`משקיעים מוסדיים הם גופים גדולים שמנהלים כספים בהיקפים עצומים — קרנות פנסיה, קרנות נאמנות, בתי השקעות, קרנות גידור וכו' — להבדיל ממשקיעים פרטיים. בגלל הגודל שלהם, הם מהווים חלק ניכר מנפח המסחר היומי ויכולים להשפיע משמעותית על מחיר מניה כשהם קונים או מוכרים כמויות גדולות בבת אחת.`,
+    en:`Institutional investors are large entities managing enormous sums of money — pension funds, mutual funds, investment firms, hedge funds, and so on — as distinct from individual retail investors. Because of their size, they account for a significant share of daily trading volume and can meaningfully move a stock's price when they buy or sell large quantities at once.`,
+    related:['market-makers','options-flow'] },
+
+  { id:'market-makers', cat:'advanced', kw:['market maker','market makers','עושי שוק'],
+    he:`עושה שוק (Market Maker) הוא גורם (בדרך כלל חברה מקצועית) שמתחייב לספק באופן רציף גם הצעות קנייה (Bid) וגם הצעות מכירה (Ask) עבור מניה מסוימת, כדי להבטיח שתמיד יהיה אפשר לסחור בה במהירות. עושי שוק מרוויחים מה-Spread הקטן שבין ה-Bid ל-Ask, ובכך תורמים לנזילות השוק — במיוחד חשוב עבור מניות שבלעדיהם היו סובלות ממסחר דליל ותנודתי במיוחד.`,
+    en:`A market maker is an entity (usually a professional firm) that commits to continuously providing both buy quotes (bid) and sell quotes (ask) for a given stock, ensuring it can always be traded quickly. Market makers profit from the small spread between the bid and ask, and in doing so contribute to market liquidity — especially important for stocks that would otherwise suffer from thin, especially volatile trading.`,
+    related:['bid-ask-spread','liquidity'] },
+
+  { id:'arbitrage', cat:'advanced', kw:['arbitrage','ארביטראז'],
+    he:`ארביטראז' הוא ניצול הפרש מחיר זמני של אותו נכס (או נכסים שקולים) בשני שווקים או צורות שונות, כדי לקנות בזול במקום אחד ולמכור ביוקר במקום אחר כמעט בו-זמנית, ברווח כמעט חסר סיכון. הזדמנויות ארביטראז' נוטות להיסגר מהר מאוד בשווקים נזילים ומפותחים, כי סוחרים מקצועיים (ולעיתים אלגוריתמים) מחפשים אותן באופן קבוע.`,
+    en:`Arbitrage is exploiting a temporary price difference of the same (or an equivalent) asset across two markets or forms, buying cheap in one place and selling higher in another almost simultaneously, for a nearly risk-free profit. Arbitrage opportunities tend to close very quickly in liquid, developed markets, because professional traders (and often algorithms) are constantly hunting for them.`,
+    related:['liquidity','market-makers'] },
+

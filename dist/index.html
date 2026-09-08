@@ -4,6 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chart Lab — Learn Technical Analysis on Real Price Action</title>
+<meta name="description" content="Chart Lab teaches technical and fundamental stock-market analysis on real price charts, in Hebrew and English, with an AI tutor that answers questions about concepts and specific companies.">
+<meta name="theme-color" content="#161B1F">
+<link rel="canonical" href="https://chart-lab.netlify.app/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Chart Lab — Learn Technical Analysis on Real Price Action">
+<meta property="og:description" content="Learn to read stock charts and analyze companies, in Hebrew and English, with an AI tutor built into every lesson.">
+<meta property="og:url" content="https://chart-lab.netlify.app/">
+<meta property="og:locale" content="he_IL">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chart Lab — Learn Technical Analysis on Real Price Action">
+<meta name="twitter:description" content="Learn to read stock charts and analyze companies, in Hebrew and English, with an AI tutor built into every lesson.">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
@@ -204,6 +217,116 @@
   .quiz-opt.wrong{border-color:var(--bear); background:var(--bear-dim);}
   .quiz-explain{font-size:13px; color:var(--text-muted); margin-top:8px; display:none;}
   .quiz-explain.show{display:block;}
+  /* Standalone Quiz view uses its OWN classes (quiz-view-opt/-explain),
+     deliberately distinct from quiz-opt/quiz-explain above — those are
+     also globally reset whenever the language toggle switches (see
+     setLang()), which would otherwise desync this view's button states
+     from its actual session state if someone switched language mid-quiz. */
+  .quiz-view-opt{
+    display:block; width:100%; text-align:start; margin-bottom:8px; padding:10px 14px;
+    border-radius:10px; border:1px solid var(--line); background:var(--bg-raise);
+    color:var(--text); font-family:inherit; font-size:13.5px; cursor:pointer;
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+  .quiz-view-opt:hover:not(:disabled){border-color:var(--gold);}
+  .quiz-view-opt:active:not(:disabled){transform:scale(0.99);}
+  .quiz-view-opt:disabled{cursor:default;}
+  .quiz-view-opt.right{border-color:var(--bull); background:var(--bull-dim);}
+  .quiz-view-opt.wrong{border-color:var(--bear); background:var(--bear-dim);}
+  .quiz-view-explain{font-size:13px; color:var(--text-muted); margin-top:8px; display:none; line-height:1.6;}
+  .quiz-view-explain.show{display:block;}
+  /* Calculators view */
+  .calc-body{padding:20px 4px; max-width:480px; margin:0 auto;}
+  .calc-field{margin-bottom:14px;}
+  .calc-field label{display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:5px;}
+  .calc-input{
+    width:100%; box-sizing:border-box; padding:9px 12px; border-radius:8px;
+    border:1px solid var(--line); background:var(--bg-raise); color:var(--text);
+    font-family:var(--mono); font-size:14px;
+  }
+  .calc-input:focus{outline:none; border-color:var(--gold);}
+  .calc-result{margin-top:20px; padding:16px; border-radius:12px; background:var(--bg-raise); border:1px solid var(--line);}
+  .calc-result-big{font-family:var(--mono); font-size:26px; font-weight:700; color:var(--text);}
+  .calc-result-line{font-size:13px; color:var(--text-muted); margin-top:4px;}
+  .calc-note{font-size:11.5px; color:var(--text-muted); margin-top:10px; line-height:1.5; font-style:italic;}
+  /* Lesson progress footer, appended to each existing lesson section via JS */
+  .lesson-progress-footer{margin-top:32px; padding-top:20px; border-top:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;}
+  .lesson-complete-btn{
+    padding:8px 18px; border-radius:20px; border:1px solid var(--line); background:var(--bg-raise);
+    color:var(--text-muted); font-size:13px; cursor:pointer; transition:all .15s ease;
+  }
+  .lesson-complete-btn:hover{border-color:var(--gold);}
+  .lesson-complete-btn.done{border-color:var(--bull); background:var(--bull-dim); color:var(--bull); font-weight:600;}
+  .lesson-progress-nav{display:flex; gap:14px; font-size:13px;}
+  .lesson-nav-arrow{color:var(--text-muted); text-decoration:none;}
+  .lesson-nav-arrow:hover{color:var(--gold);}
+  .lesson-nav a.lesson-done{position:relative;}
+  .lesson-nav a.lesson-done::after{content:'✓'; color:var(--bull); margin-inline-start:4px; font-weight:700;}
+  #lesson-progress-summary{font-family:var(--mono); font-size:11px; color:var(--text-muted); padding-inline-start:10px;}
+  /* Stock view */
+  .stock-search-box{display:flex; gap:10px; max-width:480px; margin:0 auto 20px;}
+  .stock-search-box .calc-input{flex:1;}
+  .stock-view-loading, .stock-view-empty{text-align:center; padding:30px; color:var(--text-muted); font-size:13.5px;}
+  .stock-view-demo-badge{
+    max-width:480px; margin:0 auto 12px; padding:6px 14px; border-radius:8px; text-align:center;
+    background:var(--gold-dim); border:1px solid var(--gold); color:var(--gold); font-size:12px; font-weight:600;
+  }
+  .stock-view-header{max-width:480px; margin:0 auto 16px; text-align:center;}
+  .stock-view-name{font-weight:700; font-size:16px; color:var(--text);}
+  .stock-view-price{font-family:var(--mono); font-size:26px; font-weight:700; color:var(--text); margin-top:4px;}
+  .stock-view-asof{font-size:11px; color:var(--text-muted); margin-top:4px;}
+  .stock-view-canvas{width:100%; max-width:720px; display:block; margin:0 auto 20px; border-radius:10px; border:1px solid var(--line);}
+  .stock-view-metrics{max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:10px;}
+  .stock-metric-row{padding:10px 14px; border-radius:10px; background:var(--bg-raise); border:1px solid var(--line);}
+  .stock-metric-label{font-size:12px; color:var(--text-muted);}
+  .stock-metric-value{font-family:var(--mono); font-size:17px; font-weight:700; color:var(--text); margin-top:2px;}
+  .stock-metric-note{font-size:11px; color:var(--text-muted); margin-top:3px;}
+  .stock-view-ask-ai{display:block; margin:20px auto 0; max-width:480px; width:100%;}
+  /* Comparison view */
+  .cmpview-inputs{display:flex; align-items:center; gap:10px; max-width:560px; margin:0 auto 20px; flex-wrap:wrap;}
+  .cmpview-inputs .calc-input{flex:1; min-width:140px;}
+  .cmpview-vs{color:var(--text-muted); font-size:12px; font-weight:600;}
+  .cmpview-header-row{display:grid; grid-template-columns:1fr auto 1fr; gap:10px; max-width:560px; margin:0 auto 8px; text-align:center;}
+  .cmpview-col-name{font-weight:700; font-size:14px; color:var(--text);}
+  .cmpview-row{display:grid; grid-template-columns:1fr auto 1fr; gap:10px; max-width:560px; margin:0 auto; padding:10px 0; border-top:1px solid var(--line); align-items:center; text-align:center;}
+  .cmpview-label{font-size:11.5px; color:var(--text-muted);}
+  .cmpview-val{font-family:var(--mono); font-size:15px; color:var(--text);}
+  .cmpview-val.ahead{color:var(--bull); font-weight:700;}
+  .cmpview-note{max-width:560px; margin:14px auto 0; font-size:11.5px; color:var(--text-muted); font-style:italic; text-align:center;}
+  /* App navigation menu — stacked above the AI FAB */
+  .app-nav-wrap{position:fixed; left:24px; bottom:92px; z-index:60;}
+  .app-nav-fab{
+    width:46px; height:46px; border-radius:50%; background:var(--bg-raise); color:var(--text);
+    border:1px solid var(--line); cursor:pointer; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 20px -6px rgba(0,0,0,0.5); transition:transform .15s ease;
+  }
+  .app-nav-fab:hover{transform:scale(1.06); border-color:var(--gold);}
+  .app-nav-fab svg{width:19px; height:19px;}
+  .app-nav-menu{
+    position:absolute; bottom:56px; left:0; display:none; flex-direction:column; gap:6px;
+    background:var(--bg-raise); border:1px solid var(--line); border-radius:12px; padding:8px;
+    box-shadow:0 12px 28px -10px rgba(0,0,0,0.55); min-width:150px;
+  }
+  .app-nav-menu.open{display:flex;}
+  .app-nav-menu button{
+    text-align:start; padding:8px 12px; border-radius:8px; border:none; background:none;
+    color:var(--text); font-size:13px; cursor:pointer; font-family:inherit;
+  }
+  .app-nav-menu button:hover{background:var(--bg); color:var(--gold);}
+  @media (max-width:640px){ .app-nav-wrap{left:16px; bottom:84px;} .ai-fab{left:16px;} }
+  /* Standalone Quiz view (reuses .quiz-opt/.quiz-explain above for the
+     actual question styling — this is just the surrounding view chrome). */
+  .quiz-body{padding:20px 4px; max-width:640px; margin:0 auto;}
+  .quiz-title{font-weight:700; font-size:17px; color:var(--text);}
+  .quiz-subtitle{font-size:12px; color:var(--text-muted); margin-top:2px;}
+  .quiz-progress{font-family:var(--mono); font-size:12px; color:var(--text-muted); margin-bottom:10px;}
+  .quiz-next-btn{
+    margin-top:12px; padding:9px 20px; border-radius:20px; border:1px solid var(--gold);
+    background:var(--gold); color:#1a1305; font-weight:700; font-size:13.5px; cursor:pointer;
+  }
+  .quiz-results{text-align:center; padding:40px 0;}
+  .quiz-results-score{font-family:var(--mono); font-size:40px; font-weight:700; color:var(--text);}
+  .quiz-results-percent{font-size:15px; color:var(--text-muted); margin-top:4px;}
 
   .compare-row{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:20px;}
   @media (max-width:640px){ .compare-row{grid-template-columns:1fr;} }
@@ -354,26 +477,26 @@
      TradingView's widgets are built for a wide dashboard panel, not an
      80%-width chat bubble, so this opens above everything at full viewport
      size instead of expanding inline in the chat thread. */
-  .stock-detail-overlay{
+  .app-overlay{
     position:fixed; inset:0; z-index:200; background:var(--bg);
     display:flex; flex-direction:column;
     opacity:0; pointer-events:none; transform:translateY(10px);
     transition:opacity .22s ease, transform .22s ease;
   }
-  .stock-detail-overlay.open{opacity:1; pointer-events:auto; transform:translateY(0);}
-  .stock-detail-header{
+  .app-overlay.open{opacity:1; pointer-events:auto; transform:translateY(0);}
+  .app-overlay-header{
     display:flex; align-items:flex-start; gap:14px; padding:18px 18px 14px;
     border-bottom:1px solid var(--line); flex-shrink:0;
     background:linear-gradient(180deg, var(--bg-raise), var(--bg));
   }
-  .stock-detail-close{
+  .app-overlay-close{
     width:34px; height:34px; border-radius:50%; border:1px solid var(--line);
     background:var(--bg-raise); color:var(--text); font-size:20px; line-height:1;
     display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
     transition:background .15s ease, transform .15s ease;
   }
-  .stock-detail-close:hover{background:var(--bear-dim); color:var(--bear); transform:rotate(90deg);}
-  .stock-detail-title{flex:1; min-width:0;}
+  .app-overlay-close:hover{background:var(--bear-dim); color:var(--bear); transform:rotate(90deg);}
+  .app-overlay-title{flex:1; min-width:0;}
   .stock-detail-name{font-weight:700; font-size:17px; color:var(--text);}
   .stock-detail-ticker{
     font-family:var(--mono); font-size:11px; color:var(--text-muted); font-weight:500;
@@ -381,23 +504,23 @@
     padding:2px 7px; border-radius:6px; vertical-align:middle;
   }
   .stock-detail-price{font-family:var(--mono); font-size:21px; font-weight:700; color:var(--text); margin-top:6px; display:flex; align-items:baseline; gap:10px; letter-spacing:-0.3px;}
-  .stock-detail-tabs{
+  .app-overlay-tabs{
     display:flex; gap:6px; padding:12px 14px; overflow-x:auto; flex-shrink:0;
     border-bottom:1px solid var(--line);
     scrollbar-width:none;
   }
-  .stock-detail-tabs::-webkit-scrollbar{display:none;}
-  .stock-detail-tab{
+  .app-overlay-tabs::-webkit-scrollbar{display:none;}
+  .app-overlay-tab{
     padding:8px 18px; border-radius:20px; border:1px solid var(--line);
     background:var(--bg-raise); color:var(--text-muted); font-size:13.5px;
     font-family:inherit; white-space:nowrap; cursor:pointer; flex-shrink:0;
     transition:background .18s ease, color .18s ease, border-color .18s ease, transform .12s ease;
   }
-  .stock-detail-tab:hover{border-color:var(--gold); color:var(--text);}
-  .stock-detail-tab.active{background:var(--gold); border-color:var(--gold); color:#1a1305; font-weight:700;}
-  .stock-detail-tab:active{transform:scale(0.96);}
-  .stock-detail-content{flex:1; min-height:0; position:relative;}
-  .stock-detail-pane{height:100%; overflow:auto; position:relative; animation:stockPaneIn .22s ease;}
+  .app-overlay-tab:hover{border-color:var(--gold); color:var(--text);}
+  .app-overlay-tab.active{background:var(--gold); border-color:var(--gold); color:#1a1305; font-weight:700;}
+  .app-overlay-tab:active{transform:scale(0.96);}
+  .app-overlay-content{flex:1; min-height:0; position:relative;}
+  .app-overlay-pane{height:100%; overflow:auto; position:relative; animation:stockPaneIn .22s ease;}
   .stock-detail-widget-slot{height:100%;}
   .stock-detail-widget-slot .tradingview-widget-container,
   .stock-detail-widget-slot .tradingview-widget-container__widget{height:100%;}
@@ -415,12 +538,12 @@
   }
   @keyframes stockSpin{to{transform:rotate(360deg);}}
   @media (min-width:820px){
-    .stock-detail-header{padding:24px 32px 18px;}
-    .stock-detail-tabs{padding:14px 32px;}
-    .stock-detail-content{padding:0 32px 24px; max-width:1100px; margin:0 auto; width:100%; box-sizing:border-box;}
+    .app-overlay-header{padding:24px 32px 18px;}
+    .app-overlay-tabs{padding:14px 32px;}
+    .app-overlay-content{padding:0 32px 24px; max-width:1100px; margin:0 auto; width:100%; box-sizing:border-box;}
     .stock-detail-name{font-size:21px;}
     .stock-detail-price{font-size:26px;}
-    .stock-detail-tab{padding:9px 22px; font-size:14px;}
+    .app-overlay-tab{padding:9px 22px; font-size:14px;}
   }
   .ai-header{
     display:flex; align-items:center; gap:12px; padding:14px 20px; flex:none;
@@ -522,6 +645,7 @@
     <a href="#l5" data-navlbl="nav5" data-i18n="nav5">Fibonacci</a>
     <a href="#l6" data-navlbl="nav6" data-i18n="nav6">RSI</a>
     <a href="#l7" data-navlbl="nav7" data-i18n="nav7">Chart Patterns</a>
+    <span id="lesson-progress-summary"></span>
   </div>
 </nav>
 
@@ -947,8 +1071,21 @@
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
 </button>
 
+<!-- App navigation: floating menu linking Stock/Compare/Calculators/Quiz -->
+<div class="app-nav-wrap">
+  <button class="app-nav-fab" id="app-nav-fab" aria-label="Menu" title="Menu" onclick="toggleAppNavMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+  <div class="app-nav-menu" id="app-nav-menu">
+    <button onclick="navigateTo('stock'); closeAppNavMenu();" data-i18n="navStock">Stock Search</button>
+    <button onclick="navigateTo('compare'); closeAppNavMenu();" data-i18n="navCompare">Compare</button>
+    <button onclick="navigateTo('calculators'); closeAppNavMenu();" data-i18n="navCalculators">Calculators</button>
+    <button onclick="navigateTo('quiz'); closeAppNavMenu();" data-i18n="navQuiz">Quiz</button>
+  </div>
+</div>
+
 <!-- AI assistant: floating launcher -->
-<button class="ai-fab" id="ai-fab" onclick="openAiChat()" data-i18n-aria="aiFabLabel" aria-label="AI assistant" title="AI assistant">
+<button class="ai-fab" id="ai-fab" onclick="navigateTo('ai')" data-i18n-aria="aiFabLabel" aria-label="AI assistant" title="AI assistant">
   <span class="ai-dot"></span>
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12 3l1.6 3.9L17.5 8.5l-3.9 1.6L12 14l-1.6-3.9L6.5 8.5l3.9-1.6L12 3z"/>
@@ -959,7 +1096,7 @@
 <!-- AI assistant: full-screen chat -->
 <div class="ai-overlay" id="ai-overlay" role="dialog" aria-modal="true">
   <div class="ai-header">
-    <button class="ai-back" onclick="closeAiChat()" data-i18n-aria="aiBackLabel" aria-label="Back to site" title="Back to site">
+    <button class="ai-back" onclick="navigateTo('')" data-i18n-aria="aiBackLabel" aria-label="Back to site" title="Back to site">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     </button>
     <div class="ai-htext">
@@ -995,6 +1132,1286 @@
 </div>
 
 <script>
+// ---------------------------------------------------------------------------
+// Persistence layer.
+//
+// Before this file, the project had exactly two raw localStorage calls
+// (theme get/set), each wrapped in its own try/catch. That doesn't scale:
+// every future feature that needs to remember something (learning progress,
+// quiz scores, watchlist, streaks) would repeat the same namespacing,
+// JSON-parsing, and private-browsing-safety boilerplate.
+//
+// This is that boilerplate, written once. It is deliberately NOT a
+// key-value store with arbitrary feature-specific logic baked in — it
+// knows nothing about progress or quizzes. Each feature owns its own slice
+// of state and its own shape; this only owns getting bytes in and out of
+// localStorage safely.
+//
+// Namespacing: every key is prefixed `chartlab:v1:` so a future breaking
+// change to what's stored can bump the version without colliding with old
+// data, and so this app's keys can never collide with anything else that
+// might share the origin.
+// ---------------------------------------------------------------------------
+const STORAGE_PREFIX = 'chartlab:v1:';
+
+function storageAvailable(){
+  try{
+    const testKey = STORAGE_PREFIX + '__test__';
+    localStorage.setItem(testKey, '1');
+    localStorage.removeItem(testKey);
+    return true;
+  }catch(e){
+    // Private browsing in some browsers throws on any localStorage access;
+    // the app must keep working with state simply not persisting.
+    return false;
+  }
+}
+
+function storageGet(key, fallback, isValidShape){
+  if(!storageAvailable()) return fallback;
+  try{
+    const raw = localStorage.getItem(STORAGE_PREFIX + key);
+    if(raw == null) return fallback;
+    const parsed = JSON.parse(raw);
+    // A shape validator is optional (most callers just want "did this
+    // parse at all"), but for anything a feature later .push()es into or
+    // does arithmetic on, a value that parsed fine but has the wrong
+    // shape — hand-edited, from an older schema, or corrupted some other
+    // way — is just as dangerous as invalid JSON. Falling back to the
+    // caller's default here means every accessor gets this for free
+    // rather than each one needing its own defensive checks.
+    if(isValidShape && !isValidShape(parsed)) return fallback;
+    return parsed;
+  }catch(e){
+    return fallback;
+  }
+}
+
+function storageSet(key, value){
+  if(!storageAvailable()) return false;
+  try{
+    localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value));
+    return true;
+  }catch(e){
+    // Quota exceeded or blocked — the app must not throw over a failed save.
+    return false;
+  }
+}
+
+function storageRemove(key){
+  if(!storageAvailable()) return false;
+  try{
+    localStorage.removeItem(STORAGE_PREFIX + key);
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+// Lists every key this app has stored (with the prefix stripped), for a
+// future "clear my data" settings control.
+function storageListKeys(){
+  if(!storageAvailable()) return [];
+  const keys = [];
+  for(let i = 0; i < localStorage.length; i++){
+    const k = localStorage.key(i);
+    if(k && k.indexOf(STORAGE_PREFIX) === 0) keys.push(k.slice(STORAGE_PREFIX.length));
+  }
+  return keys;
+}
+
+// ---------------------------------------------------------------------------
+// Namespaced accessors. Each feature gets one function pair here rather
+// than calling storageGet/Set directly with a hand-typed key string
+// elsewhere in the codebase — this is the one place key names are defined.
+// ---------------------------------------------------------------------------
+function getThemePreference(){ return storageGet('theme', null); }
+function setThemePreference(value){ return storageSet('theme', value); }
+
+function getLanguagePreference(){ return storageGet('lang', null); }
+function setLanguagePreference(value){ return storageSet('lang', value); }
+
+// ---------------------------------------------------------------------------
+// Lesson progress — { completed: [lessonId, ...], lastVisited: lessonId }.
+// `completed` is a plain array, not a Set (JSON-safe), and callers should
+// treat it as unordered — dedupe on write, never assume order matters.
+// ---------------------------------------------------------------------------
+function isValidLessonProgress(v){
+  return !!v && typeof v === 'object'
+    && Array.isArray(v.completed) && v.completed.every(x => typeof x === 'string')
+    && (v.lastVisited === null || typeof v.lastVisited === 'string');
+}
+function getLessonProgress(){ return storageGet('lessonProgress', { completed: [], lastVisited: null }, isValidLessonProgress); }
+function setLessonProgress(progress){ return storageSet('lessonProgress', progress); }
+function markLessonComplete(lessonId){
+  const progress = getLessonProgress();
+  if(!progress.completed.includes(lessonId)) progress.completed.push(lessonId);
+  progress.lastVisited = lessonId;
+  setLessonProgress(progress);
+  return progress;
+}
+
+// ---------------------------------------------------------------------------
+// Quiz progress — { bestScore: {correct,total,percent} | null, attempts: n,
+// lastAttemptAt: ISO string | null }. Deliberately just the summary a
+// "your best score" UI needs, not a log of every historical attempt (that
+// would grow unbounded) — extend this shape if per-attempt history is ever
+// genuinely needed, don't build it speculatively now.
+// ---------------------------------------------------------------------------
+function isValidQuizProgress(v){
+  if(!v || typeof v !== 'object') return false;
+  if(typeof v.attempts !== 'number' || !Number.isFinite(v.attempts)) return false;
+  if(v.bestScore !== null){
+    if(!v.bestScore || typeof v.bestScore !== 'object') return false;
+    if(typeof v.bestScore.percent !== 'number' || !Number.isFinite(v.bestScore.percent)) return false;
+  }
+  return true;
+}
+function getQuizProgress(){ return storageGet('quizProgress', { bestScore: null, attempts: 0, lastAttemptAt: null }, isValidQuizProgress); }
+function setQuizProgress(progress){ return storageSet('quizProgress', progress); }
+function recordQuizAttempt(score){
+  const progress = getQuizProgress();
+  progress.attempts += 1;
+  progress.lastAttemptAt = new Date().toISOString();
+  if(!progress.bestScore || score.percent > progress.bestScore.percent){
+    progress.bestScore = { correct: score.correct, total: score.total, percent: score.percent };
+  }
+  setQuizProgress(progress);
+  return progress;
+}
+
+// Reserved for the next features (not yet built — see docs/CLAUDE.md P1):
+//   getLearningProgress() / setLearningProgress(progress)
+//   getQuizResults() / setQuizResults(results)
+//   getWatchlist() / setWatchlist(tickers)
+//   getStreak() / setStreak(streak)
+// Each should follow the same get/set-by-name pattern above once its data
+// shape is actually designed, rather than being stubbed out speculatively
+// now.
+
+// ---------------------------------------------------------------------------
+// escapeHtml — the one place dynamic strings get made safe for innerHTML.
+//
+// Several feature views (Stock View, Compare, Quiz, Calculators) build
+// their markup with innerHTML template literals for simplicity and
+// readability, then interpolate values that are NOT always static: a
+// user's search text, an API-supplied company name (Twelve Data's
+// `instrument_name`), or an assembled list of user-typed queries. None of
+// that is trusted input — a search box is exactly where an attacker (or a
+// prefilled/shared link) would put markup, and it was confirmed to become
+// live DOM with intact event-handler attributes before this fix existed.
+//
+// This does NOT replace innerHTML with textContent/DOM-building everywhere
+// — the brief is explicit about preserving the existing UI and behavior,
+// and a full rewrite of five view files' rendering approach is a much
+// larger, riskier change than the actual problem calls for. Escaping every
+// dynamic value at the point it's interpolated closes the hole with the
+// UI, structure, and behavior completely unchanged.
+//
+// Static, hand-written template text (labels, CSS classes, the literal
+// HTML structure itself) is never passed through this — only values that
+// originate from the user or an external API.
+// ---------------------------------------------------------------------------
+function escapeHtml(value){
+  if(value == null) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ---------------------------------------------------------------------------
+// Minimal hash-based router.
+//
+// Scope for this phase, deliberately: real infrastructure that other views
+// can register against, wired up for ONE real route (the AI assistant) as
+// proof it works — not a full migration of the existing 8 lessons into
+// separate routed pages. That's a larger, separate, higher-risk change
+// (touches working content) and belongs to its own phase; see CLAUDE.md
+// "recommended implementation order". Building the router now, and proving
+// it with a low-risk route, is what makes that later migration cheap when
+// it happens instead of starting from nothing.
+//
+// Hash-based (not History API) on purpose: this is a static site with no
+// server-side rewrite rules, deployed via drag-and-drop or a static
+// Netlify publish directory. A path-based router would 404 on refresh for
+// any route but "/" without a `_redirects`/rewrite rule; hash routes never
+// hit the server at all, so they need none.
+// ---------------------------------------------------------------------------
+const routerRegistry = {}; // path -> { onEnter, onLeave }
+let routerCurrentPath = null;
+
+function registerRoute(path, handlers){
+  routerRegistry[path] = handlers || {};
+}
+
+function navigateTo(path){
+  // Dispatch immediately — callers (a click handler, this file's own
+  // tests, any future code) need the route change to take effect
+  // synchronously, not whenever a hashchange event happens to fire. The
+  // hash is still updated for shareable/deep-linkable URLs and so the
+  // browser's own back/forward buttons work; the hashchange listener
+  // below is what handles THOSE (browser-initiated) navigations, and
+  // checks routerCurrentPath so it never double-dispatches for a
+  // navigation that came from this function.
+  if(location.hash.slice(1) !== path) location.hash = path;
+  routerDispatch(path);
+}
+
+function routerDispatch(path){
+  // A no-op if we're already on this exact path — this is what actually
+  // prevents double-dispatch, not just the comment in navigateTo() that
+  // used to claim it. Setting location.hash schedules an async native
+  // 'hashchange' event IN ADDITION TO navigateTo()'s own synchronous
+  // dispatch; without this guard, that delayed event calls onEnter a
+  // second time for the same route once it fires. For a route like the AI
+  // assistant, which just re-shows an already-open overlay, that's
+  // harmless — but for a route that rebuilds its content each time it's
+  // entered (Stock View, Compare, Quiz), the second onEnter call replaces
+  // the DOM mid-flight, silently discarding whatever the user had just
+  // done (a search result lands in a now-detached element). Confirmed as
+  // a real bug this way, not a hypothetical: typing a search and clicking
+  // "Compare" produced a correct answer that was rendered into a node no
+  // longer attached to the page a moment later.
+  if(routerCurrentPath === path) return;
+  if(routerCurrentPath){
+    const leaving = routerRegistry[routerCurrentPath];
+    if(leaving && typeof leaving.onLeave === 'function') leaving.onLeave();
+  }
+  routerCurrentPath = path;
+  const entering = routerRegistry[path];
+  if(entering && typeof entering.onEnter === 'function') entering.onEnter();
+}
+
+function routerInit(){
+  const handleChange = () => {
+    const path = location.hash.slice(1) || '';
+    routerDispatch(path);
+  };
+  window.addEventListener('hashchange', handleChange);
+  handleChange(); // handle a route present in the URL on first load (deep link)
+}
+
+// ---------------------------------------------------------------------------
+// Reusable calculation utilities — pure functions, no UI, no formatting.
+//
+// Extracted so the chat-based calculator (matching-engine.js's
+// tryCalculators, which parses "if I invest $10k at 7% for 20 years" out of
+// free text) and the dedicated Calculators view (a real form with inputs)
+// share ONE implementation of each formula instead of two that could drift
+// apart — the same "one source of truth" principle already applied to
+// design tokens and the KB/engine split.
+//
+// Every function here returns numbers/plain objects only — the caller
+// decides how to format or phrase the result, in whichever language.
+// ---------------------------------------------------------------------------
+
+// Future value with optional regular contributions, added at the END of
+// each year (a conservative, commonly-used convention). With
+// contributionPerYear=0 this is plain compound interest.
+function compoundInterest(principal, ratePct, years, contributionPerYear){
+  contributionPerYear = contributionPerYear || 0;
+  const rate = ratePct / 100;
+  let balance = principal;
+  const yearlyBalances = [balance];
+  for(let y = 1; y <= years; y++){
+    balance = balance * (1 + rate) + contributionPerYear;
+    yearlyBalances.push(balance);
+  }
+  const totalContributed = principal + contributionPerYear * years;
+  return {
+    futureValue: balance,
+    totalContributed,
+    totalGrowth: balance - totalContributed,
+    yearlyBalances // for a simple chart/table in the UI
+  };
+}
+
+// Dollar-cost averaging: investing a fixed amount at regular intervals
+// rather than all at once. This is an ILLUSTRATIVE average-return model
+// (a constant assumed annual return, compounded per period), not a
+// simulation of real historical volatility — the UI must say so; this
+// function only does the arithmetic.
+function dollarCostAverage(amountPerPeriod, numberOfPeriods, annualReturnPct, periodsPerYear){
+  periodsPerYear = periodsPerYear || 12; // default: monthly contributions
+  const periodRate = (annualReturnPct / 100) / periodsPerYear;
+  let balance = 0;
+  const balances = [0];
+  for(let p = 1; p <= numberOfPeriods; p++){
+    balance = balance * (1 + periodRate) + amountPerPeriod;
+    balances.push(balance);
+  }
+  const totalContributed = amountPerPeriod * numberOfPeriods;
+  return {
+    futureValue: balance,
+    totalContributed,
+    totalGrowth: balance - totalContributed,
+    balances
+  };
+}
+
+// Simple percentage return between two values (price, portfolio value,
+// anything). Handles a zero/negative starting value explicitly rather than
+// returning Infinity/NaN silently.
+function percentageReturn(initialValue, finalValue){
+  if(initialValue === 0) return { validInput: false, reason: 'zero_initial_value' };
+  const absoluteChange = finalValue - initialValue;
+  const percentChange = (absoluteChange / Math.abs(initialValue)) * 100;
+  return { validInput: true, absoluteChange, percentChange };
+}
+
+// Profit/loss on a trade, including optional fees on both legs. Returns
+// null-safe zeros rather than throwing on missing fee arguments.
+function profitLoss(buyPrice, sellPrice, shares, buyFees, sellFees){
+  buyFees = buyFees || 0;
+  sellFees = sellFees || 0;
+  const totalCost = buyPrice * shares + buyFees;
+  const totalProceeds = sellPrice * shares - sellFees;
+  const netProfitLoss = totalProceeds - totalCost;
+  const percentReturn = totalCost !== 0 ? (netProfitLoss / totalCost) * 100 : null;
+  return { totalCost, totalProceeds, netProfitLoss, percentReturn };
+}
+
+// P/E ratio and dividend yield — already existed inline in
+// matching-engine.js's tryCalculators; extracted here so that code and any
+// future Calculators-view "quick metric" tool share one implementation.
+function peRatio(price, eps){
+  if(eps <= 0 || price <= 0) return { validInput: false };
+  return { validInput: true, pe: price / eps };
+}
+function dividendYield(price, annualDividendPerShare){
+  if(price <= 0 || annualDividendPerShare < 0) return { validInput: false };
+  return { validInput: true, yieldPct: (annualDividendPerShare / price) * 100 };
+}
+
+// ---------------------------------------------------------------------------
+// Quiz question bank — pure data. Adding a question means adding an object
+// here; the engine and UI never need to change. Every question tests
+// understanding of something the site actually teaches (KB entries, lesson
+// content) — not disconnected trivia.
+//
+// Shape:
+//   id: unique string
+//   category: matches the site's existing lesson/KB groupings loosely
+//   difficulty: 'beginner' | 'intermediate'
+//   question: {he, en}
+//   options: [{key, text:{he,en}}] — always 4, key is 'a'..'d'
+//   correctKey: which option is right
+//   explanation: {he, en} — shown after answering, whether right or wrong
+// ---------------------------------------------------------------------------
+const QUIZ_QUESTIONS = [
+  {
+    id:'q-pe-1', category:'fundamentals', difficulty:'beginner',
+    question:{ he:'מכפיל רווח (P/E) גבוה במיוחד בהשוואה לענף עשוי להעיד על מה?', en:'A P/E ratio much higher than the industry average most likely suggests what?' },
+    options:[
+      { key:'a', text:{ he:'החברה בהכרח על סף פשיטת רגל', en:'The company is necessarily close to bankruptcy' } },
+      { key:'b', text:{ he:'המשקיעים מצפים לצמיחה גבוהה, או שהמניה יקרה יחסית לרווחיה', en:'Investors expect high growth, or the stock is expensive relative to its earnings' } },
+      { key:'c', text:{ he:'החברה לא מרוויחה כסף בכלל', en:'The company isn\'t making any money at all' } },
+      { key:'d', text:{ he:'המניה בטוחה יותר מאשר מניה עם P/E נמוך', en:'The stock is safer than one with a lower P/E' } }
+    ],
+    correctKey:'b',
+    explanation:{ he:'P/E גבוה אומר שהשוק משלם הרבה יחסית לרווח הנוכחי — לרוב כי מצפים לצמיחה מהירה, אבל זה גם אומר פחות מרווח לטעות אם הצמיחה לא תגיע.', en:'A high P/E means the market is paying a lot relative to current earnings — usually because fast growth is expected, but it also means less room for error if that growth doesn\'t show up.' }
+  },
+  {
+    id:'q-rsi-1', category:'technical', difficulty:'beginner',
+    question:{ he:'RSI מעל 70 בדרך כלל נחשב:', en:'An RSI above 70 is generally considered:' },
+    options:[
+      { key:'a', text:{ he:'קניית יתר (Overbought)', en:'Overbought' } },
+      { key:'b', text:{ he:'מכירת יתר (Oversold)', en:'Oversold' } },
+      { key:'c', text:{ he:'איתות קנייה חד-משמעי', en:'An unambiguous buy signal' } },
+      { key:'d', text:{ he:'סימן שהחברה פושטת רגל', en:'A sign the company is going bankrupt' } }
+    ],
+    correctKey:'a',
+    explanation:{ he:'RSI מעל 70 נחשב "קניית יתר" — לא הבטחה לירידה, אלא רמז שהמומנטום הקצר היה חזק מאוד ואולי מוגזם.', en:'Above 70 is considered "overbought" — not a guarantee of a drop, just a hint that short-term momentum has been very strong, possibly overextended.' }
+  },
+  {
+    id:'q-diversification-1', category:'risk', difficulty:'beginner',
+    question:{ he:'הפיזור (דיברסיפיקציה) בתיק השקעות עוזר בעיקר להקטין איזה סוג סיכון?', en:'Diversification in a portfolio mainly helps reduce which kind of risk?' },
+    options:[
+      { key:'a', text:{ he:'הסיכון הספציפי לחברה בודדת', en:'The risk specific to a single company' } },
+      { key:'b', text:{ he:'הסיכון של השוק כולו לרדת', en:'The risk of the entire market falling' } },
+      { key:'c', text:{ he:'אין לפיזור שום השפעה על סיכון', en:'Diversification has no effect on risk' } },
+      { key:'d', text:{ he:'הסיכון שהברוקר שלך ייסגר', en:'The risk of your broker shutting down' } }
+    ],
+    correctKey:'a',
+    explanation:{ he:'פיזור מקטין את הסיכון הספציפי לחברה בודדת (למשל דוחות גרועים) — אבל לא מגן מפני ירידה כללית של כל השוק (סיכון שיטתי).', en:'Diversification reduces the risk specific to any one company (e.g. a bad earnings report) — it does not protect against the whole market falling together (systematic risk).' }
+  },
+  {
+    id:'q-support-1', category:'technical', difficulty:'beginner',
+    question:{ he:'מה קורה כשמחיר "שובר" רמת תמיכה משמעותית?', en:'What typically happens when price "breaks" a significant support level?' },
+    options:[
+      { key:'a', text:{ he:'התמיכה תמיד עוצרת את המחיר לחלוטין', en:'Support always stops the price completely' } },
+      { key:'b', text:{ he:'הרמה עלולה להפוך להתנגדות, ולעיתים זה מרמז על המשך ירידה', en:'The level can flip into resistance, and it often hints at further decline' } },
+      { key:'c', text:{ he:'המניה מפסיקת להיסחר', en:'The stock stops trading' } },
+      { key:'d', text:{ he:'זה תמיד איתות קנייה', en:'It\'s always a buy signal' } }
+    ],
+    correctKey:'b',
+    explanation:{ he:'שבירת תמיכה יכולה לרמז על המשך ירידה, והרמה שנשברה הופכת לעיתים לרמת התנגדות חדשה. אבל תבניות מחיר הן רמזי הסתברות, לא ערבויות.', en:'Breaking support can hint at further decline, and the broken level often flips into a new resistance level. But price patterns are probabilistic hints, not guarantees.' }
+  },
+  {
+    id:'q-diversif-2', category:'basics', difficulty:'beginner',
+    question:{ he:'ETF שעוקב אחרי מדד רחב (כמו S&P 500) שונה מקנייה של מניה בודדת בעיקר ב:', en:'A broad-index ETF (like the S&P 500) differs from buying a single stock mainly in that it:' },
+    options:[
+      { key:'a', text:{ he:'תמיד מניב תשואה גבוהה יותר', en:'Always returns more' } },
+      { key:'b', text:{ he:'מפזר את החשיפה על פני עשרות/מאות חברות בבת אחת', en:'Spreads exposure across dozens or hundreds of companies at once' } },
+      { key:'c', text:{ he:'לא ניתן למכור אותו בשוק הפתוח', en:'Can\'t be sold on the open market' } },
+      { key:'d', text:{ he:'מובטח על ידי הממשלה', en:'Is government-guaranteed' } }
+    ],
+    correctKey:'b',
+    explanation:{ he:'ה-ETF עצמו לא מבטיח תשואה גבוהה יותר — היתרון המרכזי הוא פיזור מיידי, שמקטין את הסיכון שקשור לחברה בודדת.', en:'The ETF itself doesn\'t guarantee a higher return — its main advantage is instant diversification, which reduces single-company risk.' }
+  },
+  {
+    id:'q-volatility-1', category:'risk', difficulty:'intermediate',
+    question:{ he:'תנודתיות (Volatility) גבוהה במניה אומרת בעיקר:', en:'High volatility in a stock mainly means:' },
+    options:[
+      { key:'a', text:{ he:'המחיר תמיד יורד', en:'The price is always falling' } },
+      { key:'b', text:{ he:'המחיר נע בטווח רחב יחסית, בשני הכיוונים', en:'The price moves through a relatively wide range, in both directions' } },
+      { key:'c', text:{ he:'החברה בהכרח מסוכנת מבחינה עסקית', en:'The company is necessarily risky as a business' } },
+      { key:'d', text:{ he:'אי אפשר לחשב אותה', en:'It can\'t be calculated' } }
+    ],
+    correctKey:'b',
+    explanation:{ he:'תנודתיות מודדת את גודל התנועות, לא את הכיוון שלהן — מניה תנודתית יכולה לעלות חזק בדיוק כמו שהיא יכולה לרדת חזק.', en:'Volatility measures the SIZE of moves, not their direction — a volatile stock can rally hard just as easily as it can drop hard.' }
+  },
+  {
+    id:'q-macd-1', category:'technical', difficulty:'intermediate',
+    question:{ he:'MACD בנוי בעיקר מההפרש בין:', en:'MACD is built mainly from the difference between:' },
+    options:[
+      { key:'a', text:{ he:'שני ממוצעים נעים אקספוננציאליים (בדרך כלל 12 ו-26)', en:'Two exponential moving averages (typically 12 and 26)' } },
+      { key:'b', text:{ he:'המחיר הגבוה והנמוך ביותר בשנה', en:'The highest and lowest price of the year' } },
+      { key:'c', text:{ he:'הכנסות והוצאות החברה', en:'The company\'s revenue and expenses' } },
+      { key:'d', text:{ he:'נפח המסחר של אתמול והיום', en:'Yesterday\'s and today\'s trading volume' } }
+    ],
+    correctKey:'a',
+    explanation:{ he:'MACD מבוסס על ההפרש בין שני ממוצעים נעים אקספוננציאליים בטווחי זמן שונים, ומשמש בעיקר למדידת מומנטום ושינויים בכיוון המגמה.', en:'MACD is based on the difference between two exponential moving averages over different timeframes, mainly used to gauge momentum and shifts in trend direction.' }
+  },
+  {
+    id:'q-bond-1', category:'bonds', difficulty:'beginner',
+    question:{ he:'כשריבית הבנק המרכזי עולה, מה קורה בדרך כלל למחיר של אג"ח קיימות עם ריבית קבועה?', en:'When central bank interest rates rise, what typically happens to the price of existing fixed-rate bonds?' },
+    options:[
+      { key:'a', text:{ he:'המחיר עולה', en:'The price rises' } },
+      { key:'b', text:{ he:'המחיר יורד', en:'The price falls' } },
+      { key:'c', text:{ he:'אין שום קשר בין השניים', en:'There\'s no relationship at all' } },
+      { key:'d', text:{ he:'האג"ח מפסיקה לשלם ריבית', en:'The bond stops paying interest' } }
+    ],
+    correctKey:'b',
+    explanation:{ he:'מחירי אג"ח וריביות נעים בכיוונים הפוכים: כשריביות חדשות עולות, אג"ח ישנות עם ריבית קבועה נמוכה יותר נעשות פחות אטרקטיביות, ומחירן יורד כדי לפצות על כך.', en:'Bond prices and interest rates move inversely: when new rates rise, older fixed-rate bonds paying a lower rate become less attractive, so their price falls to compensate.' }
+  },
+  {
+    id:'q-marketcap-1', category:'fundamentals', difficulty:'beginner',
+    question:{ he:'שווי שוק (Market Cap) של חברה מחושב כ:', en:'A company\'s market cap is calculated as:' },
+    options:[
+      { key:'a', text:{ he:'מחיר המניה כפול מספר המניות במחזור', en:'Share price times the number of shares outstanding' } },
+      { key:'b', text:{ he:'סך ההכנסות השנתיות של החברה', en:'The company\'s total annual revenue' } },
+      { key:'c', text:{ he:'סך המזומן בקופת החברה', en:'The total cash on the company\'s balance sheet' } },
+      { key:'d', text:{ he:'הרווח הנקי כפול 10', en:'Net profit times 10' } }
+    ],
+    correctKey:'a',
+    explanation:{ he:'שווי שוק = מחיר המניה × מספר המניות במחזור. זו הדרך הנפוצה להשוות "גודל" בין חברות שונות, גם אם מחיר המניה עצמו שונה מאוד.', en:'Market cap = share price × shares outstanding. It\'s the common way to compare the "size" of different companies, even when their share prices themselves look very different.' }
+  },
+  {
+    id:'q-shortselling-1', category:'basics', difficulty:'intermediate',
+    question:{ he:'מה ההבדל המרכזי בין מכירת מניה שיש לך לבין "שורט" (Short Selling)?', en:'What\'s the main difference between selling a stock you own and "shorting" it?' },
+    options:[
+      { key:'a', text:{ he:'אין שום הבדל, זו אותה פעולה', en:'There\'s no difference, it\'s the same action' } },
+      { key:'b', text:{ he:'בשורט אתה מוכר מניה שאתה שואל, מהמר על ירידה, וההפסד הפוטנציאלי לא מוגבל', en:'In a short you sell a borrowed share, betting on a decline, and the potential loss is unlimited' } },
+      { key:'c', text:{ he:'שורט מותר רק למוסדות, אף פעם לא ליחידים', en:'Shorting is only allowed for institutions, never individuals' } },
+      { key:'d', text:{ he:'שורט תמיד רווחי יותר', en:'Shorting is always more profitable' } }
+    ],
+    correctKey:'b',
+    explanation:{ he:'למכור מניה שיש לך פשוט סוגר את הפוזיציה שלך. שורט הוא הימור על ירידה במניה שאתה לא מחזיק (שאולה) — וכיוון שלמחיר אין תקרה תיאורטית, ההפסד הפוטנציאלי בשורט לא מוגבל.', en:'Selling a stock you own simply closes your position. Shorting is a bet against a stock you don\'t own (borrowed) — and since a price has no theoretical ceiling, the potential loss on a short is unlimited.' }
+  }
+];
+
+function getQuizQuestions(filter){
+  filter = filter || {};
+  return QUIZ_QUESTIONS.filter(q =>
+    (!filter.category || q.category === filter.category) &&
+    (!filter.difficulty || q.difficulty === filter.difficulty)
+  );
+}
+
+function getQuizCategories(){
+  return [...new Set(QUIZ_QUESTIONS.map(q => q.category))];
+}
+
+// ---------------------------------------------------------------------------
+// Quiz session engine — pure logic, no DOM. A "session" is a plain object;
+// every function here takes one in and returns a new state or a result,
+// the same shape discipline used by the calculators. The UI layer (not
+// built here) owns rendering and calls these functions.
+// ---------------------------------------------------------------------------
+
+// Fisher-Yates shuffle — used so repeated quiz attempts don't always show
+// questions in the same order. Deterministic given a seed would be nicer
+// for tests, but quiz order genuinely should vary between real attempts;
+// tests instead check the RESULT of a fixed sequence of answers, not order.
+function shuffleArray(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// filter: { category?, difficulty? } — same shape getQuizQuestions() takes.
+// count: how many questions to include (default: all matching).
+function createQuizSession(filter, count){
+  const pool = getQuizQuestions(filter);
+  const chosen = (count && count < pool.length) ? shuffleArray(pool).slice(0, count) : shuffleArray(pool);
+  return {
+    questions: chosen,
+    currentIndex: 0,
+    answers: [], // { questionId, chosenKey, correct }
+    finished: false
+  };
+}
+
+function currentQuestion(session){
+  if(session.finished || session.currentIndex >= session.questions.length) return null;
+  return session.questions[session.currentIndex];
+}
+
+// Returns { correct, correctKey, explanation, session } — session is the
+// SAME object, mutated in place (advancing currentIndex), matching how
+// conversationContext is already threaded through the AI engine.
+function submitAnswer(session, chosenKey){
+  const q = currentQuestion(session);
+  if(!q) return null;
+  const correct = chosenKey === q.correctKey;
+  session.answers.push({ questionId: q.id, chosenKey, correct });
+  session.currentIndex++;
+  if(session.currentIndex >= session.questions.length) session.finished = true;
+  return { correct, correctKey: q.correctKey, explanation: q.explanation, session };
+}
+
+function getQuizScore(session){
+  const total = session.answers.length;
+  const correct = session.answers.filter(a => a.correct).length;
+  return {
+    correct, total,
+    percent: total > 0 ? Math.round((correct / total) * 100) : 0,
+    isComplete: session.finished
+  };
+}
+
+function restartQuiz(session){
+  return createQuizSession(
+    { }, // a restart reshuffles from the full original pool the session was built from
+    session.questions.length
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Quiz UI — renders a quiz-engine.js session inside the generic
+// .app-overlay shell (the same one the stock-detail view uses). All
+// question/scoring LOGIC lives in quiz-engine.js / quiz-questions.js and is
+// unit-tested there; this file is purely presentation + wiring.
+// ---------------------------------------------------------------------------
+let quizSession = null;
+
+function quizT(he, en){ return (typeof lang !== 'undefined' && lang === 'he') ? he : en; }
+
+function openQuizView(){
+  let overlay = document.getElementById('quiz-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'quiz-overlay';
+    overlay.className = 'app-overlay';
+    document.body.appendChild(overlay);
+  }
+  quizSession = createQuizSession({}, 8); // a reasonably short session, not the entire bank every time
+  renderQuizShell(overlay);
+  renderQuizQuestion(overlay);
+  overlay.classList.add('open');
+}
+
+function closeQuizView(){
+  const overlay = document.getElementById('quiz-overlay');
+  if(overlay) overlay.classList.remove('open');
+}
+
+function renderQuizShell(overlay){
+  const progress = getQuizProgress();
+  const bestLine = progress.bestScore
+    ? quizT(`השיא שלך: ${progress.bestScore.correct}/${progress.bestScore.total}`, `Your best: ${progress.bestScore.correct}/${progress.bestScore.total}`)
+    : '';
+  overlay.innerHTML = `
+    <div class="app-overlay-header">
+      <button class="app-overlay-close" aria-label="close" onclick="navigateTo('')">&times;</button>
+      <div class="app-overlay-title">
+        <div class="quiz-title">${quizT('בוחן ידע', 'Knowledge Quiz')}</div>
+        <div class="quiz-subtitle">${bestLine}</div>
+      </div>
+    </div>
+    <div class="app-overlay-content"><div id="quiz-body" class="quiz-body"></div></div>
+  `;
+}
+
+function renderQuizQuestion(overlay){
+  const body = overlay.querySelector('#quiz-body');
+  const q = currentQuestion(quizSession);
+  if(!q){
+    renderQuizResults(overlay);
+    return;
+  }
+  const l = (typeof lang !== 'undefined') ? lang : 'en';
+  const total = quizSession.questions.length;
+  body.innerHTML = `
+    <div class="quiz-progress">${quizSession.currentIndex + 1} / ${total}</div>
+    <p class="q">${q.question[l]}</p>
+    <div class="quiz" id="quiz-options"></div>
+    <p class="quiz-view-explain" id="quiz-feedback"></p>
+  `;
+  const optionsWrap = body.querySelector('#quiz-options');
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-view-opt';
+    btn.textContent = opt.text[l];
+    btn.dataset.key = opt.key;
+    btn.addEventListener('click', () => handleQuizAnswer(overlay, opt.key));
+    optionsWrap.appendChild(btn);
+  });
+}
+
+function handleQuizAnswer(overlay, chosenKey){
+  const l = (typeof lang !== 'undefined') ? lang : 'en';
+  const q = currentQuestion(quizSession);
+  const result = submitAnswer(quizSession, chosenKey);
+  if(!result) return;
+
+  // Lock the options and mark right/wrong — no more clicks accepted for
+  // this question once answered.
+  const optionsWrap = overlay.querySelector('#quiz-options');
+  [...optionsWrap.children].forEach(btn => {
+    btn.disabled = true;
+    if(btn.dataset.key === result.correctKey) btn.classList.add('right');
+    else if(btn.dataset.key === chosenKey) btn.classList.add('wrong');
+  });
+
+  const feedback = overlay.querySelector('#quiz-feedback');
+  feedback.classList.add('show');
+  feedback.innerHTML = `
+    <strong>${result.correct ? quizT('נכון! ✓', 'Correct! ✓') : quizT('לא מדויק', 'Not quite')}</strong><br>
+    ${result.explanation[l]}<br>
+    <button class="quiz-next-btn" onclick="advanceQuiz()">${quizSession.finished ? quizT('לתוצאות', 'See results') : quizT('הבא ←', 'Next →')}</button>
+  `;
+}
+
+function advanceQuiz(){
+  const overlay = document.getElementById('quiz-overlay');
+  renderQuizQuestion(overlay);
+}
+
+function renderQuizResults(overlay){
+  const score = getQuizScore(quizSession);
+  recordQuizAttempt(score);
+  const body = overlay.querySelector('#quiz-body');
+  body.innerHTML = `
+    <div class="quiz-results">
+      <div class="quiz-results-score">${score.correct} / ${score.total}</div>
+      <div class="quiz-results-percent">${score.percent}%</div>
+      <button class="quiz-next-btn" onclick="restartQuizView()">${quizT('נסה שוב', 'Try again')}</button>
+    </div>
+  `;
+}
+
+function restartQuizView(){
+  quizSession = restartQuiz(quizSession);
+  const overlay = document.getElementById('quiz-overlay');
+  renderQuizQuestion(overlay);
+}
+
+registerRoute('quiz', { onEnter: openQuizView, onLeave: closeQuizView });
+
+// ---------------------------------------------------------------------------
+// Calculators UI — reuses the generic .app-overlay + tabs pattern (same as
+// the stock-detail view). All math is in calculators/calculations.js and
+// is unit-tested there; this file only builds forms and formats output.
+// ---------------------------------------------------------------------------
+function calcT(he, en){ return (typeof lang !== 'undefined' && lang === 'he') ? he : en; }
+function calcFmt(n){ return n.toLocaleString(undefined, { maximumFractionDigits: 2 }); }
+
+const CALCULATOR_TABS = [
+  { id:'compound', label:{he:'ריבית דריבית', en:'Compound Interest'}, build:buildCompoundInterestCalc },
+  { id:'dca', label:{he:'DCA', en:'DCA'}, build:buildDcaCalc },
+  { id:'return', label:{he:'תשואה %', en:'% Return'}, build:buildReturnCalc },
+  { id:'pnl', label:{he:'רווח/הפסד', en:'Profit/Loss'}, build:buildPnlCalc }
+];
+let calcActiveTab = 'compound';
+
+function openCalculatorsView(){
+  let overlay = document.getElementById('calculators-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'calculators-overlay';
+    overlay.className = 'app-overlay';
+    document.body.appendChild(overlay);
+  }
+  renderCalculatorsShell(overlay);
+  overlay.classList.add('open');
+}
+function closeCalculatorsView(){
+  const overlay = document.getElementById('calculators-overlay');
+  if(overlay) overlay.classList.remove('open');
+}
+
+function renderCalculatorsShell(overlay){
+  overlay.innerHTML = `
+    <div class="app-overlay-header">
+      <button class="app-overlay-close" aria-label="close" onclick="navigateTo('')">&times;</button>
+      <div class="app-overlay-title">
+        <div class="quiz-title">${calcT('מחשבונים', 'Calculators')}</div>
+        <div class="quiz-subtitle">${calcT('כלים חינוכיים — לא ייעוץ השקעות', 'Educational tools — not investment advice')}</div>
+      </div>
+    </div>
+    <div class="app-overlay-tabs" id="calc-tabs"></div>
+    <div class="app-overlay-content"><div id="calc-body" class="quiz-body calc-body"></div></div>
+  `;
+  const tabsBar = overlay.querySelector('#calc-tabs');
+  CALCULATOR_TABS.forEach(tab => {
+    const btn = document.createElement('button');
+    btn.className = 'app-overlay-tab' + (tab.id === calcActiveTab ? ' active' : '');
+    btn.textContent = tab.label[(typeof lang !== 'undefined') ? lang : 'en'];
+    btn.addEventListener('click', () => { calcActiveTab = tab.id; renderCalculatorsShell(overlay); });
+    tabsBar.appendChild(btn);
+  });
+  const tab = CALCULATOR_TABS.find(t => t.id === calcActiveTab);
+  tab.build(overlay.querySelector('#calc-body'));
+}
+
+// A small, reusable "labeled number input" builder — every calculator form
+// is built from a few of these plus a result box, so this is the one place
+// that input styling/behavior lives.
+function calcNumField(container, id, labelHe, labelEn, defaultValue){
+  const wrap = document.createElement('div');
+  wrap.className = 'calc-field';
+  const label = document.createElement('label');
+  label.textContent = calcT(labelHe, labelEn);
+  label.htmlFor = id;
+  const input = document.createElement('input');
+  input.type = 'number'; input.id = id; input.className = 'calc-input';
+  input.value = defaultValue;
+  wrap.appendChild(label); wrap.appendChild(input);
+  container.appendChild(wrap);
+  return input;
+}
+
+function buildCompoundInterestCalc(body){
+  body.innerHTML = '';
+  const principal = calcNumField(body, 'ci-principal', 'סכום התחלתי', 'Starting amount', 10000);
+  const rate = calcNumField(body, 'ci-rate', 'תשואה שנתית משוערת (%)', 'Assumed annual return (%)', 7);
+  const years = calcNumField(body, 'ci-years', 'שנים', 'Years', 20);
+  const yearly = calcNumField(body, 'ci-yearly', 'הפקדה שנתית נוספת (אופציונלי)', 'Additional yearly contribution (optional)', 0);
+  const result = document.createElement('div');
+  result.className = 'calc-result';
+  body.appendChild(result);
+  function update(){
+    const r = compoundInterest(+principal.value||0, +rate.value||0, Math.max(0,Math.min(100,+years.value||0)), +yearly.value||0);
+    result.innerHTML = `
+      <div class="calc-result-big">$${calcFmt(r.futureValue)}</div>
+      <div class="calc-result-line">${calcT('סה"כ הופקד', 'Total contributed')}: $${calcFmt(r.totalContributed)}</div>
+      <div class="calc-result-line">${calcT('סה"כ צמיחה', 'Total growth')}: $${calcFmt(r.totalGrowth)}</div>
+      <div class="calc-note">${calcT('זוהי הדגמה חינוכית עם תשואה קבועה מדומה — לא תחזית אמיתית לשוק.', 'This is an educational illustration with an assumed constant return — not a real market forecast.')}</div>
+    `;
+  }
+  [principal,rate,years,yearly].forEach(el => el.addEventListener('input', update));
+  update();
+}
+
+function buildDcaCalc(body){
+  body.innerHTML = '';
+  const amount = calcNumField(body, 'dca-amount', 'סכום לתקופה', 'Amount per period', 500);
+  const periods = calcNumField(body, 'dca-periods', 'מספר תקופות (חודשים)', 'Number of periods (months)', 120);
+  const rate = calcNumField(body, 'dca-rate', 'תשואה שנתית משוערת (%)', 'Assumed annual return (%)', 7);
+  const result = document.createElement('div');
+  result.className = 'calc-result';
+  body.appendChild(result);
+  function update(){
+    const r = dollarCostAverage(+amount.value||0, Math.max(0,+periods.value||0), +rate.value||0, 12);
+    result.innerHTML = `
+      <div class="calc-result-big">$${calcFmt(r.futureValue)}</div>
+      <div class="calc-result-line">${calcT('סה"כ הופקד', 'Total contributed')}: $${calcFmt(r.totalContributed)}</div>
+      <div class="calc-result-line">${calcT('סה"כ צמיחה', 'Total growth')}: $${calcFmt(r.totalGrowth)}</div>
+      <div class="calc-note">${calcT('מודל הדגמה עם תשואה חודשית קבועה מדומה — לא מדמה תנודתיות אמיתית של השוק.', 'An illustrative model with a constant assumed monthly return — it does not simulate real market volatility.')}</div>
+    `;
+  }
+  [amount,periods,rate].forEach(el => el.addEventListener('input', update));
+  update();
+}
+
+function buildReturnCalc(body){
+  body.innerHTML = '';
+  const initial = calcNumField(body, 'ret-initial', 'ערך התחלתי', 'Initial value', 1000);
+  const final = calcNumField(body, 'ret-final', 'ערך סופי', 'Final value', 1200);
+  const result = document.createElement('div');
+  result.className = 'calc-result';
+  body.appendChild(result);
+  function update(){
+    const r = percentageReturn(+initial.value||0, +final.value||0);
+    if(!r.validInput){
+      result.innerHTML = `<div class="calc-note">${calcT('ערך התחלתי חייב להיות שונה מאפס.', 'Initial value must be non-zero.')}</div>`;
+      return;
+    }
+    const cls = r.percentChange >= 0 ? 'up' : 'down';
+    result.innerHTML = `
+      <div class="calc-result-big stock-card-change ${cls}">${r.percentChange>=0?'+':''}${r.percentChange.toFixed(2)}%</div>
+      <div class="calc-result-line">${calcT('שינוי מוחלט', 'Absolute change')}: ${calcFmt(r.absoluteChange)}</div>
+    `;
+  }
+  [initial,final].forEach(el => el.addEventListener('input', update));
+  update();
+}
+
+function buildPnlCalc(body){
+  body.innerHTML = '';
+  const buy = calcNumField(body, 'pnl-buy', 'מחיר קנייה', 'Buy price', 100);
+  const sell = calcNumField(body, 'pnl-sell', 'מחיר מכירה', 'Sell price', 120);
+  const shares = calcNumField(body, 'pnl-shares', 'מספר מניות', 'Number of shares', 10);
+  const fees = calcNumField(body, 'pnl-fees', 'עמלות (סה"כ, אופציונלי)', 'Fees (total, optional)', 0);
+  const result = document.createElement('div');
+  result.className = 'calc-result';
+  body.appendChild(result);
+  function update(){
+    const r = profitLoss(+buy.value||0, +sell.value||0, +shares.value||0, +fees.value||0, 0);
+    const cls = r.netProfitLoss >= 0 ? 'up' : 'down';
+    result.innerHTML = `
+      <div class="calc-result-big stock-card-change ${cls}">${r.netProfitLoss>=0?'+':''}$${calcFmt(r.netProfitLoss)}</div>
+      <div class="calc-result-line">${calcT('עלות כוללת', 'Total cost')}: $${calcFmt(r.totalCost)}</div>
+      <div class="calc-result-line">${calcT('תמורה כוללת', 'Total proceeds')}: $${calcFmt(r.totalProceeds)}</div>
+      ${r.percentReturn != null ? `<div class="calc-result-line">${calcT('תשואה', 'Return')}: ${r.percentReturn.toFixed(2)}%</div>` : ''}
+    `;
+  }
+  [buy,sell,shares,fees].forEach(el => el.addEventListener('input', update));
+  update();
+}
+
+registerRoute('calculators', { onEnter: openCalculatorsView, onLeave: closeCalculatorsView });
+
+// ---------------------------------------------------------------------------
+// Lesson progress UI.
+//
+// Deliberately does NOT edit the 8 lesson sections' existing HTML/content —
+// per "do not rewrite good existing educational content unnecessarily" and
+// "do not break existing working features," this only APPENDS a small
+// footer (mark-complete + prev/next) to each section via JS at load time,
+// and decorates the existing .lesson-nav links with a completion mark.
+// One function handles all 8 sections identically — adding a 9th lesson
+// later needs zero changes here.
+// ---------------------------------------------------------------------------
+const LESSON_IDS = ['l0','l1','l2','l3','l4','l5','l6','l7'];
+
+function lessonT(he, en){ return (typeof lang !== 'undefined' && lang === 'he') ? he : en; }
+
+let _lessonProgressInitialized = false;
+function initLessonProgressUI(){
+  if(_lessonProgressInitialized) return;
+  _lessonProgressInitialized = true;
+  LESSON_IDS.forEach((id, i) => {
+    const section = document.getElementById(id);
+    if(!section) return;
+    const footer = document.createElement('div');
+    footer.className = 'lesson-progress-footer';
+    footer.innerHTML = `
+      <button class="lesson-complete-btn" id="complete-${id}"></button>
+      <div class="lesson-progress-nav">
+        ${i > 0 ? `<a href="#${LESSON_IDS[i-1]}" class="lesson-nav-arrow">${lessonT('← קודם', '← Previous')}</a>` : '<span></span>'}
+        ${i < LESSON_IDS.length-1 ? `<a href="#${LESSON_IDS[i+1]}" class="lesson-nav-arrow">${lessonT('הבא →', 'Next →')}</a>` : '<span></span>'}
+      </div>
+    `;
+    section.appendChild(footer);
+    const btn = footer.querySelector('.lesson-complete-btn');
+    btn.addEventListener('click', () => toggleLessonComplete(id));
+    refreshLessonCompleteButton(id);
+  });
+  refreshLessonNavBadges();
+}
+
+function toggleLessonComplete(id){
+  const progress = getLessonProgress();
+  if(progress.completed.includes(id)){
+    progress.completed = progress.completed.filter(x => x !== id);
+    setLessonProgress(progress);
+  } else {
+    markLessonComplete(id);
+  }
+  refreshLessonCompleteButton(id);
+  refreshLessonNavBadges();
+}
+
+function refreshLessonCompleteButton(id){
+  const btn = document.getElementById('complete-' + id);
+  if(!btn) return;
+  const done = getLessonProgress().completed.includes(id);
+  btn.classList.toggle('done', done);
+  btn.textContent = done ? lessonT('✓ הושלם', '✓ Completed') : lessonT('סמן כהושלם', 'Mark as complete');
+}
+
+function refreshLessonNavBadges(){
+  const progress = getLessonProgress();
+  LESSON_IDS.forEach(id => {
+    const link = document.querySelector(`.lesson-nav a[href="#${id}"]`);
+    if(link) link.classList.toggle('lesson-done', progress.completed.includes(id));
+  });
+  const summary = document.getElementById('lesson-progress-summary');
+  if(summary) summary.textContent = `${progress.completed.length}/${LESSON_IDS.length}`;
+}
+
+// Re-run the button labels/badges whenever the language toggles, so they
+// don't stay in the previous language after a switch (setLang() already
+// re-renders every [data-i18n] element the same way — this covers the
+// dynamically-injected content setLang() doesn't know about).
+const _lessonProgressOrigSetLang = (typeof setLang === 'function') ? setLang : null;
+if(_lessonProgressOrigSetLang){
+  setLang = function(l){
+    _lessonProgressOrigSetLang(l);
+    LESSON_IDS.forEach(refreshLessonCompleteButton);
+  };
+}
+
+document.addEventListener('DOMContentLoaded', initLessonProgressUI);
+// In case this script runs after DOMContentLoaded already fired (it's
+// injected near the end of body, same as the rest of the site's own
+// script), initialize immediately too — addEventListener above is the
+// fallback for the (unlikely, but cheap to handle) other order.
+if(document.readyState !== 'loading') initLessonProgressUI();
+
+// ---------------------------------------------------------------------------
+// Stock View UI — search a company, see its data, chart, and metrics.
+//
+// Reuses, never duplicates: resolveTicker/resolveTickerDynamic (entity
+// resolution, Phase 2/3), getMarketData (Phase 2 provider abstraction),
+// drawChart (the site's own existing candlestick renderer, already used by
+// all 8 lessons). This file's own job is just: take a search string, get a
+// resolved company, get its data, and render it — the same "answer the
+// question, don't reinvent the plumbing" principle used throughout.
+// ---------------------------------------------------------------------------
+function stockT(he, en){ return (typeof lang !== 'undefined' && lang === 'he') ? he : en; }
+
+// Maps this project's market-data history shape ({open,high,low,close,
+// volume,date}) to what drawChart() actually expects ({o,h,l,c,v,t} with a
+// real Date object) — see site-template.html's drawChart/tooltip code for
+// why this exact shape is required.
+function adaptHistoryForChart(history){
+  return history.map(bar => ({
+    o: bar.open, h: bar.high, l: bar.low, c: bar.close, v: bar.volume,
+    t: new Date(bar.date)
+  }));
+}
+
+function openStockView(){
+  let overlay = document.getElementById('stock-view-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'stock-view-overlay';
+    overlay.className = 'app-overlay';
+    document.body.appendChild(overlay);
+  }
+  renderStockSearchShell(overlay);
+  overlay.classList.add('open');
+}
+function closeStockView(){
+  const overlay = document.getElementById('stock-view-overlay');
+  if(overlay) overlay.classList.remove('open');
+}
+
+function renderStockSearchShell(overlay){
+  overlay.innerHTML = `
+    <div class="app-overlay-header">
+      <button class="app-overlay-close" aria-label="close" onclick="navigateTo('')">&times;</button>
+      <div class="app-overlay-title">
+        <div class="quiz-title">${stockT('חיפוש מניה', 'Stock Search')}</div>
+      </div>
+    </div>
+    <div class="app-overlay-content">
+      <div class="stock-search-box">
+        <input type="text" id="stock-search-input" class="calc-input" placeholder="${stockT('חברה או טיקר, למשל Apple או AAPL', 'Company or ticker, e.g. Apple or AAPL')}">
+        <button class="quiz-next-btn" id="stock-search-btn">${stockT('חפש', 'Search')}</button>
+      </div>
+      <div id="stock-search-results"></div>
+    </div>
+  `;
+  const input = overlay.querySelector('#stock-search-input');
+  const btn = overlay.querySelector('#stock-search-btn');
+  const runSearch = () => performStockSearch(overlay, input.value.trim());
+  btn.addEventListener('click', runSearch);
+  input.addEventListener('keydown', e => { if(e.key === 'Enter') runSearch(); });
+  input.focus();
+}
+
+async function performStockSearch(overlay, query){
+  if(!query) return;
+  const results = overlay.querySelector('#stock-search-results');
+  results.innerHTML = `<div class="stock-view-loading">${stockT('מחפש…', 'Searching…')}</div>`;
+
+  const norm = normalizeText(query);
+  let company = resolveTicker(norm);
+  if(!company) company = await resolveTickerDynamic(query);
+
+  if(!company){
+    results.innerHTML = `<div class="stock-view-empty">${stockT('לא נמצאה חברה מתאימה. נסה שם או טיקר אחר.', 'No matching company found. Try a different name or ticker.')}</div>`;
+    return;
+  }
+  if(company.ambiguous){
+    results.innerHTML = `<div class="stock-view-empty">${stockT('נמצאו כמה התאמות — נסה להיות ספציפי יותר (למשל כלול את הטיקר).', 'Found a few matches — try being more specific (e.g. include the ticker).')}</div>`;
+    return;
+  }
+  await renderStockDataView(overlay, company);
+}
+
+async function renderStockDataView(overlay, company){
+  const results = overlay.querySelector('#stock-search-results');
+  results.innerHTML = `<div class="stock-view-loading">${stockT('טוען נתונים…', 'Loading data…')}</div>`;
+
+  let marketResult;
+  try{ marketResult = await getMarketData(company.ticker); }
+  catch(e){ marketResult = { ok:false }; }
+
+  if(!marketResult.ok){
+    results.innerHTML = `<div class="stock-view-empty">${stockT(
+      `לא הצלחתי לשלוף נתונים עבור ${escapeHtml(company.name.he)} כרגע.`,
+      `Couldn't fetch data for ${escapeHtml(company.name.en)} right now.`
+    )}</div>`;
+    return;
+  }
+
+  const d = marketResult.data;
+  const l = (typeof lang !== 'undefined') ? lang : 'en';
+  const up = d.changePct >= 0;
+  const demoNote = d.isDemo
+    ? `<div class="stock-view-demo-badge">${stockT('הדגמה — לא נתונים אמיתיים', 'DEMO — not real data')}</div>`
+    : '';
+
+  results.innerHTML = `
+    ${demoNote}
+    <div class="stock-view-header">
+      <div class="stock-view-name">${escapeHtml(company.name[l])}</div>
+      <div class="stock-view-price">$${d.price.toFixed(2)} <span class="stock-card-change ${up?'up':'down'}">${up?'+':''}${d.changePct.toFixed(2)}%</span></div>
+      <div class="stock-view-asof">${stockT('נכון ל', 'As of')} ${escapeHtml(d.asOf)} · ${escapeHtml(d.source)}</div>
+    </div>
+    <canvas id="stock-view-chart" class="stock-view-canvas"></canvas>
+    <div class="stock-view-metrics" id="stock-view-metrics"></div>
+    <button class="quiz-next-btn stock-view-ask-ai" id="stock-view-ask-ai">${escapeHtml(stockT('שאל את ה-AI על ' + company.name.he, 'Ask the AI about ' + company.name.en))}</button>
+  `;
+
+  // Real chart, real data — the same renderer every lesson candlestick
+  // chart already uses.
+  const canvas = results.querySelector('#stock-view-chart');
+  const candles = adaptHistoryForChart(d.history);
+  drawChart(canvas, null, candles, { height: 260, showVolume: true });
+
+  renderStockMetrics(results.querySelector('#stock-view-metrics'), d, l);
+
+  results.querySelector('#stock-view-ask-ai').addEventListener('click', () => {
+    navigateTo('ai');
+    setTimeout(() => {
+      const inp = document.getElementById('ai-input');
+      if(inp){ inp.value = stockT(`ספר לי על ${company.name.he}`, `Tell me about ${company.name.en}`); sendAiMessage(); }
+    }, 250);
+  });
+}
+
+// Plain-language metric explanations — a beginner shouldn't need to leave
+// this view to know what RSI or a 52-week range even means.
+function renderStockMetrics(container, d, l){
+  const rows = [];
+  if(d.rsi14 != null) rows.push({
+    label: stockT('RSI (14 יום)', 'RSI (14-day)'), value: d.rsi14.toFixed(1),
+    note: stockT('מעל 70 = קניית יתר, מתחת ל-30 = מכירת יתר', 'above 70 = overbought, below 30 = oversold')
+  });
+  if(d.sma50 != null) rows.push({
+    label: stockT('ממוצע נע 50 יום', '50-day moving average'), value: '$'+d.sma50.toFixed(2),
+    note: stockT('מגמת ביניים — מחיר מעליו נחשב חיובי', 'intermediate trend — price above it is generally read as positive')
+  });
+  if(d.week52) rows.push({
+    label: stockT('טווח 52 שבועות', '52-week range'), value: `$${d.week52.low.toFixed(2)} – $${d.week52.high.toFixed(2)}`,
+    note: stockT('המחיר הנמוך והגבוה ביותר בשנה האחרונה', 'the lowest and highest price over the last year')
+  });
+  if(d.volatility20 != null) rows.push({
+    label: stockT('תנודתיות שנתית (20 יום)', 'Annualized volatility (20-day)'), value: d.volatility20.toFixed(0)+'%',
+    note: stockT('גודל התנודות הצפוי, לא הכיוון שלהן', 'the expected size of price swings, not their direction')
+  });
+  const peFromFundamentals = d.fundamentals && d.fundamentals.valuations_metrics && d.fundamentals.valuations_metrics.trailing_pe;
+  if(peFromFundamentals != null) rows.push({
+    label: stockT('מכפיל רווח (P/E)', 'P/E ratio'), value: peFromFundamentals.toFixed(1),
+    note: stockT('מחיר המניה חלקי הרווח השנתי למניה', "share price divided by annual earnings per share")
+  });
+
+  container.innerHTML = rows.map(r => `
+    <div class="stock-metric-row">
+      <div class="stock-metric-label">${r.label}</div>
+      <div class="stock-metric-value">${r.value}</div>
+      <div class="stock-metric-note">${r.note}</div>
+    </div>
+  `).join('') || `<div class="stock-view-empty">${stockT('אין נתוני מדדים זמינים כרגע.', 'No metric data available right now.')}</div>`;
+}
+
+registerRoute('stock', { onEnter: openStockView, onLeave: closeStockView });
+
+// ---------------------------------------------------------------------------
+// Comparison UI — two companies, side by side. Reuses resolveTicker/
+// resolveTickerDynamic and getMarketData exactly as the Stock View does;
+// this file's own job is only the two-column rendering and the
+// never-fabricate-a-winner rule.
+// ---------------------------------------------------------------------------
+function cmpT(he, en){ return (typeof lang !== 'undefined' && lang === 'he') ? he : en; }
+
+function openCompareView(){
+  let overlay = document.getElementById('compare-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'compare-overlay';
+    overlay.className = 'app-overlay';
+    document.body.appendChild(overlay);
+  }
+  renderCompareShell(overlay);
+  overlay.classList.add('open');
+}
+function closeCompareView(){
+  const overlay = document.getElementById('compare-overlay');
+  if(overlay) overlay.classList.remove('open');
+}
+
+function renderCompareShell(overlay){
+  overlay.innerHTML = `
+    <div class="app-overlay-header">
+      <button class="app-overlay-close" aria-label="close" onclick="navigateTo('')">&times;</button>
+      <div class="app-overlay-title"><div class="quiz-title">${cmpT('השוואת חברות', 'Compare Companies')}</div></div>
+    </div>
+    <div class="app-overlay-content">
+      <div class="cmpview-inputs">
+        <input type="text" id="compare-input-a" class="calc-input" placeholder="${cmpT('חברה A, למשל NVIDIA', 'Company A, e.g. NVIDIA')}">
+        <span class="cmpview-vs">${cmpT('מול', 'vs')}</span>
+        <input type="text" id="compare-input-b" class="calc-input" placeholder="${cmpT('חברה B, למשל AMD', 'Company B, e.g. AMD')}">
+        <button class="quiz-next-btn" id="compare-btn">${cmpT('השווה', 'Compare')}</button>
+      </div>
+      <div id="compare-results"></div>
+    </div>
+  `;
+  const btn = overlay.querySelector('#compare-btn');
+  const run = () => runComparison(overlay);
+  btn.addEventListener('click', run);
+  overlay.querySelector('#compare-input-a').addEventListener('keydown', e => { if(e.key==='Enter') run(); });
+  overlay.querySelector('#compare-input-b').addEventListener('keydown', e => { if(e.key==='Enter') run(); });
+}
+
+async function resolveCompanyForCompare(query){
+  const norm = normalizeText(query);
+  let company = resolveTicker(norm);
+  if(!company) company = await resolveTickerDynamic(query);
+  return (company && !company.ambiguous) ? company : null;
+}
+
+async function runComparison(overlay){
+  const qa = overlay.querySelector('#compare-input-a').value.trim();
+  const qb = overlay.querySelector('#compare-input-b').value.trim();
+  const results = overlay.querySelector('#compare-results');
+  if(!qa || !qb) return;
+  results.innerHTML = `<div class="stock-view-loading">${cmpT('מחפש את שתי החברות…', 'Looking up both companies…')}</div>`;
+
+  const [companyA, companyB] = await Promise.all([resolveCompanyForCompare(qa), resolveCompanyForCompare(qb)]);
+  const missingNames = [];
+  if(!companyA) missingNames.push(qa);
+  if(!companyB) missingNames.push(qb);
+  if(missingNames.length){
+    const escapedNames = missingNames.map(escapeHtml).join(', ');
+    results.innerHTML = `<div class="stock-view-empty">${cmpT(
+      `לא הצלחתי לזהות: ${escapedNames}. נסה שם או טיקר אחר.`,
+      `Couldn't identify: ${escapedNames}. Try a different name or ticker.`
+    )}</div>`;
+    return;
+  }
+
+  let dataA, dataB;
+  try{ [dataA, dataB] = await Promise.all([getMarketData(companyA.ticker), getMarketData(companyB.ticker)]); }
+  catch(e){ dataA = {ok:false}; dataB = {ok:false}; }
+
+  if(!dataA.ok || !dataB.ok){
+    const missing = [!dataA.ok ? companyA.name[lang||'en'] : null, !dataB.ok ? companyB.name[lang||'en'] : null].filter(Boolean).map(escapeHtml).join(', ');
+    results.innerHTML = `<div class="stock-view-empty">${cmpT(`לא הצלחתי לשלוף נתונים עבור: ${missing}.`, `Couldn't fetch data for: ${missing}.`)}</div>`;
+    return;
+  }
+  renderComparisonTable(results, companyA, dataA.data, companyB, dataB.data);
+}
+
+// Each row states both values plainly. `directional:true` rows note which
+// side is ahead (meaningful for price performance); metrics where "higher"
+// isn't inherently better (P/E, volatility) are shown WITHOUT any winner
+// framing — this is the same rule Phase 3's chat-based comparison follows,
+// just rendered as a table instead of prose.
+function buildComparisonRows(dA, dB, l){
+  const rows = [];
+  rows.push({ label: cmpT('מחיר', 'Price'), a: '$'+dA.price.toFixed(2), b: '$'+dB.price.toFixed(2) });
+  rows.push({
+    label: cmpT('שינוי יומי', 'Daily change'),
+    a: (dA.changePct>=0?'+':'')+dA.changePct.toFixed(2)+'%', b: (dB.changePct>=0?'+':'')+dB.changePct.toFixed(2)+'%',
+    directional: true, aVal: dA.changePct, bVal: dB.changePct
+  });
+  if(dA.monthChangePct != null && dB.monthChangePct != null){
+    rows.push({
+      label: cmpT('שינוי חודשי', 'Monthly change'),
+      a: (dA.monthChangePct>=0?'+':'')+dA.monthChangePct.toFixed(1)+'%', b: (dB.monthChangePct>=0?'+':'')+dB.monthChangePct.toFixed(1)+'%',
+      directional: true, aVal: dA.monthChangePct, bVal: dB.monthChangePct
+    });
+  }
+  if(dA.rsi14 != null && dB.rsi14 != null) rows.push({ label:'RSI (14)', a: dA.rsi14.toFixed(1), b: dB.rsi14.toFixed(1) });
+  if(dA.volatility20 != null && dB.volatility20 != null) rows.push({ label: cmpT('תנודתיות', 'Volatility'), a: dA.volatility20.toFixed(0)+'%', b: dB.volatility20.toFixed(0)+'%' });
+  const peA = dA.fundamentals && dA.fundamentals.valuations_metrics && dA.fundamentals.valuations_metrics.trailing_pe;
+  const peB = dB.fundamentals && dB.fundamentals.valuations_metrics && dB.fundamentals.valuations_metrics.trailing_pe;
+  if(peA != null && peB != null) rows.push({ label: 'P/E', a: peA.toFixed(1), b: peB.toFixed(1) });
+  return rows;
+}
+
+function renderComparisonTable(container, companyA, dA, companyB, dB){
+  const l = (typeof lang !== 'undefined') ? lang : 'en';
+  const rows = buildComparisonRows(dA, dB, l);
+  const missingNote = (!dA.fundamentals || !dB.fundamentals)
+    ? `<div class="cmpview-note">${cmpT('אין נתוני מכפיל רווח זמינים לשתי החברות — לכן הוא לא מוצג בהשוואה.', "P/E data isn't available for both companies, so it's left out of this comparison.")}</div>`
+    : '';
+  container.innerHTML = `
+    <div class="cmpview-header-row">
+      <div class="cmpview-col-name">${escapeHtml(companyA.name[l])}</div>
+      <div></div>
+      <div class="cmpview-col-name">${escapeHtml(companyB.name[l])}</div>
+    </div>
+    ${rows.map(r => `
+      <div class="cmpview-row">
+        <div class="cmpview-val ${r.directional && r.aVal>r.bVal ? 'ahead':''}">${r.a}</div>
+        <div class="cmpview-label">${r.label}</div>
+        <div class="cmpview-val ${r.directional && r.bVal>r.aVal ? 'ahead':''}">${r.b}</div>
+      </div>
+    `).join('')}
+    ${missingNote}
+    <button class="quiz-next-btn stock-view-ask-ai" id="compare-ask-ai">${escapeHtml(cmpT(`שאל את ה-AI על ${companyA.name.he} מול ${companyB.name.he}`, `Ask the AI about ${companyA.name.en} vs ${companyB.name.en}`))}</button>
+  `;
+  container.querySelector('#compare-ask-ai').addEventListener('click', () => {
+    // Phase 3's entity-comparison mechanism (tryEntityComparisonAnswer)
+    // triggers on conversationContext already holding two distinct
+    // entities from earlier turns — naming both companies in one fresh
+    // message doesn't go through that path at all (resolveTicker just
+    // matches whichever one it finds first and answers about only that
+    // one). Since this view has ALREADY resolved both companies, priming
+    // aiConversationContext directly with them — in order, so companyA
+    // becomes previousEntity and companyB stays active — makes the
+    // handoff message a genuine two-entity comparison on the first turn,
+    // not a shot in the dark hoping the AI infers it.
+    recordActiveEntity(aiConversationContext, companyA);
+    recordActiveEntity(aiConversationContext, companyB);
+    navigateTo('ai');
+    setTimeout(() => {
+      const inp = document.getElementById('ai-input');
+      if(inp){
+        inp.value = cmpT('מי יותר רווחית?', 'Who is more profitable?');
+        sendAiMessage();
+      }
+    }, 250);
+  });
+}
+
+registerRoute('compare', { onEnter: openCompareView, onLeave: closeCompareView });
+
 /* ---------- deterministic RNG ---------- */
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 
@@ -1767,7 +3184,7 @@ function answerQuiz(key){
 const t = {
   en:{
     brandName:'Chart Lab',
-    aiFabLabel:'AI assistant', aiBackLabel:'Back to site',
+    aiFabLabel:'AI assistant', aiBackLabel:'Back to site', navStock:'Stock Search', navCompare:'Compare', navCalculators:'Calculators', navQuiz:'Quiz',
     aiTitle:'Market Assistant', aiSubtitle:'Ask about anything on this site or in the markets',
     aiEmptyTitle:'Ask me anything about the markets',
     aiEmptyBody:'Stocks, indices, ETFs, bonds, financial terms, or anything confusing on this site — including the charts and lessons themselves.',
@@ -1884,7 +3301,7 @@ const t = {
   },
   he:{
     brandName:'צ׳ארט לאב',
-    aiFabLabel:'עוזר AI', aiBackLabel:'חזרה לאתר',
+    aiFabLabel:'עוזר AI', aiBackLabel:'חזרה לאתר', navStock:'חיפוש מניה', navCompare:'השוואה', navCalculators:'מחשבונים', navQuiz:'בוחן',
     aiTitle:'עוזר שוק ההון', aiSubtitle:'שאלו כל דבר על האתר או על השווקים',
     aiEmptyTitle:'שאלו אותי כל דבר על השווקים',
     aiEmptyBody:'מניות, מדדים, קרנות סל, אג״ח, מושגים פיננסיים, או כל דבר שלא ברור באתר — כולל הגרפים והשיעורים עצמם.',
@@ -2006,6 +3423,7 @@ function setLang(l){
   lang=l;
   document.documentElement.lang = l;
   document.documentElement.dir = l==='he' ? 'rtl' : 'ltr';
+  setLanguagePreference(l);
   document.getElementById('btn-en').classList.toggle('active', l==='en');
   document.getElementById('btn-he').classList.toggle('active', l==='he');
   document.querySelectorAll('[data-i18n]').forEach(el=>{
@@ -2059,19 +3477,42 @@ renderAll();
   updateActive();
 })();
 
-/* ---------- theme toggle (in-memory for this session) ---------- */
+/* ---------- app nav menu ---------- */
+function toggleAppNavMenu(){
+  document.getElementById('app-nav-menu').classList.toggle('open');
+}
+function closeAppNavMenu(){
+  document.getElementById('app-nav-menu').classList.remove('open');
+}
+document.addEventListener('click', function(e){
+  const wrap = document.querySelector('.app-nav-wrap');
+  if(wrap && !wrap.contains(e.target)) closeAppNavMenu();
+});
+
+/* ---------- theme toggle ---------- */
 function toggleTheme(){
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
   const next = isLight ? 'dark' : 'light';
   document.documentElement.setAttribute('data-theme', next);
-  try{ localStorage.setItem('chartlab-theme', next); }catch(e){}
+  setThemePreference(next);
   requestAnimationFrame(renderAll);
 }
 (function(){
   // An explicit earlier choice wins over the OS preference; without this the
   // theme silently reverted to the system setting on every reload.
-  let saved = null;
-  try{ saved = localStorage.getItem('chartlab-theme'); }catch(e){}
+  //
+  // One-time migration: earlier versions stored this under the raw key
+  // 'chartlab-theme' (no namespace). Falling back to the OS preference for
+  // everyone who'd already picked light mode would be a real regression —
+  // this migrates that one value across, once, then never touches the old
+  // key again.
+  if(getThemePreference() === null){
+    try{
+      const legacy = localStorage.getItem('chartlab-theme');
+      if(legacy === 'light' || legacy === 'dark') setThemePreference(legacy);
+    }catch(e){}
+  }
+  const saved = getThemePreference();
   if(saved === 'light' || saved === 'dark'){
     document.documentElement.setAttribute('data-theme', saved);
   } else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches){
@@ -2228,6 +3669,7 @@ function toggleTheme(){
    beginner-to-intermediate visitor would use. */
 
 const KB = [
+
   { id:'capital-market', cat:'basics', kw:['what is the stock market','what is the capital market','capital markets','financial markets','שוק ההון','מה זה שוק ההון','מהו שוק ההון'],
     he:`שוק ההון הוא המקום (היום בעיקר דיגיטלי) שבו חברות וממשלות מגייסות כסף מהציבור, ומשקיעים קונים ומוכרים נכסים פיננסיים כמו מניות ואג"ח. תפקידו הכלכלי המרכזי הוא לחבר בין מי שיש לו כסף עודף ורוצה להשקיע, לבין מי שצריך כסף כדי לצמוח — כשבתמורה המשקיע מקבל סיכוי לתשואה (וגם סיכון להפסד).`,
     en:`The capital market is where companies and governments raise money from the public, and investors buy and sell financial assets like stocks and bonds. Its core economic role is connecting people who have spare money and want to invest with entities that need money to grow — in exchange, the investor gets a chance at a return (and also the risk of a loss).`,
@@ -2369,6 +3811,7 @@ const KB = [
     en:`There's no one answer that fits everyone — it depends on your investment horizon, how much risk you're comfortable with, and why you're saving in the first place (retirement? a home in 3 years? just growing wealth long-term?). A common, simple starting point for someone who doesn't want to pick individual stocks is a broad index-tracking ETF (on something like the S&P 500), which gives instant diversification across hundreds of companies at relatively low cost. Also important: if you're carrying high-interest debt, it's usually better to pay that down before investing, and it's wise to have a liquid emergency fund before putting money into volatile assets. This is a general overview, not personalized investment advice tailored to your specific financial situation.`,
     related:['etf','time-horizon'] },
 
+
   { id:'sp500-vs-nasdaq100', cat:'comparisons', kw:['s&p 500 or nasdaq','sp500 vs nasdaq','s&p 500 vs nasdaq 100','which is better s&p or nasdaq','מה עדיף s&p 500 או נאסד"ק','מה עדיף מדד s&p או נאסד"ק','s&p מול נאסד"ק'],
     he:`אין תשובת "כן/לא" חד-משמעית — זו שאלה של פשרה בין פיזור לתנודתיות. S&P 500 מפוזר על פני כל הענפים במשק האמריקאי (בנקים, בריאות, אנרגיה, טכנולוגיה ועוד), ולכן נוטה להיות פחות תנודתי; Nasdaq 100 מרוכז הרבה יותר בחברות טכנולוגיה וצמיחה, ולכן נוטה לעלות חזק יותר בשווקי שורי אבל גם ליפול חזק יותר בירידות — במיוחד רגיש לשינויי ריבית, כי חלק גדול משוויין של חברות צמיחה מבוסס על רווחים עתידיים רחוקים. משקיע שרוצה יציבות ופיזור רחב יותר נוטה יותר לכיוון S&P 500; משקיע שמוכן לקחת יותר תנודתיות תמורת חשיפה גדולה יותר לטכנולוגיה נוטה יותר לכיוון Nasdaq 100. רבים בוחרים בכלל שילוב של שניהם.`,
     en:`There's no clean "yes/no" answer here — it's a tradeoff between diversification and volatility. The S&P 500 is spread across every sector of the US economy (banks, healthcare, energy, tech, and more), so it tends to be less volatile; the Nasdaq 100 is much more concentrated in technology and growth companies, so it tends to rally harder in bull markets but also fall harder in downturns — it's especially sensitive to interest-rate changes, since much of a growth company's value rests on distant future profits. An investor who wants stability and broader diversification tends to lean toward the S&P 500; one willing to accept more volatility for greater tech exposure tends to lean toward the Nasdaq 100. Plenty of people simply hold both.`,
@@ -2423,6 +3866,7 @@ const KB = [
     he:`CapEx (הוצאות הוניות) הן כספים שחברה משקיעה בנכסים לטווח ארוך — כמו רכישת מכונות, בניית מפעל, או פיתוח תשתית — שאמורים לייצר ערך לאורך שנים, ולכן הם "מופחתים" בהדרגה בדוחות הכספיים ולא נזקפים כהוצאה מלאה מייד. OpEx (הוצאות תפעוליות) הן ההוצאות השוטפות הרגילות לניהול העסק היום-יום — משכורות, שכר דירה, שיווק, חשמל — שנזקפות כהוצאה במלואן באותה תקופה שבה הוצאו. ההבדל חשוב למשקיעים כי חברה יכולה להיראות רווחית מאוד ברמת התזרים אבל להשקיע כל הזמן סכומי CapEx עצומים כדי לשמור על הצמיחה — מה שלא תמיד רואים ישר בדוח רווח והפסד הרגיל, ודורש הסתכלות גם על תזרים המזומנים.`,
     en:`CapEx (capital expenditure) is money a company invests in long-term assets — like buying machinery, building a factory, or developing infrastructure — expected to generate value over years, and so it's gradually depreciated in the financial statements rather than expensed all at once. OpEx (operating expenditure) is the regular day-to-day cost of running the business — salaries, rent, marketing, utilities — fully expensed in the same period it's incurred. The distinction matters to investors because a company can look very profitable on the income statement while constantly spending huge amounts of CapEx just to sustain its growth — something that doesn't always show up directly on the regular profit-and-loss statement, and requires also looking at the cash flow statement.`,
     related:['free-cash-flow','operating-income'] },
+
 
   { id:'revenue', cat:'fundamentals', kw:['revenue','sales','top line','הכנסות','מכירות','רבניו'],
     he:`הכנסות (Revenue) הן סך כל הכסף שחברה קיבלה ממכירת המוצרים או השירותים שלה, לפני הפחתת כל הוצאה. זו לרוב השורה העליונה בדוח רווח והפסד ("Top Line"), ולכן שינויים בהכנסות (Revenue Growth) הם אחד הדברים הראשונים שמשקיעים בודקים כדי להבין אם עסקי החברה בכלל גדלים.`,
@@ -2584,6 +4028,7 @@ const KB = [
     en:`Terminal value is the estimate of a company's value at the end of a DCF model's explicit forecast period (for example after 5-10 years), representing all the cash flows after that point as an ongoing "perpetuity". In practice, most of the value in a DCF model often comes from the terminal value rather than the near-term years — making it the least certain yet most significant component of the model.`,
     related:['dcf','discount-rate'] },
 
+
   { id:'trend', cat:'technical', kw:['trend','uptrend','downtrend','higher highs','higher lows','lower highs','lower lows','מגמה','מגמת עלייה','מגמת ירידה','שיא גבוה יותר','שפל גבוה יותר','טרנד','אפטרנד','דאונטרנד'],
     he:`מגמת עלייה היא סדרה של שיאים ושפלים גבוהים יותר — כל עלייה מגיעה קצת יותר רחוק מקודמתה, וכל ירידה נעצרת קצת יותר גבוה מהקודמת. מגמת ירידה היא ההפך: שיאים ושפלים נמוכים יותר. כמעט כל מושג אחר בניתוח טכני — תמיכה, התנגדות, פריצות, ממוצעים נעים — הוא בעצם דרך מפורטת יותר לתאר את אותו רעיון בסיסי.`,
     en:`An uptrend is a series of higher highs and higher lows — each rally goes a bit further than the last, and each pullback stops a bit higher than the one before. A downtrend is the mirror image: lower highs and lower lows. Almost every other technical-analysis idea — support, resistance, breakouts, moving averages — is really just a more detailed way of describing this one concept.`,
@@ -2672,7 +4117,7 @@ const KB = [
     en:`Momentum measures the speed and strength of a price move — not just where price is going, but how fast. Indicators like RSI and MACD are essentially tools for measuring momentum. A price rise with strong momentum is generally considered more reliable than a slow, shallow one.`,
     related:['rsi','macd'] },
 
-  { id:'volatility', cat:'technical', kw:['volatility','volatile','fluctuation','fluctuations','תנודתיות','וולטיליטי'],
+  { id:'volatility', cat:'technical', kw:['volatility','volatile','fluctuation','fluctuations','תנודתיות','תנודתית','תנודתי','וולטיליטי'],
     he:`תנודתיות מודדת כמה מחיר נכס נע (למעלה ולמטה) בפרק זמן נתון. נכס תנודתי מאוד יכול לנוע הרבה אחוזים ביום אחד; נכס יציב נע בעדינות. תנודתיות גבוהה יותר בדרך כלל אומרת פוטנציאל רווח גבוה יותר — אבל גם פוטנציאל הפסד גבוה יותר.`,
     en:`Volatility measures how much an asset's price moves (up and down) over a given period. A highly volatile asset can swing many percent in a single day; a stable one moves gently. Higher volatility generally means higher potential gain — but also higher potential loss.`,
     related:['beta','risk'] },
@@ -2681,6 +4126,7 @@ const KB = [
     he:`אף אינדיקטור בודד לא "נכון" בפני עצמו — הערך האמיתי מגיע משילוב כמה זוויות ראייה שונות. גישה נפוצה: קודם לזהות את המגמה הכללית (ממוצעים נעים, שיאים/שפלים), אחר כך לבדוק אם יש אישור לתנועה בנפח מסחר, ורק אז להסתכל על אינדיקטורים כמו RSI או MACD כדי להעריך אם המומנטום עדיין תומך בכיוון או כבר נחלש. כשכמה כלים "מסכימים" בכיוון אחד, האיתות נחשב אמין יותר; כשהם סותרים זה את זה (למשל פריצה עם נפח גבוה אבל RSI כבר בקניית יתר קיצונית), זה סימן להיזהר ולא לפעול על בסיס כלי אחד בלבד.`,
     en:`No single indicator is "correct" on its own — the real value comes from combining several different viewpoints. A common approach: first identify the overall trend (moving averages, highs/lows), then check whether volume confirms the move, and only then look at indicators like RSI or MACD to judge whether momentum still supports the direction or is already fading. When several tools "agree" on one direction, the signal is considered more reliable; when they conflict (for example a breakout on high volume but RSI already extremely overbought), that's a cue for caution rather than acting on a single tool alone.`,
     related:['breakout-volume-rsi-conflict-scenario','trend'] },
+
 
   { id:'diversification', cat:'risk', kw:['diversification','diversify','פיזור','פיזור סיכונים','דיברסיפיקציה'],
     he:`פיזור השקעות פירושו לא לשים את כל הכסף בנכס אחד, אלא לחלק אותו בין מניות, ענפים, אזורים גיאוגרפיים ואולי גם סוגי נכסים שונים (מניות, אג"ח וכו'). הרעיון: אם נכס אחד יורד בחדות, שאר התיק לא בהכרח יורד באותה מידה, וזה מקטין את התנודתיות הכוללת של התיק. חשוב לדעת: פיזור רחב יותר לא "תמיד עדיף" — הוא מקטין גם את הסיכוי לתשואה יוצאת דופן, לא רק את הסיכון.`,
@@ -2757,6 +4203,7 @@ const KB = [
     en:`Lump sum investing means putting the entire amount into the market all at once, rather than spreading it out over time. Statistically, because markets rise on average most of the time, investing a lump sum immediately tends to outperform DCA over long periods — but DCA offers more peace of mind and less risk of unlucky timing right before a sharp decline.`,
     related:['dollar-cost-averaging','time-horizon'] },
 
+
   { id:'inflation', cat:'macro', kw:['inflation','אינפלציה'],
     he:`אינפלציה היא עלייה כללית ומתמשכת במחירים במשק, שמשמעותה שכוח הקנייה של אותו סכום כסף יורד עם הזמן. אינפלציה משפיעה על שוק ההון בכמה דרכים: ריביות עולות בדרך כלל כדי לבלום אותה, מה שיכול להכביד על מניות (במיוחד חברות צמיחה), בעוד נכסים מסוימים (כמו זהב או נדל"ן) נתפסים לעיתים כ"הגנה" מפניה.`,
     en:`Inflation is a general, ongoing rise in prices across the economy, meaning the same amount of money buys less over time. It affects markets in several ways: interest rates are usually raised to fight it, which can weigh on stocks (especially growth companies), while certain assets (like gold or real estate) are sometimes seen as a hedge against it.`,
@@ -2812,6 +4259,7 @@ const KB = [
     en:`Gold is traditionally seen as a "safe haven" asset — investors tend to turn to it during periods of uncertainty, high inflation, or fear of crisis, because unlike stocks it doesn't depend on any company's profits. However, gold doesn't generate ongoing income (like a dividend or interest), so its value comes almost entirely from the expectation that someone else will pay more for it in the future.`,
     related:['inflation','commodities'] },
 
+
   { id:'coupon', cat:'bonds', kw:['coupon','coupon rate','קופון','ריבית קופון'],
     he:`הקופון הוא תשלום הריבית הקבוע שהמנפיק (ממשלה או חברה) משלם למחזיק האג"ח, בדרך כלל פעם או פעמיים בשנה, כאחוז מהערך הנקוב של האג"ח. השם ההיסטורי מגיע מהתקופה שבה אג"ח היו ניירות פיזיים עם "קופונים" שנחתכים ומוגשים לתשלום.`,
     en:`The coupon is the fixed interest payment the issuer (government or company) pays the bondholder, usually once or twice a year, as a percentage of the bond's face value. The name comes historically from when bonds were physical certificates with tearable "coupons" submitted for payment.`,
@@ -2836,6 +4284,7 @@ const KB = [
     he:`סיכון אשראי הוא הסיכוי שהמנפיק לא יעמוד בהתחייבויות התשלום שלו (חדלות פירעון). אג"ח ממשלתיות של מדינות יציבות נחשבות בדרך כלל בסיכון אשראי נמוך; אג"ח קונצרניות (של חברות) נושאות סיכון גבוה יותר, בהתאם לחוסן הפיננסי של החברה. חברות דירוג אשראי (כמו S&P, Moody's) מדרגות אג"ח לפי רמת הסיכון — אג"ח בדירוג נמוך מאוד נקראות "אג"ח זבל" (Junk Bonds / High Yield), ומציעות ריבית גבוהה יותר כדי לפצות על הסיכון הגדול יותר.`,
     en:`Credit risk is the chance that the issuer won't meet its payment obligations (default). Government bonds from stable countries are generally considered low credit risk; corporate bonds carry higher risk, depending on the company's financial strength. Credit rating agencies (like S&P, Moody's) rate bonds by risk level — very low-rated bonds are called "junk bonds" (or high-yield bonds), and offer higher interest to compensate for the greater risk.`,
     related:['bond','interest-coverage'] },
+
 
   { id:'options-basics', cat:'advanced', kw:['options','call option','put option','strike price','expiration','premium','אופציות','קול','פוט','מחיר מימוש','פקיעה','פרמיה'],
     he:`אופציה היא זכות (לא חובה) לקנות (Call) או למכור (Put) מניה במחיר קבוע מראש ("מחיר מימוש", Strike) עד תאריך מסוים ("פקיעה", Expiration). מחזיק האופציה משלם "פרמיה" (Premium) עבור הזכות הזו. אופציית Call מרוויחה אם המניה עולה מעל המחיר המימוש; אופציית Put מרוויחה אם המניה יורדת מתחתיו. אופציות הן כלי ממונף — ניתן להרוויח (או להפסיד) הרבה יותר, באחוזים, ממה שהיה קורה בהחזקת המניה עצמה.`,
@@ -2902,6 +4351,7 @@ const KB = [
     en:`Arbitrage is exploiting a temporary price difference of the same (or an equivalent) asset across two markets or forms, buying cheap in one place and selling higher in another almost simultaneously, for a nearly risk-free profit. Arbitrage opportunities tend to close very quickly in liquid, developed markets, because professional traders (and often algorithms) are constantly hunting for them.`,
     related:['liquidity','market-makers'] },
 
+
   { id:'rate-growth-stocks-link', cat:'scenario', kw:['rate hike growth stocks','rising rates hurt growth stocks','if interest rates rise why do growth stocks fall','what does that do to growth stocks','ריבית עולה מניות צמיחה','למה מניות צמיחה נפגעות מריבית','מה זה עושה למניות צמיחה','השפעה על מניות צמיחה','מניות צמיחה וריבית'],
     he:`הקשר עובד דרך הערכת שווי, לא דרך הרווח הנוכחי של החברה. שווי חברת צמיחה מבוסס במידה רבה על ציפייה לרווחים גדולים בעתיד הרחוק (ראה DCF). כדי לתרגם רווחים עתידיים לשווי של היום, מהוונים אותם לפי שיעור היוון שמושפע ישירות מריבית המשק. כשריבית עולה, שיעור ההיוון עולה, וכל שקל רווח עתידי "שווה" פחות במונחי היום — והפגיעה הזו חזקה יותר ככל שהרווחים רחוקים יותר בזמן, בדיוק כמו אצל חברות צמיחה. חברת ערך יציבה עם רווחים גבוהים כבר עכשיו נפגעת הרבה פחות מאותה עליית ריבית, כי פחות מהשווי שלה תלוי ברווחים רחוקים.`,
     en:`The connection works through valuation, not through the company's current profit. A growth company's value rests heavily on the expectation of large profits far in the future (see DCF). To translate future profits into today's value, they're discounted using a rate directly influenced by the economy's interest rate. When rates rise, the discount rate rises, and every dollar of future profit is "worth" less in today's terms — and that hit is larger the further away those profits are in time, exactly as with growth companies. A stable value company with high profits already today is hurt much less by that same rate increase, because less of its value depends on distant future earnings.`,
@@ -2916,6 +4366,7 @@ const KB = [
     he:`זהו בדיוק מקרה שבו שני אינדיקטורים "מסתכלים" על שני דברים שונים ונותנים איתותים סותרים לכאורה. פריצה עם נפח מסחר גבוה היא סימן חיובי — היא מרמזת שהרבה משתתפים שוק תומכים בתנועה, וזה מוריד את הסיכוי ל"פריצת שווא". אבל RSI מעל 70 מרמז שהעלייה כבר "נמתחה" מבחינת קצב ועוצמת התנועה בטווח הקצר, ומעלה סיכון לתיקון קצר-טווח או "נשימה" לפני המשך. שילוב נכון: הפריצה עצמה נחשבת אמינה יותר (בזכות הנפח), אבל דווקא בגלל ה-RSI הגבוה, סוחרים רבים יעדיפו לחכות ל-Pullback או ל"התקררות" מסוימת של ה-RSI לפני כניסה, במקום לרדוף אחרי המחיר מיד בשיא.`,
     en:`This is exactly a case where two indicators are "looking at" two different things and appear to give conflicting signals. A breakout on high volume is a positive sign — it hints that many market participants support the move, lowering the chance of a "false breakout". But RSI above 70 hints the rally is already "stretched" in terms of short-term speed and strength, raising the risk of a short-term pullback or "breather" before continuing. A sensible combination: the breakout itself is considered more reliable (thanks to the volume), but precisely because of the high RSI, many traders would prefer to wait for a pullback or some "cooling off" of RSI before entering, rather than chasing the price right at the new high.`,
     related:['combining-indicators','rsi'] },
+
 
   { id:'how-to-analyze', cat:'meta', kw:['how do you analyze a stock','how to analyze a stock','analyze a stock','לנתח מניה','איך מנתחים מניה','איך לנתח מניה'],
     he:`יש שתי גישות עיקריות, ולרוב הכי טוב לשלב ביניהן: ניתוח פונדמנטלי (בודק את הבריאות הכלכלית של החברה — הכנסות, רווחים, שולי רווח, יחסי מינוף, תזרים מזומנים) וניתוח טכני (בודק את התנהגות המחיר על הגרף — מגמות, תמיכה/התנגדות, נפח, אינדיקטורים). משקיעים לטווח ארוך נוטים להטות יותר לכיוון הפונדמנטלי; סוחרים לטווח קצר נוטים להטות יותר לכיוון הטכני. תוכל לשאול אותי על כל אחד מהמדדים או המושגים בנפרד — למשל P/E, ROIC, RSI או תבניות גרף — ואני אסביר מה הוא אומר ולמה הוא חשוב.`,
@@ -2950,6 +4401,7 @@ const KB = [
     he:`בכיף! אם יש עוד שאלה בנושא שוק ההון או השיעורים באתר — אני כאן.`,
     en:"You're welcome! If there's another question about the market or the lessons here, I'm around." }
 ];
+
 // ---------------------------------------------------------------------------
 // Israel-specific market topics. Added after research showed these are
 // among the most frequently asked real-world questions for a Hebrew-first
@@ -2973,6 +4425,7 @@ const KB_ISRAEL = [
     related:['capital-gains-tax-israel','compound-interest'] },
 ];
 KB.push.apply(KB, KB_ISRAEL);
+
 // ---------------------------------------------------------------------------
 // Behavioral finance / market psychology / scams — an entire category that
 // research showed was completely absent from the KB, despite being one of
@@ -2996,13 +4449,14 @@ const KB_BEHAVIORAL = [
     related:['behavioral-biases','liquidity'] },
 ];
 KB.push.apply(KB, KB_BEHAVIORAL);
+
 // ---------------------------------------------------------------------------
 // Gaps found during real-device QA (screenshots from the live site). Each of
 // these was a question a real user actually asked that fell through to the
 // generic fallback or matched an unrelated entry.
 // ---------------------------------------------------------------------------
 const KB_QA_GAPS = [
-  { id:'bull-vs-bear-market', cat:'comparisons', kw:['bull market vs bear market','difference between bull and bear market','bull and bear market','ההבדל בין שוק שורי לשוק דובי','שוק שורי לשוק דובי','שוק דובי לשורי','שוק שורי לדובי','בול מרקט ובר מרקט'],
+  { id:'bull-vs-bear-market', cat:'comparisons', sides:['bull-market','bear-market'], kw:['bull market vs bear market','difference between bull and bear market','bull and bear market','ההבדל בין שוק שורי לשוק דובי','שוק שורי לשוק דובי','שוק דובי לשורי','שוק שורי לדובי','בול מרקט ובר מרקט'],
     he:`"שוק שורי" (Bull Market) הוא תקופה ממושכת שבה מחירים עולים באופן כללי, בדרך כלל מוגדר כעלייה של 20% ומעלה משפל קודם, ומלווה באופטימיות, ביטחון של משקיעים וכלכלה מתרחבת. "שוק דובי" (Bear Market) הוא ההפך: ירידה של 20% ומעלה משיא קודם, לרוב מלווה בפסימיות, חשש ולעיתים האטה כלכלית. מקור השמות בדרך שבה החיות תוקפות: שור נועץ קרניים כלפי מעלה, ודוב מנחית טפרים כלפי מטה. חשוב לדעת: שוק דובי הוא חלק נורמלי ומחזורי מהשוק ולא אירוע חריג — היסטורית, שווקים דוביים היו קצרים יותר משווקים שוריים, ואחריהם השוק בסופו של דבר התאושש, אם כי אין ערובה לכך שזה יקרה שוב או תוך כמה זמן. ירידה קטנה יותר (כ-10%) נקראת "תיקון" (Correction) ולא שוק דובי.`,
     en:`A "bull market" is an extended period of generally rising prices, usually defined as a 20%+ rise from a prior low, accompanied by optimism, investor confidence, and an expanding economy. A "bear market" is the opposite: a 20%+ decline from a prior peak, typically accompanied by pessimism, fear, and sometimes an economic slowdown. The names come from how the animals attack: a bull thrusts its horns upward, a bear swipes its claws downward. Worth knowing: a bear market is a normal, cyclical part of markets rather than a freak event — historically, bear markets have been shorter than bull markets, and markets have eventually recovered afterward, though there's no guarantee that repeats or how long it would take. A smaller decline (around 10%) is called a "correction," not a bear market.`,
     related:['trend','pullback'] },
@@ -3018,6 +4472,7 @@ const KB_QA_GAPS = [
     related:['fundamental','moat'] },
 ];
 KB.push.apply(KB, KB_QA_GAPS);
+
 // ---------------------------------------------------------------------------
 // Single-concept entries with FACETED content.
 //
@@ -3085,6 +4540,7 @@ const KB_FOCUSED = [
     related:['stop-loss','take-profit'] },
 ];
 KB.push.apply(KB, KB_FOCUSED);
+
 // ---------------------------------------------------------------------------
 // Period-specific moving averages.
 //
@@ -3137,6 +4593,626 @@ function maBandDescription(n, he){
     ? `ממוצע נע ${n} הוא ממוצע ארוך, שמתאר את המגמה הראשית ומגיב לאט מאוד. שבירה מתמשכת מתחתיו נחשבת סימן משמעותי לשינוי במגמה הגדולה, אבל הוא כלי לאישור ולא להתראה מוקדמת.`
     : `The ${n}-period moving average is a long average describing the primary trend, and it reacts very slowly. A sustained break below it is considered a meaningful sign of a change in the larger trend, but it's a confirmation tool rather than an early warning.`;
 }
+
+// ---------------------------------------------------------------------------
+// Technical indicators — pure functions over a closes[] array (oldest→newest)
+// or a history[] of {date,open,high,low,close,volume} bars.
+//
+// These are deliberately provider-agnostic: they don't know or care whether
+// the prices came from Twelve Data or DemoProvider. This is what lets Demo
+// Mode produce a fully real technical analysis over fake-but-consistent
+// prices, rather than needing its own parallel fake-indicator logic.
+//
+// No AI, no LLM, and no guessing touches these numbers — every value here is
+// a real, auditable calculation. This is what keeps the assistant's answers
+// trustworthy: it never asks anything to "calculate RSI" from a description.
+// ---------------------------------------------------------------------------
+
+function pad2(n){ return String(n).padStart(2,'0'); }
+function formatTimestamp(d){
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+
+function mdSma(values, period){
+  if(values.length < period) return null;
+  const slice = values.slice(-period);
+  return slice.reduce((a,b) => a+b, 0) / period;
+}
+
+function emaSeries(values, period){
+  if(values.length < period) return null;
+  const k = 2 / (period + 1);
+  let emaVal = values.slice(0, period).reduce((a,b)=>a+b,0) / period;
+  for(let i = period; i < values.length; i++){
+    emaVal = values[i] * k + emaVal * (1 - k);
+  }
+  return emaVal;
+}
+
+function rsi(values, period){
+  period = period || 14;
+  if(values.length < period + 1) return null;
+  const slice = values.slice(-(period+1));
+  let gains = 0, losses = 0;
+  for(let i = 1; i < slice.length; i++){
+    const diff = slice[i] - slice[i-1];
+    if(diff >= 0) gains += diff; else losses -= diff;
+  }
+  const avgGain = gains / period, avgLoss = losses / period;
+  if(avgLoss === 0) return 100;
+  const rs = avgGain / avgLoss;
+  return 100 - (100 / (1 + rs));
+}
+
+function macd(values){
+  if(values.length < 26) return null;
+  // Compute EMA12/EMA26 as running series so the MACD line itself can be
+  // smoothed into a signal line, rather than just a single latest value.
+  function emaSeriesFull(vals, period){
+    const k = 2/(period+1);
+    const out = [];
+    let e = vals.slice(0, period).reduce((a,b)=>a+b,0) / period;
+    out[period-1] = e;
+    for(let i = period; i < vals.length; i++){
+      e = vals[i]*k + e*(1-k);
+      out[i] = e;
+    }
+    return out;
+  }
+  const ema12 = emaSeriesFull(values, 12);
+  const ema26 = emaSeriesFull(values, 26);
+  const macdLine = [];
+  for(let i = 25; i < values.length; i++){
+    macdLine.push(ema12[i] - ema26[i]);
+  }
+  if(macdLine.length < 9) return { macd: macdLine[macdLine.length-1], signal: null, histogram: null };
+  const signal = emaSeries(macdLine, 9);
+  const macdVal = macdLine[macdLine.length-1];
+  return { macd: macdVal, signal, histogram: (signal!=null ? macdVal - signal : null) };
+}
+
+function volatilityPct(values, period){
+  period = period || 20;
+  if(values.length < period + 1) return null;
+  const slice = values.slice(-(period+1));
+  const returns = [];
+  for(let i = 1; i < slice.length; i++) returns.push((slice[i]-slice[i-1]) / slice[i-1]);
+  const mean = returns.reduce((a,b)=>a+b,0) / returns.length;
+  const variance = returns.reduce((a,b)=>a+Math.pow(b-mean,2),0) / returns.length;
+  const dailyStd = Math.sqrt(variance);
+  return dailyStd * Math.sqrt(252) * 100; // annualized, as a percentage
+}
+
+function fiftyTwoWeek(history){
+  const slice = history.slice(-252);
+  if(!slice.length) return null;
+  const highs = slice.map(r=>r.high), lows = slice.map(r=>r.low);
+  return { high: Math.max(...highs), low: Math.min(...lows) };
+}
+
+function pctChange(from, to){
+  if(from === 0 || from == null || to == null) return null;
+  return ((to - from) / from) * 100;
+}
+
+function describeTrend(closes, he){
+  const s50 = mdSma(closes, 50), s200 = mdSma(closes, 200);
+  const last = closes[closes.length-1];
+  if(s50 == null) return he ? 'אין מספיק היסטוריה כדי לקבוע מגמה.' : 'Not enough history to determine a trend.';
+  if(s200 == null){
+    const above = last > s50;
+    return he
+      ? `המחיר ${above?'מעל ל':'מתחת ל'}ממוצע הנע ל-50 יום, מה שמרמז על מגמה קצרה-בינונית ${above?'חיובית':'שלילית'}. אין עדיין מספיק היסטוריה לממוצע 200 יום.`
+      : `Price is ${above?'above':'below'} the 50-day moving average, suggesting a short/intermediate-term ${above?'uptrend':'downtrend'}. Not enough history yet for the 200-day average.`;
+  }
+  const aboveBoth = last > s50 && last > s200 && s50 > s200;
+  const belowBoth = last < s50 && last < s200 && s50 < s200;
+  if(aboveBoth) return he ? 'מגמה חיובית מסודרת: המחיר מעל ממוצע 50, ממוצע 50 מעל ממוצע 200 (מבנה "צלב זהב").' : 'Orderly uptrend: price above the 50-day average, which is above the 200-day average (a "golden cross" structure).';
+  if(belowBoth) return he ? 'מגמה שלילית מסודרת: המחיר מתחת לממוצע 50, ממוצע 50 מתחת לממוצע 200 (מבנה "צלב מוות").' : 'Orderly downtrend: price below the 50-day average, which is below the 200-day average (a "death cross" structure).';
+  return he ? 'תמונה מעורבת — הממוצעים הקצר והארוך אינם מיושרים לאותו כיוון כרגע.' : 'Mixed picture — the short and long averages aren\'t currently aligned in the same direction.';
+}
+
+// ---------------------------------------------------------------------------
+// MarketDataProvider — the contract every data source implements.
+//
+// This file has no runtime logic; it exists so the shape below is written
+// down ONCE instead of re-derived by reading twelvedata-provider.js. Every
+// provider object must expose exactly this shape:
+//
+//   {
+//     id: string,                 // 'twelvedata' | 'demo' | ...
+//     isDemo: boolean,            // UI/AI must surface this — never hide it
+//     sourceLabel: string,        // shown to the user for provenance
+//     async getQuote(ticker)      -> { price, change, changePct, asOf,
+//                                      previousClose, week52 } | throws
+//     async getHistory(ticker, days) -> [{date,open,high,low,close,volume}]
+//                                       oldest -> newest | throws
+//     async getFundamentals(ticker)  -> object | null (best-effort, never
+//                                       required for a price/technical answer)
+//     async searchSymbol(query)      -> [{symbol,name,exchange,
+//                                          instrument_type}] | []
+//   }
+//
+// Why this exists (from the audit): before this refactor, the AI called
+// Twelve Data's fetch functions directly by name throughout the codebase.
+// Swapping providers, or adding Demo Mode, meant touching every call site.
+// Now `getMarketData()` in index.js depends only on this shape — adding a
+// new provider means writing one file that satisfies it, nothing else
+// changes.
+//
+// `getQuote`/`getHistory` are expected to THROW on failure (network error,
+// bad symbol, quota exceeded) rather than return a sentinel — the
+// orchestration layer in index.js is the single place that turns a thrown
+// error into the honest "couldn't fetch" answer. Never swallow an error
+// into a fabricated zero/null value inside a provider.
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// TwelveDataProvider — the live MarketDataProvider implementation.
+//
+// Rejected alternatives, and why, are recorded in docs/MARKET_DATA.md — this
+// isn't the first source tried; Yahoo (no CORS), Finnhub (no CORS),
+// IEX Cloud (discontinued), marketdata.app (license forbids public sites),
+// and Stooq (started requiring a CAPTCHA-issued key in April 2026) were all
+// ruled out first. Don't re-litigate that search without new evidence that
+// one of them changed.
+//
+// IMPORTANT — read before setting the key below: this file ships inside a
+// public static site, so the key is visible to, and shared by, every
+// visitor (view-source is enough). Twelve Data's free plan is 800
+// requests/day and 8/minute TOTAL across all visitors, not per visitor —
+// each stock question costs 2-3 requests (quote + history, optionally
+// fundamentals), so roughly 250-400 stock questions/day site-wide before
+// the shared quota resets. That's generous for an education site's normal
+// traffic; under a real spike it degrades to the honest "couldn't fetch"
+// answer rather than breaking anything else.
+// ---------------------------------------------------------------------------
+const TWELVE_DATA_API_KEY = 'c9a2ecebe83c4207bee448ce6b5eef88';
+
+async function twelveDataGetQuote(ticker){
+  const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(ticker)}&apikey=${encodeURIComponent(TWELVE_DATA_API_KEY)}`;
+  const res = await fetch(url, { cache: 'no-store' });
+  if(!res.ok) throw new Error('twelvedata_http_' + res.status);
+  const data = await res.json();
+  if(data.status === 'error' || data.code) throw new Error('twelvedata_quote_error');
+  return {
+    price: data.close != null ? parseFloat(data.close) : null,
+    change: data.change != null ? parseFloat(data.change) : null,
+    changePct: data.percent_change != null ? parseFloat(data.percent_change) : null,
+    asOf: data.datetime || null,
+    previousClose: data.previous_close != null ? parseFloat(data.previous_close) : null,
+    week52: data.fifty_two_week
+      ? { high: parseFloat(data.fifty_two_week.high), low: parseFloat(data.fifty_two_week.low) }
+      : null
+  };
+}
+
+async function twelveDataGetHistory(ticker, days){
+  days = days || 260; // enough for a 200-day SMA plus headroom
+  const url = `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(ticker)}&interval=1day&outputsize=${days}&apikey=${encodeURIComponent(TWELVE_DATA_API_KEY)}`;
+  const res = await fetch(url, { cache: 'no-store' });
+  if(!res.ok) throw new Error('twelvedata_http_' + res.status);
+  const data = await res.json();
+  if(data.status === 'error' || data.code || !Array.isArray(data.values)) throw new Error('twelvedata_history_error');
+  // Twelve Data returns newest-first; every field arrives as a string.
+  return data.values
+    .map(v => ({
+      date: v.datetime,
+      open: parseFloat(v.open), high: parseFloat(v.high), low: parseFloat(v.low),
+      close: parseFloat(v.close), volume: parseFloat(v.volume)
+    }))
+    .reverse();
+}
+
+async function twelveDataGetFundamentals(ticker){
+  if(!TWELVE_DATA_API_KEY) return null;
+  try{
+    const url = `https://api.twelvedata.com/statistics?symbol=${encodeURIComponent(ticker)}&apikey=${encodeURIComponent(TWELVE_DATA_API_KEY)}`;
+    const res = await fetch(url, { cache: 'no-store' });
+    if(!res.ok) return null;
+    const data = await res.json();
+    if(data.status === 'error' || data.code) return null;
+    return data;
+  }catch(e){ return null; } // fundamentals are always best-effort, never fatal
+}
+
+async function twelveDataSearchSymbol(queryText){
+  const url = `https://api.twelvedata.com/symbol_search?symbol=${encodeURIComponent(queryText)}&apikey=${encodeURIComponent(TWELVE_DATA_API_KEY)}`;
+  const res = await fetch(url, { cache: 'no-store' });
+  if(!res.ok) return [];
+  const json = await res.json();
+  return Array.isArray(json.data) ? json.data : [];
+}
+
+// Satisfies the MarketDataProvider contract in provider-interface.js.
+const TwelveDataProvider = {
+  id: 'twelvedata',
+  isDemo: false,
+  sourceLabel: 'Twelve Data',
+  hasApiKey: () => !!TWELVE_DATA_API_KEY,
+  getQuote: twelveDataGetQuote,
+  getHistory: twelveDataGetHistory,
+  getFundamentals: twelveDataGetFundamentals,
+  searchSymbol: twelveDataSearchSymbol
+};
+
+// ---------------------------------------------------------------------------
+// DemoProvider — works with zero network calls and zero API key.
+//
+// Purpose: local development, offline demos, and a safety valve if the real
+// provider's quota is exhausted. It satisfies the exact same
+// MarketDataProvider contract as TwelveDataProvider (see
+// provider-interface.js), so switching providers never requires touching
+// the AI or UI layers — see setActiveMarketDataProvider() in index.js.
+//
+// Hard rule (this is the whole point of a Demo Mode, not an optional
+// nicety): every value this returns is clearly, structurally marked as
+// fake. `isDemo: true` on the provider, and every quote/history object also
+// carries `isDemo: true` so a formatter can't accidentally drop the label
+// partway through a call chain. Nothing here should ever be presented to a
+// user as if it were a real price. See docs/MARKET_DATA.md.
+//
+// Determinism: the same ticker always produces the same series (seeded by a
+// hash of the ticker string), so the demo is stable and screenshotable
+// rather than jumping around on every reload.
+// ---------------------------------------------------------------------------
+
+function demoSeedFromString(str){
+  let h = 2166136261;
+  for(let i = 0; i < str.length; i++){
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+// mulberry32 — small, fast, deterministic PRNG. Not cryptographic; doesn't
+// need to be, this only ever generates illustrative fake prices.
+function demoRandomGenerator(seed){
+  let a = seed;
+  return function(){
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function demoGenerateHistory(ticker, days){
+  days = days || 260;
+  const rand = demoRandomGenerator(demoSeedFromString(ticker.toUpperCase()));
+  // Start price varies by ticker (deterministically) so different demo
+  // tickers don't all look identical, then walks with a mild upward drift
+  // and daily noise — enough to produce plausible RSI/MACD/trend behavior.
+  let price = 20 + rand() * 180;
+  const history = [];
+  const start = new Date();
+  start.setDate(start.getDate() - days);
+  for(let i = 0; i < days; i++){
+    const drift = 0.0003;
+    const noise = (rand() - 0.5) * 0.03;
+    price = Math.max(1, price * (1 + drift + noise));
+    const open = price * (1 + (rand()-0.5)*0.01);
+    const high = Math.max(open, price) * (1 + rand()*0.008);
+    const low = Math.min(open, price) * (1 - rand()*0.008);
+    const d = new Date(start);
+    d.setDate(d.getDate() + i);
+    history.push({
+      date: d.toISOString().slice(0,10),
+      open: +open.toFixed(2), high: +high.toFixed(2), low: +low.toFixed(2),
+      close: +price.toFixed(2), volume: Math.floor(1_000_000 + rand()*40_000_000)
+    });
+  }
+  return history;
+}
+
+async function demoGetHistory(ticker, days){
+  return demoGenerateHistory(ticker, days).map(bar => Object.assign({ isDemo: true }, bar));
+}
+
+async function demoGetQuote(ticker){
+  const history = demoGenerateHistory(ticker, 260);
+  const last = history[history.length-1], prev = history[history.length-2];
+  const highs = history.map(b=>b.high), lows = history.map(b=>b.low);
+  return {
+    isDemo: true,
+    price: last.close,
+    change: +(last.close - prev.close).toFixed(2),
+    changePct: +(((last.close - prev.close) / prev.close) * 100).toFixed(2),
+    asOf: last.date,
+    previousClose: prev.close,
+    week52: { high: Math.max(...highs), low: Math.min(...lows) }
+  };
+}
+
+async function demoGetFundamentals(ticker){
+  const rand = demoRandomGenerator(demoSeedFromString(ticker.toUpperCase() + '-fund'));
+  return {
+    isDemo: true,
+    valuations_metrics: {
+      trailing_pe: +(10 + rand()*40).toFixed(1),
+      market_capitalization: (rand()*500 + 1).toFixed(1) + 'B (demo)'
+    }
+  };
+}
+
+async function demoSearchSymbol(queryText){
+  // No real database in Demo Mode — synthesize one clearly-fake match so the
+  // rest of the resolution pipeline (which expects a symbol_search shape)
+  // still has something to rank, without ever claiming this is a real
+  // company. The synthesized ticker is deterministic per query.
+  //
+  // Critical guard: only do this for something that's actually shaped like
+  // a company-name attempt. A real provider naturally returns no match for
+  // an ordinary question ("who is more profitable?") because no company is
+  // named "who is more profitable" — but this function used to fabricate a
+  // plausible-looking match for ANY non-empty string, including exactly
+  // that kind of natural-language question when it reached here as a
+  // (wrongly) extracted "candidate". Reuses the same comparison/pronoun
+  // pattern detection the AI's entity-context layer already relies on
+  // (conversation-context.js) rather than inventing a second, parallel
+  // keyword list — a query that reads as a comparison or pronoun reference
+  // is by definition not someone naming a company.
+  const norm = normalizeText(queryText);
+  if(looksLikeEntityComparison(norm) || looksLikeEntityPronounReference(norm)) return [];
+  const cleaned = queryText.trim().replace(/\s+/g, ' ');
+  if(!cleaned) return [];
+  const fakeTicker = ('DEMO' + demoSeedFromString(cleaned.toUpperCase()).toString(36).slice(0,4)).toUpperCase();
+  return [{
+    symbol: fakeTicker,
+    instrument_name: `${cleaned} (Demo)`,
+    exchange: 'DEMO',
+    instrument_type: 'Common Stock',
+    isDemo: true
+  }];
+}
+
+// Satisfies the MarketDataProvider contract in provider-interface.js.
+const DemoProvider = {
+  id: 'demo',
+  isDemo: true,
+  sourceLabel: 'Demo Mode — נתוני הדגמה, אינם משקפים מחירים אמיתיים',
+  hasApiKey: () => true, // demo mode never needs a key
+  getQuote: demoGetQuote,
+  getHistory: demoGetHistory,
+  getFundamentals: demoGetFundamentals,
+  searchSymbol: demoSearchSymbol
+};
+
+// ---------------------------------------------------------------------------
+// Market-data orchestration.
+//
+// This is the seam the whole provider abstraction exists for: everything
+// above this file (the AI's intent/formatting layer, the UI's stock card)
+// calls getMarketData(ticker) and only ever sees the shape documented
+// below. Swapping TwelveDataProvider for DemoProvider — or a future real
+// provider — never requires touching anything above this file.
+// ---------------------------------------------------------------------------
+
+// Default to the live provider. Flip with setActiveMarketDataProvider(DemoProvider)
+// for local development or offline demos — see docs/MARKET_DATA.md.
+let activeMarketDataProvider = TwelveDataProvider;
+const marketDataCache = {}; // ticker -> { ts, promise } — avoid refetching within a session
+
+function setActiveMarketDataProvider(provider){
+  activeMarketDataProvider = provider;
+  Object.keys(marketDataCache).forEach(k => delete marketDataCache[k]);
+}
+function getActiveMarketDataProvider(){
+  return activeMarketDataProvider;
+}
+
+// Top-level `const`/`let` (including the DemoProvider/TwelveDataProvider
+// objects themselves) do NOT become `window` properties in a plain script —
+// only `var` and function declarations do. That's invisible to code inside
+// this same script (ordinary lexical scope still sees them), but it means
+// anything reaching in from OUTSIDE this script tag — browser console
+// tooling, an automated end-to-end test driver, a future settings panel —
+// silently gets `undefined` instead of the real object. This was caught by
+// exactly that kind of external check during testing. Explicit exports for
+// the small public surface a caller outside this file might reasonably need:
+if(typeof window !== 'undefined'){
+  window.DemoProvider = DemoProvider;
+  window.TwelveDataProvider = TwelveDataProvider;
+}
+
+// Returns { ok:true, data:{...}, fetchedAt } or { ok:false, reason }.
+// Never throws past this point, and never returns a fabricated number —
+// a provider failure always becomes an explicit ok:false.
+async function getMarketData(ticker){
+  const provider = activeMarketDataProvider;
+  if(!provider.hasApiKey()){
+    return { ok:false, reason:'no_api_key' };
+  }
+  const cacheKey = provider.id + ':' + ticker;
+  const cacheHit = marketDataCache[cacheKey];
+  if(cacheHit && (Date.now() - cacheHit.ts) < 2 * 60 * 1000) return cacheHit.promise;
+
+  const p = (async () => {
+    let history, quote;
+    try{
+      [history, quote] = await Promise.all([
+        provider.getHistory(ticker),
+        provider.getQuote(ticker)
+      ]);
+    }catch(e){
+      return { ok:false, reason:'no_price_source' };
+    }
+    if(!history || history.length < 2 || !quote) return { ok:false, reason:'no_price_source' };
+
+    const closes = history.map(r => r.close);
+    const last = history[history.length-1];
+    const asOfDate = quote.asOf || last.date;
+    const price = quote.price != null ? quote.price : last.close;
+    const week52 = quote.week52 || fiftyTwoWeek(history);
+
+    const result = {
+      ticker,
+      isDemo: !!provider.isDemo,
+      asOf: asOfDate,
+      price,
+      open: last.open, high: last.high, low: last.low, volume: last.volume,
+      change: quote.change, changePct: quote.changePct,
+      sma20: mdSma(closes, 20), sma50: mdSma(closes, 50), sma200: mdSma(closes, 200),
+      ema12: emaSeries(closes, 12), ema26: emaSeries(closes, 26),
+      rsi14: rsi(closes, 14),
+      macd: macd(closes),
+      volatility20: volatilityPct(closes, 20),
+      week52,
+      monthChangePct: history.length > 21 ? pctChange(closes[closes.length-22], price) : null,
+      history,
+      source: provider.sourceLabel
+    };
+
+    // Fundamentals are best-effort and additive — their absence never fails
+    // the whole request.
+    try{
+      const fd = await provider.getFundamentals(ticker);
+      if(fd) result.fundamentals = fd;
+    }catch(e){ /* fundamentals unavailable is not an error for price/technical questions */ }
+
+    return { ok:true, data: result, fetchedAt: formatTimestamp(new Date()) };
+  })();
+  marketDataCache[cacheKey] = { ts: Date.now(), promise: p };
+  return p;
+}
+
+// ---------------------------------------------------------------------------
+// Conversation context: entity memory.
+//
+// Before this file, the ONLY thing carried between turns was `lastTopicId`
+// — a single KB-entry-id string like 'pe' or 'bear-market'. That's enough
+// for "explain simpler" / "is that high?" about a CONCEPT, but it has no
+// idea a company was ever mentioned: stock-intent.js resolved a ticker
+// fresh from each message with zero memory. "ספר לי על NVIDIA" followed by
+// "מה ה-P/E שלה?" (what's HER P/E) has no company name in the second
+// message at all — nothing to resolve without entity memory.
+//
+// This is a genuinely separate axis from lastTopicId, not a replacement for
+// it: a conversation can be "about" a KB concept (P/E in general) and/or
+// "about" a specific company (NVIDIA) at the same time, and the two can
+// diverge (asking a generic question about P/E while NVIDIA is still the
+// active entity shouldn't silently answer about NVIDIA's P/E).
+//
+// Design: a plain object, created and threaded by the caller (chat-ui.js),
+// passed as an additional, OPTIONAL argument to generateAiReply — every
+// existing call site and test that only passes (text, lang, lastTopicId)
+// keeps working exactly as before; entity memory simply doesn't apply.
+// ---------------------------------------------------------------------------
+
+function createConversationContext(){
+  return {
+    activeEntity: null,    // { ticker, exchange, name } | null
+    previousEntity: null,  // the entity active before the current one — enables "who is more X, A or B"
+    activeMetric: null,    // last stock FACET discussed for the active entity (e.g. 'pe'), for "is that high?"
+    turnsSinceEntityTouch: 0, // see noteTurnPassed/touchEntityContext/isEntityContextStale below
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Expiration: activeEntity must not stay relevant forever. Without this, a
+// company mentioned once early in a long conversation keeps answering
+// unrelated later pronoun questions indefinitely — confirmed as a real
+// case: after Apple, five unrelated P/E questions later, "is that high?"
+// still silently answered about Apple.
+//
+// Deliberately simple, per "don't over-engineer": a turn counter, not a
+// wall-clock timeout (conversations don't have a meaningful real-time
+// deadline) and not a semantic "topic drift" detector (much harder to get
+// right, and a turn count already solves the actual reported problem).
+// `noteTurnPassed` increments it once per generateAiReply call;
+// `touchEntityContext` resets it to 0 whenever the entity is genuinely
+// still relevant (a direct mention, a pronoun-resolved answer, or a
+// comparison naming it). Once EXPIRE_AFTER_TURNS unrelated turns pass with
+// no touch, the context is treated as stale and cleared before the
+// pronoun/comparison paths get to use it.
+// ---------------------------------------------------------------------------
+const EXPIRE_AFTER_TURNS = 3;
+
+function noteTurnPassed(context){
+  if(!context) return;
+  context.turnsSinceEntityTouch = (context.turnsSinceEntityTouch || 0) + 1;
+}
+function touchEntityContext(context){
+  if(!context) return;
+  context.turnsSinceEntityTouch = 0;
+}
+function isEntityContextStale(context){
+  return !!context && context.activeEntity && context.turnsSinceEntityTouch > EXPIRE_AFTER_TURNS;
+}
+function expireEntityContextIfStale(context){
+  if(isEntityContextStale(context)){
+    context.activeEntity = null;
+    context.previousEntity = null;
+    context.activeMetric = null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Pronoun / implicit-reference detection.
+//
+// Deliberately pattern-based over a short list of possessive/demonstrative
+// forms, the same style already used for KB-topic follow-ups
+// (isHighLowFollowup, isSimplerRequest in matching-engine.js) — not an
+// attempt at general pronoun resolution, just the specific forms that come
+// up when a company is the likely referent.
+//
+// Split into two groups because they resolve differently:
+//   - GENERIC: "מה ה-P/E שלה" (her P/E) names the metric right there in the
+//     message — resolving the pronoun to the active entity is all that's
+//     needed; classifyStockIntent() reads the metric from the message as
+//     normal.
+//   - METRIC-IMPLICIT: "זה גבוה?" (is that high?) names NO metric at all —
+//     it only makes sense relative to whatever metric context.activeMetric
+//     says was just discussed, the same way tryContextualNumberFollowup()
+//     already works for KB concepts (see matching-engine.js).
+// ---------------------------------------------------------------------------
+const GENERIC_ENTITY_PRONOUN_KW = [
+  'שלה','שלו','שלהם','מה איתה','מה איתו','her','his','its',"it's"
+];
+const METRIC_IMPLICIT_PRONOUN_KW = [
+  'זה גבוה','זה נמוך','זה טוב','זה רע','that high','that low','is that high','is that low'
+];
+function looksLikeEntityPronounReference(norm){
+  return GENERIC_ENTITY_PRONOUN_KW.some(k => norm.includes(normalizeText(k)))
+      || METRIC_IMPLICIT_PRONOUN_KW.some(k => norm.includes(normalizeText(k)));
+}
+function looksLikeMetricImplicitReference(norm){
+  return METRIC_IMPLICIT_PRONOUN_KW.some(k => norm.includes(normalizeText(k)));
+}
+
+// ---------------------------------------------------------------------------
+// Entity-comparison detection ("who is more profitable, A or B") — only
+// meaningful once two distinct entities are already in context; the phrase
+// itself never names either company.
+// ---------------------------------------------------------------------------
+const ENTITY_COMPARISON_KW = [
+  'מי יותר','מי ה','איזה מהם','מה עדיף מביניהם','מי עדיף','מי הכי',
+  'who is more','which is more','which one is more','compare them','who has higher','who has better'
+];
+function looksLikeEntityComparison(norm){
+  return ENTITY_COMPARISON_KW.some(k => norm.includes(normalizeText(k)));
+}
+
+// Records a newly-resolved company as the active entity, shifting the old
+// active entity into `previousEntity` — but only when it's actually a
+// DIFFERENT company (asking two questions in a row about the same company
+// shouldn't push it into "previous" and lose it).
+function recordActiveEntity(context, company){
+  if(!context || !company) return;
+  if(context.activeEntity && context.activeEntity.ticker !== company.ticker){
+    context.previousEntity = context.activeEntity;
+  }
+  context.activeEntity = { ticker: company.ticker, exchange: company.exchange, name: company.name };
+  context.activeMetric = null; // a new entity resets "is THAT high" until a metric is actually discussed
+  touchEntityContext(context);
+}
+
+function recordActiveMetric(context, facet){
+  if(!context) return;
+  if(facet && facet !== 'snapshot' && facet !== 'full') context.activeMetric = facet;
+}
+
 // ---------------------------------------------------------------------------
 // Company/ticker recognition.
 //
@@ -3389,49 +5465,59 @@ function transliterateHebrewToLatin(text){
   // Several Hebrew letters are genuinely ambiguous in undotted phonetic
   // spelling — the diacritic that would disambiguate them is essentially
   // never used when Israelis write a foreign brand name in Hebrew letters.
-  // Rather than hand-picking one combination, build a base transliteration
-  // then generate one alternate per ambiguous letter actually present
-  // (fixing just that letter, keeping the rest as the base guess) — this
-  // covers "Fiverr" needing f, "Wix" needing v, "Gauzy" needing y, "Taboola"
-  // needing a silent/vowel ending, etc. without an unbounded combinatorial
-  // blow-up in how many searches get tried.
-  function transliterateChar(ch, i, overrides){
-    if(ch === '\u0001') return overrides.vv || 'v';
-    if(ch === 'ו') return overrides.vav || 'o';
-    if(ch === 'י' && isFinal(i)) return overrides.finalYod || 'i';
-    if(ch === 'ה' && isFinal(i)) return overrides.finalHeh !== undefined ? overrides.finalHeh : '';
-    if((ch === 'פ' || ch === 'ף')) return overrides.peh || 'p';
-    if((ch === 'ב')) return overrides.bet || 'b';
+  //
+  // Crucially, a single name often needs SEVERAL of these resolved at once:
+  // "גאוזי" -> Gauzy needs vav='u' AND final-yod='y' simultaneously, and
+  // "פייבר" -> Fiverr needs peh='f' AND bet='v'. Flipping one ambiguity at
+  // a time (the previous approach) systematically missed exactly these
+  // cases, so this builds the full combination set over whichever ambiguous
+  // letters actually occur in the input. The axis count is small (<=5), and
+  // the result is capped, so this stays a handful of candidates rather than
+  // an unbounded explosion.
+  const axes = [];
+  if(text.includes('ו')) axes.push({ key:'vav', options:['o','u'] });
+  if(/י(?=\s|$)/.test(text)) axes.push({ key:'finalYod', options:['i','y'] });
+  if(/ה(?=\s|$)/.test(text)) axes.push({ key:'finalHeh', options:['','a'] });
+  if(text.includes('פ') || text.includes('ף')) axes.push({ key:'peh', options:['p','f'] });
+  if(text.includes('ב')) axes.push({ key:'bet', options:['b','v'] });
+
+  function transliterateChar(ch, i, o){
+    if(ch === '\u0001') return 'v';
+    if(ch === 'ו') return o.vav !== undefined ? o.vav : 'o';
+    if(ch === 'י' && isFinal(i)) return o.finalYod !== undefined ? o.finalYod : 'i';
+    if(ch === 'ה' && isFinal(i)) return o.finalHeh !== undefined ? o.finalHeh : '';
+    if(ch === 'פ' || ch === 'ף') return o.peh !== undefined ? o.peh : 'p';
+    if(ch === 'ב') return o.bet !== undefined ? o.bet : 'b';
     if(ch === ' ') return ' ';
     return HEBREW_TO_LATIN_MAP[ch] !== undefined ? HEBREW_TO_LATIN_MAP[ch] : '';
   }
-  function build(overrides){
-    return chars.map((ch,i) => transliterateChar(ch,i,overrides)).join('');
+  // Cartesian product over the ambiguity axes present.
+  let combos = [{}];
+  for(const axis of axes){
+    const next = [];
+    for(const base of combos){
+      for(const opt of axis.options){
+        next.push(Object.assign({}, base, { [axis.key]: opt }));
+      }
+    }
+    combos = next;
   }
-  const variants = [build({})]; // base guess
-  if(text.includes('ו')) variants.push(build({ vav:'u' }));
-  if(/י(?=\s|$)/.test(text)) variants.push(build({ finalYod:'y' }));
-  if(/ה(?=\s|$)/.test(text)) variants.push(build({ finalHeh:'a' }));
-  if(text.includes('פ') || text.includes('ף')) variants.push(build({ peh:'f' }));
-  if(text.includes('ב')) variants.push(build({ bet:'v' }));
-  // Some names need more than one ambiguous letter flipped at once to land
-  // right (e.g. "פייבר" needs both פ->f AND ב->v together to reach
-  // something close to "Fiverr" — flipping either alone isn't enough).
-  if((text.includes('פ') || text.includes('ף')) && text.includes('ב')){
-    variants.push(build({ peh:'f', bet:'v' }));
-  }
-  return [...new Set(variants)].filter(s => s.trim().length >= 2);
+  const variants = combos.map(o => chars.map((ch,i) => transliterateChar(ch,i,o)).join(''));
+  // Cap the number of lookups actually attempted so a long name with many
+  // ambiguous letters can't fire a large burst of API requests.
+  return [...new Set(variants)].filter(s => s.trim().length >= 2).slice(0, 8);
 }
 
 const dynamicTickerCache = {}; // candidate (lowercased) -> resolved company object or null
 
 async function searchAndRankSymbol(queryText){
-  const url = `https://api.twelvedata.com/symbol_search?symbol=${encodeURIComponent(queryText)}&apikey=${encodeURIComponent(TWELVE_DATA_API_KEY)}`;
-  const res = await fetch(url, { cache:'no-store' });
-  if(!res.ok) return null;
-  const json = await res.json();
-  const matches = Array.isArray(json.data) ? json.data : [];
-  const majorExchange = m => ['NASDAQ','NYSE','AMEX'].includes(m.exchange);
+  // Ranking/filtering is entity-resolution business logic, not a
+  // data-source concern — it stays here and just asks whichever provider
+  // is currently active (Twelve Data, Demo, ...) for raw candidates via
+  // the shared provider contract (see market/provider-interface.js).
+  const matches = await getActiveMarketDataProvider().searchSymbol(queryText);
+  if(!matches.length) return null;
+  const majorExchange = m => ['NASDAQ','NYSE','AMEX'].includes(m.exchange) || m.exchange === 'DEMO';
   // Leveraged/inverse/derivative products (e.g. "Leverage Shares 3x Long
   // SanDisk ETP") often share a plain company's name and can otherwise
   // out-rank or masquerade as the real thing. Filtering these out before
@@ -3449,15 +5535,27 @@ async function searchAndRankSymbol(queryText){
   // If the query text contains something that looks like a bare ticker (a
   // short token, e.g. "sndk" typed alongside the company name — case
   // doesn't matter, most people type lowercase on mobile), an exact symbol
-  // match is the highest-confidence signal available and wins outright.
+  // match is the highest-confidence signal available and wins outright,
+  // bypassing the ambiguity check below entirely — naming the ticker IS
+  // disambiguating.
   const tickerLikeTokens = queryText.split(/\s+/).filter(w => /^[A-Za-z]{1,5}$/.test(w)).map(w => w.toUpperCase());
   const exactTickerHit = tickerLikeTokens.length
     ? pool.find(m => tickerLikeTokens.includes((m.symbol||'').toUpperCase()) && m.instrument_type === 'Common Stock')
     : null;
-  const best = exactTickerHit
-    || pool.find(m => m.instrument_type === 'Common Stock' && majorExchange(m))
-    || pool.find(m => majorExchange(m))
-    || pool[0];
+  if(exactTickerHit) return exactTickerHit;
+
+  // Low confidence: multiple DIFFERENT companies (distinct tickers) both
+  // look like reasonable matches, and nothing above disambiguates between
+  // them. Guessing here risks confidently answering about the wrong
+  // company — asking which one was meant is safer than picking pool[0]
+  // silently, which is what this used to do.
+  const strongCandidates = pool.filter(m => m.instrument_type === 'Common Stock' && majorExchange(m));
+  const distinctTickers = [...new Set(strongCandidates.map(m => m.symbol))];
+  if(distinctTickers.length >= 2){
+    return { ambiguous: true, candidates: strongCandidates.slice(0, 3) };
+  }
+
+  const best = strongCandidates[0] || pool.find(m => majorExchange(m)) || pool[0];
   return best || null;
 }
 
@@ -3466,6 +5564,17 @@ async function resolveTickerDynamic(rawText){
   const hebrew = !latin ? extractHebrewCandidate(rawText) : null;
   const candidate = latin || hebrew;
   if(!candidate) return null;
+  // A message that reads as a comparison ("who is more profitable?") or a
+  // pronoun reference ("what's her P/E?") is never someone naming a new
+  // company, even if candidate extraction above still pulled some leftover
+  // text out of it. This must be checked here — BEFORE transliteration —
+  // because a Hebrew candidate gets romanized into something like "mi iotr
+  // rvhit" a few lines down, which no longer matches either the Hebrew or
+  // English keyword lists; checking only inside a provider's searchSymbol
+  // (where the resolution pipeline was actually caught fabricating a fake
+  // company for exactly this case, in Demo Mode) is too late.
+  const rawNorm = normalizeText(rawText);
+  if(looksLikeEntityComparison(rawNorm) || looksLikeEntityPronounReference(rawNorm)) return null;
   const cacheKey = candidate.toLowerCase();
   if(cacheKey in dynamicTickerCache) return dynamicTickerCache[cacheKey];
 
@@ -3478,6 +5587,13 @@ async function resolveTickerDynamic(rawText){
   try{
     for(const q of queriesToTry){
       const best = await searchAndRankSymbol(q);
+      if(best && best.ambiguous){
+        // A real signal, not a miss — stop trying other transliteration
+        // variants (they'd likely be even less precise) and surface the
+        // ambiguity directly rather than silently guessing one candidate.
+        resolved = best;
+        break;
+      }
       if(best){
         resolved = {
           ticker: best.symbol,
@@ -3520,255 +5636,6 @@ function resolveTicker(norm){
   }
   return null;
 }
-// ---------------------------------------------------------------------------
-// Market data: fetch + indicator computation.
-//
-// Design principles (see the architecture note this was built against):
-//   - No backend. Every fetch happens directly from the visitor's own
-//     browser via fetch().
-//   - No fabricated numbers, ever. Every value returned here either came
-//     from a real HTTP response or is a deterministic calculation over real
-//     historical prices that also came from a real HTTP response. If a
-//     fetch fails, the caller gets an explicit failure, never a guess.
-//   - Indicators are computed here in plain JS, not left to the AI to
-//     "calculate" from a description — this is what keeps the numbers
-//     trustworthy.
-//   - Every successful result carries fetchedAt / asOf timestamps so the
-//     answer layer can say "as of HH:MM" rather than implying real-time.
-// ---------------------------------------------------------------------------
-
-// Required: a free Twelve Data API key. Get one at https://twelvedata.com/register
-// (no credit card) and paste it below. Without a key, stock-data questions
-// will get a clear "no key configured" message instead of price/technical
-// data — the rest of the site (all conceptual/educational content) is
-// completely unaffected either way.
-//
-// IMPORTANT — read before setting this: this file ships inside a public
-// index.html, so a key placed here is visible to, and shared by, every
-// visitor to the site (view-source is enough to see it). Twelve Data's free
-// plan is 800 requests/day and 8/minute TOTAL across all visitors, not per
-// visitor — each stock question here costs 2-3 requests (quote + history,
-// optionally fundamentals), so roughly 250-400 stock questions/day site-wide
-// before the shared quota resets. On a low-traffic personal/education site
-// that's normally fine; under heavy traffic it will simply stop returning
-// data until the daily reset, rather than breaking anything else.
-//
-// (This replaces an earlier version of this file that used Stooq, which
-// required no key — Stooq began requiring a CAPTCHA-issued API key in April
-// 2026 and, per their own docs, wants project use vetted by email before
-// issuing one, which doesn't fit an anonymous public client-side app. Twelve
-// Data's self-service free tier is built for exactly this kind of use.)
-const TWELVE_DATA_API_KEY = 'c9a2ecebe83c4207bee448ce6b5eef88';
-
-function pad2(n){ return String(n).padStart(2,'0'); }
-function formatTimestamp(d){
-  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-}
-
-// ---------------------------------------------------------------------------
-// Twelve Data: quote + historical daily time series. CORS-friendly REST API
-// designed for exactly this kind of client-side use; free tier requires
-// self-service registration only (no vetting, no CAPTCHA-per-key friction).
-// ---------------------------------------------------------------------------
-async function fetchTwelveDataQuote(ticker){
-  const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(ticker)}&apikey=${encodeURIComponent(TWELVE_DATA_API_KEY)}`;
-  const res = await fetch(url, { cache: 'no-store' });
-  if(!res.ok) throw new Error('twelvedata_http_' + res.status);
-  const data = await res.json();
-  if(data.status === 'error' || data.code) throw new Error('twelvedata_quote_error');
-  return data;
-}
-
-async function fetchTwelveDataHistory(ticker, days){
-  days = days || 260; // enough for a 200-day SMA plus headroom
-  const url = `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(ticker)}&interval=1day&outputsize=${days}&apikey=${encodeURIComponent(TWELVE_DATA_API_KEY)}`;
-  const res = await fetch(url, { cache: 'no-store' });
-  if(!res.ok) throw new Error('twelvedata_http_' + res.status);
-  const data = await res.json();
-  if(data.status === 'error' || data.code || !Array.isArray(data.values)) throw new Error('twelvedata_history_error');
-  // Twelve Data returns newest-first; the indicator math below expects
-  // oldest-first, and every field arrives as a string.
-  return data.values
-    .map(v => ({
-      date: v.datetime,
-      open: parseFloat(v.open), high: parseFloat(v.high), low: parseFloat(v.low),
-      close: parseFloat(v.close), volume: parseFloat(v.volume)
-    }))
-    .reverse();
-}
-
-// ---------------------------------------------------------------------------
-// Optional fundamentals via Twelve Data (only used if a key is configured).
-// ---------------------------------------------------------------------------
-async function fetchTwelveDataFundamentals(ticker){
-  if(!TWELVE_DATA_API_KEY) return null;
-  const url = `https://api.twelvedata.com/statistics?symbol=${encodeURIComponent(ticker)}&apikey=${encodeURIComponent(TWELVE_DATA_API_KEY)}`;
-  const res = await fetch(url, { cache: 'no-store' });
-  if(!res.ok) throw new Error('twelvedata_http_' + res.status);
-  const data = await res.json();
-  if(data.status === 'error' || data.code) throw new Error('twelvedata_error');
-  return data;
-}
-
-// ---------------------------------------------------------------------------
-// Indicators — pure functions over a closes[] array (oldest→newest).
-// ---------------------------------------------------------------------------
-function mdSma(values, period){
-  if(values.length < period) return null;
-  const slice = values.slice(-period);
-  return slice.reduce((a,b) => a+b, 0) / period;
-}
-function emaSeries(values, period){
-  if(values.length < period) return null;
-  const k = 2 / (period + 1);
-  let emaVal = values.slice(0, period).reduce((a,b)=>a+b,0) / period;
-  for(let i = period; i < values.length; i++){
-    emaVal = values[i] * k + emaVal * (1 - k);
-  }
-  return emaVal;
-}
-function rsi(values, period){
-  period = period || 14;
-  if(values.length < period + 1) return null;
-  const slice = values.slice(-(period+1));
-  let gains = 0, losses = 0;
-  for(let i = 1; i < slice.length; i++){
-    const diff = slice[i] - slice[i-1];
-    if(diff >= 0) gains += diff; else losses -= diff;
-  }
-  const avgGain = gains / period, avgLoss = losses / period;
-  if(avgLoss === 0) return 100;
-  const rs = avgGain / avgLoss;
-  return 100 - (100 / (1 + rs));
-}
-function macd(values){
-  if(values.length < 26) return null;
-  // Compute EMA12/EMA26 as running series so the MACD line itself can be
-  // smoothed into a signal line, rather than just a single latest value.
-  function emaSeriesFull(vals, period){
-    const k = 2/(period+1);
-    const out = [];
-    let e = vals.slice(0, period).reduce((a,b)=>a+b,0) / period;
-    out[period-1] = e;
-    for(let i = period; i < vals.length; i++){
-      e = vals[i]*k + e*(1-k);
-      out[i] = e;
-    }
-    return out;
-  }
-  const ema12 = emaSeriesFull(values, 12);
-  const ema26 = emaSeriesFull(values, 26);
-  const macdLine = [];
-  for(let i = 25; i < values.length; i++){
-    macdLine.push(ema12[i] - ema26[i]);
-  }
-  if(macdLine.length < 9) return { macd: macdLine[macdLine.length-1], signal: null, histogram: null };
-  const signal = emaSeries(macdLine, 9);
-  const macdVal = macdLine[macdLine.length-1];
-  return { macd: macdVal, signal, histogram: (signal!=null ? macdVal - signal : null) };
-}
-function volatilityPct(values, period){
-  period = period || 20;
-  if(values.length < period + 1) return null;
-  const slice = values.slice(-(period+1));
-  const returns = [];
-  for(let i = 1; i < slice.length; i++) returns.push((slice[i]-slice[i-1]) / slice[i-1]);
-  const mean = returns.reduce((a,b)=>a+b,0) / returns.length;
-  const variance = returns.reduce((a,b)=>a+Math.pow(b-mean,2),0) / returns.length;
-  const dailyStd = Math.sqrt(variance);
-  return dailyStd * Math.sqrt(252) * 100; // annualized, as a percentage
-}
-function fiftyTwoWeek(history){
-  const slice = history.slice(-252);
-  if(!slice.length) return null;
-  const highs = slice.map(r=>r.high), lows = slice.map(r=>r.low);
-  return { high: Math.max(...highs), low: Math.min(...lows) };
-}
-function pctChange(from, to){
-  if(from === 0 || from == null || to == null) return null;
-  return ((to - from) / from) * 100;
-}
-function describeTrend(closes, he){
-  const s50 = mdSma(closes, 50), s200 = mdSma(closes, 200);
-  const last = closes[closes.length-1];
-  if(s50 == null) return he ? 'אין מספיק היסטוריה כדי לקבוע מגמה.' : 'Not enough history to determine a trend.';
-  if(s200 == null){
-    const above = last > s50;
-    return he
-      ? `המחיר ${above?'מעל ל':'מתחת ל'}ממוצע הנע ל-50 יום, מה שמרמז על מגמה קצרה-בינונית ${above?'חיובית':'שלילית'}. אין עדיין מספיק היסטוריה לממוצע 200 יום.`
-      : `Price is ${above?'above':'below'} the 50-day moving average, suggesting a short/intermediate-term ${above?'uptrend':'downtrend'}. Not enough history yet for the 200-day average.`;
-  }
-  const aboveBoth = last > s50 && last > s200 && s50 > s200;
-  const belowBoth = last < s50 && last < s200 && s50 < s200;
-  if(aboveBoth) return he ? 'מגמה חיובית מסודרת: המחיר מעל ממוצע 50, ממוצע 50 מעל ממוצע 200 (מבנה "צלב זהב").' : 'Orderly uptrend: price above the 50-day average, which is above the 200-day average (a "golden cross" structure).';
-  if(belowBoth) return he ? 'מגמה שלילית מסודרת: המחיר מתחת לממוצע 50, ממוצע 50 מתחת לממוצע 200 (מבנה "צלב מוות").' : 'Orderly downtrend: price below the 50-day average, which is below the 200-day average (a "death cross" structure).';
-  return he ? 'תמונה מעורבת — הממוצעים הקצר והארוך אינם מיושרים לאותו כיוון כרגע.' : 'Mixed picture — the short and long averages aren\'t currently aligned in the same direction.';
-}
-
-// ---------------------------------------------------------------------------
-// Orchestration: fetch + compute + assemble one structured data-context
-// object for a ticker. Returns { ok:true, data:{...}, asOf, source } or
-// { ok:false, reason }. Never throws past this point.
-// ---------------------------------------------------------------------------
-const marketDataCache = {}; // ticker -> { ts, promise } — avoid refetching within a session
-
-async function getMarketData(ticker){
-  if(!TWELVE_DATA_API_KEY){
-    return { ok:false, reason:'no_api_key' };
-  }
-  const cacheHit = marketDataCache[ticker];
-  if(cacheHit && (Date.now() - cacheHit.ts) < 2 * 60 * 1000) return cacheHit.promise;
-  const p = (async () => {
-    let history, quote;
-    try{
-      [history, quote] = await Promise.all([
-        fetchTwelveDataHistory(ticker),
-        fetchTwelveDataQuote(ticker)
-      ]);
-    }catch(e){
-      return { ok:false, reason:'no_price_source' };
-    }
-    if(!history || history.length < 2 || !quote) return { ok:false, reason:'no_price_source' };
-
-    const closes = history.map(r => r.close);
-    const last = history[history.length-1];
-    const asOfDate = quote.datetime || last.date;
-    const price = quote.close != null ? parseFloat(quote.close) : last.close;
-    const change = quote.change != null ? parseFloat(quote.change) : null;
-    const changePct = quote.percent_change != null ? parseFloat(quote.percent_change) : null;
-    const week52 = quote.fifty_two_week
-      ? { high: parseFloat(quote.fifty_two_week.high), low: parseFloat(quote.fifty_two_week.low) }
-      : fiftyTwoWeek(history);
-
-    const result = {
-      ticker,
-      asOf: asOfDate,
-      price,
-      open: last.open, high: last.high, low: last.low, volume: last.volume,
-      change, changePct,
-      sma20: mdSma(closes, 20), sma50: mdSma(closes, 50), sma200: mdSma(closes, 200),
-      ema12: emaSeries(closes, 12), ema26: emaSeries(closes, 26),
-      rsi14: rsi(closes, 14),
-      macd: macd(closes),
-      volatility20: volatilityPct(closes, 20),
-      week52,
-      monthChangePct: history.length > 21 ? pctChange(closes[closes.length-22], price) : null,
-      history,
-      source: 'Twelve Data'
-    };
-
-    // Fundamentals are best-effort and additive — their absence never fails
-    // the whole request.
-    try{
-      const fd = await fetchTwelveDataFundamentals(ticker);
-      if(fd) result.fundamentals = fd;
-    }catch(e){ /* fundamentals unavailable is not an error for price/technical questions */ }
-
-    return { ok:true, data: result, fetchedAt: formatTimestamp(new Date()) };
-  })();
-  marketDataCache[ticker] = { ts: Date.now(), promise: p };
-  return p;
-}
 
 // ---------------------------------------------------------------------------
 // Stock-specific intent classification and answer assembly.
@@ -3783,7 +5650,7 @@ const STOCK_FACET_PATTERNS = [
   { facet:'pe', kw:['p/e','pe ratio','price to earnings','מכפיל רווח','מכפיל הרווח'] },
   { facet:'change', kw:['last month','past month','last week','over the past','how has it changed','how did it change','חודש האחרון','שבוע האחרון','השתנתה ב','השתנה ב','שינוי ב'] },
   { facet:'trend', kw:['trend','uptrend','downtrend','in an uptrend','מגמה','מגמת עלייה','מגמת ירידה','במגמת עלייה','במגמת ירידה'] },
-  { facet:'risks', kw:['risk','risks','main risks','key risks','סיכון','סיכונים','הסיכונים'] },
+  { facet:'risks', kw:['risk','risks','main risks','key risks','drawback','drawbacks','disadvantage','disadvantages','downside','downsides','סיכון','סיכונים','הסיכונים','חיסרון','חסרונות','החסרונות'] },
   { facet:'technical', kw:['technical','technical analysis','technical status','טכני','המצב הטכני','ניתוח טכני'] },
   { facet:'fundamental', kw:['fundamental','fundamental analysis','fundamentals','פונדמנטלי','פונדומנטלי','המצב הפונדמנטלי','ניתוח פונדמנטלי','ניתוח פונדומנטלי'] },
   { facet:'full', kw:['analyze','analysis of','give me an analysis','תנתח','נתח לי','תן לי ניתוח','ניתוח מלא','נתח את'] },
@@ -3899,7 +5766,15 @@ function formatRisks(data, name, he){
   const generic = he
     ? `מעבר לנתונים: הסיכונים הכלליים ששווה לבדוק לכל חברה כוללים תלות בלקוח/מוצר יחיד, רמת חוב ביחס לענף, שחיקת שולי רווח, ותחרות — אין לי נתוני חוב או רווחיות ל${name.he} כרגע כדי לקבוע את אלה במפורש.`
     : `Beyond the numbers: general risks worth checking for any company include dependence on a single customer or product, debt levels relative to the industry, eroding margins, and competition — I don't have debt or profitability data for ${name.en} right now to speak to those specifically.`;
-  return [volNote, generic].filter(Boolean).join(' ');
+  // Every other facet formatter ends with asOfLine() — the as-of date AND,
+  // critically, the Demo Mode label when applicable. This one didn't, so a
+  // demo-derived volatility number could be shown with no indication it
+  // wasn't real. Only append it when there's actually a data-derived
+  // number in the answer (volNote) — the fully-generic fallback (no
+  // volatility data at all) has no data point to attribute, so a
+  // provenance line there would be a non sequitur, not a safety net.
+  const dateLine = data.volatility20 != null ? asOfLine(data, he) : '';
+  return [volNote, generic, dateLine].filter(Boolean).join(' ');
 }
 
 function formatSnapshot(data, name, he){
@@ -3932,25 +5807,124 @@ const STOCK_FACET_FORMATTERS = {
 // ---------------------------------------------------------------------------
 // Fast path only: static curated list, no network call. Used early in the
 // pipeline so a clearly-recognized company wins immediately.
-async function tryStockDataAnswerStatic(norm, langCode){
+//
+// `conversationContext` is optional everywhere in this file — every
+// existing call site that doesn't pass one gets exactly the old behavior
+// (no entity memory, resolves fresh from the message every time).
+async function tryStockDataAnswerStatic(norm, langCode, conversationContext){
   const company = resolveTicker(norm);
   if(!company) return null;
-  return answerForCompany(company, norm, langCode);
+  return answerForCompany(company, norm, langCode, conversationContext);
 }
 
 // Full path including the dynamic symbol_search fallback (costs an extra
 // network call), used only as a last resort after normal topic matching and
 // every other fallback has already failed to find anything — see the call
 // site in generateAiReply for why.
-async function tryStockDataAnswerDynamic(norm, langCode, rawText){
+async function tryStockDataAnswerDynamic(norm, langCode, rawText, conversationContext){
   const company = await resolveTickerDynamic(rawText);
   if(!company) return null;
-  return answerForCompany(company, norm, langCode);
+  if(company.ambiguous) return answerAmbiguousCompany(company.candidates, langCode);
+  return answerForCompany(company, norm, langCode, conversationContext);
 }
 
-async function answerForCompany(company, norm, langCode){
+// Low-confidence resolution: several real, different companies matched
+// about equally well and nothing disambiguated between them. A short
+// clarification question is safer than confidently answering about the
+// wrong one — this never fabricates a pick. `clarificationCandidates`
+// lets the UI offer tappable choices instead of making the user re-type
+// the company name with more detail.
+function answerAmbiguousCompany(candidates, langCode){
   const he = langCode === 'he';
-  const intent = classifyStockIntent(norm);
+  const names = candidates.map(c => `${c.instrument_name} (${c.symbol})`);
+  const text = he
+    ? `לא הייתי בטוח לאיזו חברה בדיוק התכוונת — מצאתי כמה התאמות: ${names.join(', ')}. איזו מהן?`
+    : `I wasn't sure exactly which company you meant — I found a few matches: ${names.join(', ')}. Which one?`;
+  return {
+    text, topicId: 'how-to-analyze', relatedIds: [],
+    clarificationCandidates: candidates.map(c => ({
+      label: `${c.instrument_name} (${c.symbol})`,
+      // The ticker itself is an unambiguous exact-match query — see
+      // searchAndRankSymbol's exactTickerHit path — so tapping a candidate
+      // is guaranteed to resolve to THAT one, not risk re-triggering the
+      // same ambiguity.
+      query: `${c.instrument_name} ${c.symbol}`
+    }))
+  };
+}
+
+// Entity comparison ("who is more profitable, A or B") — only reachable
+// when the message names no company at all but two are already in context.
+// Checked before the pronoun-reference fallback below: "who is more
+// profitable" would otherwise also loosely match nothing and fall through.
+async function tryEntityComparisonAnswer(norm, langCode, conversationContext){
+  if(!conversationContext) return null;
+  if(!looksLikeEntityComparison(norm)) return null;
+  const a = conversationContext.activeEntity, b = conversationContext.previousEntity;
+  if(a && b && a.ticker !== b.ticker){
+    touchEntityContext(conversationContext);
+    return answerEntityComparison(a, b, langCode);
+  }
+  // Looks like a comparison question, but there isn't a second company to
+  // compare against yet — asking which one is safer than silently falling
+  // through to the generic "I don't have a good answer for that" fallback,
+  // which answered NOTHING about the comparison the user clearly asked
+  // for. Only fires when the message actually reads as a comparison in
+  // the first place (looksLikeEntityComparison above), so an ordinary
+  // unrelated question is never turned into this prompt.
+  const he = langCode === 'he';
+  if(a){
+    const text = he
+      ? `מי יותר מה, בהשוואה למי? ${a.name.he} מול איזו חברה?`
+      : `More what, compared to which company? ${a.name.en} vs which one?`;
+    return { text, topicId: 'how-to-analyze', relatedIds: [] };
+  }
+  const text = he
+    ? `אשמח להשוות — אילו שתי חברות בדיוק?`
+    : `Happy to compare — which two companies did you mean?`;
+  return { text, topicId: 'how-to-analyze', relatedIds: [] };
+}
+
+// Pronoun-reference fallback ("מה ה-P/E שלה?", "זה גבוה?") — only reachable
+// when the message names no company at all but one is already active.
+// Shared by tryPronounEntityAnswer and answerForCompany so the "what facet
+// does this message actually resolve to" logic exists in exactly one
+// place — computing it twice (and possibly letting the two copies drift)
+// is exactly the kind of duplication that caused bugs elsewhere in this
+// project.
+function resolveEffectiveStockIntent(norm, conversationContext){
+  let intent = classifyStockIntent(norm);
+  // "זה גבוה?" (is THAT high?) names no metric at all — it only makes sense
+  // relative to whatever metric was just discussed for this entity. Without
+  // this, classifyStockIntent() has nothing to match and falls back to the
+  // generic 'snapshot' facet, silently ignoring what was actually asked.
+  if(conversationContext && conversationContext.activeMetric && looksLikeMetricImplicitReference(norm)){
+    intent = conversationContext.activeMetric;
+  }
+  return intent;
+}
+
+async function tryPronounEntityAnswer(norm, langCode, conversationContext){
+  if(!conversationContext || !conversationContext.activeEntity) return null;
+  if(!looksLikeEntityPronounReference(norm)) return null;
+  // The pronoun matched, but that only means the message refers back to
+  // the active entity — it doesn't mean the message asks about anything
+  // this stock-data layer can actually answer. "מה ה-P/E שלה?" names a
+  // real facet and should proceed; "מה החסרונות שלה?" (before 'risks'
+  // learned to recognize "drawbacks" as a synonym) named nothing this
+  // layer recognized, and it silently answered with a generic price
+  // snapshot instead — a confident-looking answer to a different
+  // question than the one actually asked. Falling through here (instead
+  // of forcing a snapshot) lets normal KB scoring, or the honest
+  // fallback, take it instead.
+  const intent = resolveEffectiveStockIntent(norm, conversationContext);
+  if(intent === 'snapshot') return null;
+  return answerForCompany(conversationContext.activeEntity, norm, langCode, conversationContext);
+}
+
+async function answerForCompany(company, norm, langCode, conversationContext){
+  const he = langCode === 'he';
+  const intent = resolveEffectiveStockIntent(norm, conversationContext);
 
   let result;
   try{
@@ -3972,15 +5946,85 @@ async function answerForCompany(company, norm, langCode){
     return { text, topicId: 'how-to-analyze', relatedIds: [] };
   }
 
+  if(conversationContext){
+    recordActiveEntity(conversationContext, company);
+    recordActiveMetric(conversationContext, intent);
+  }
+
   const formatter = STOCK_FACET_FORMATTERS[intent] || formatSnapshot;
   const text = formatter(result.data, company.name, he);
   return {
     text,
     topicId: 'stock-data',
     relatedIds: [],
-    stockCard: { ticker: company.ticker, exchange: company.exchange, name: company.name, price: result.data.price, changePct: result.data.changePct, asOf: result.data.asOf }
+    stockCard: { ticker: company.ticker, exchange: company.exchange, name: company.name, price: result.data.price, changePct: result.data.changePct, asOf: result.data.asOf },
+    entityContext: { ticker: company.ticker, facet: intent }
   };
 }
+
+// ---------------------------------------------------------------------------
+// Two-entity comparison. Uses only what's actually, reliably available from
+// both fetches — never invents a "winner" on a dimension neither result
+// has data for. Profitability specifically (the example in the product
+// brief) needs fundamentals data that the free tier doesn't always return;
+// when it's missing for either side, this says so plainly and compares
+// what it does have (price trend, volatility) instead of guessing.
+// ---------------------------------------------------------------------------
+async function answerEntityComparison(entityA, entityB, langCode){
+  const he = langCode === 'he';
+  let dataA, dataB;
+  try{
+    [dataA, dataB] = await Promise.all([getMarketData(entityA.ticker), getMarketData(entityB.ticker)]);
+  }catch(e){
+    dataA = { ok:false }; dataB = { ok:false };
+  }
+  if(!dataA.ok || !dataB.ok){
+    const missing = !dataA.ok && !dataB.ok ? `${entityA.name[langCode]} ${he?'וגם':'and'} ${entityB.name[langCode]}` : (!dataA.ok ? entityA.name[langCode] : entityB.name[langCode]);
+    const text = he
+      ? `רציתי להשוות בין ${entityA.name.he} ל-${entityB.name.he}, אבל לא הצלחתי לשלוף נתונים עבור ${missing} כרגע. אפשר לנסות שוב בעוד רגע.`
+      : `I wanted to compare ${entityA.name.en} and ${entityB.name.en}, but couldn't fetch data for ${missing} right now. Try again in a moment.`;
+    return { text, topicId: 'how-to-analyze', relatedIds: [] };
+  }
+
+  const a = dataA.data, b = dataB.data;
+  const peA = a.fundamentals && a.fundamentals.valuations_metrics && a.fundamentals.valuations_metrics.trailing_pe;
+  const peB = b.fundamentals && b.fundamentals.valuations_metrics && b.fundamentals.valuations_metrics.trailing_pe;
+
+  const lines = [];
+  lines.push(he
+    ? `השוואה בין ${entityA.name.he} ל-${entityB.name.he}:`
+    : `Comparing ${entityA.name.en} and ${entityB.name.en}:`);
+  lines.push(he
+    ? `מחיר: ${entityA.name.he} $${a.price.toFixed(2)} (${a.changePct>=0?'+':''}${a.changePct.toFixed(2)}%), ${entityB.name.he} $${b.price.toFixed(2)} (${b.changePct>=0?'+':''}${b.changePct.toFixed(2)}%).`
+    : `Price: ${entityA.name.en} $${a.price.toFixed(2)} (${a.changePct>=0?'+':''}${a.changePct.toFixed(2)}%), ${entityB.name.en} $${b.price.toFixed(2)} (${b.changePct>=0?'+':''}${b.changePct.toFixed(2)}%).`);
+  if(a.monthChangePct != null && b.monthChangePct != null){
+    const diff = Math.abs(a.monthChangePct - b.monthChangePct);
+    const better = diff < 0.05 ? null : (a.monthChangePct > b.monthChangePct ? entityA.name[langCode] : entityB.name[langCode]);
+    lines.push(he
+      ? `בחודש האחרון: ${entityA.name.he} ${a.monthChangePct>=0?'+':''}${a.monthChangePct.toFixed(1)}%, ${entityB.name.he} ${b.monthChangePct>=0?'+':''}${b.monthChangePct.toFixed(1)}%${better ? ` — ${better} עלתה יותר.` : ' — ביצועים דומים.'}`
+      : `Over the last month: ${entityA.name.en} ${a.monthChangePct>=0?'+':''}${a.monthChangePct.toFixed(1)}%, ${entityB.name.en} ${b.monthChangePct>=0?'+':''}${b.monthChangePct.toFixed(1)}%${better ? ` — ${better} gained more.` : ' — roughly similar performance.'}`);
+  }
+  if(peA != null && peB != null){
+    lines.push(he
+      ? `מכפיל רווח (P/E): ${entityA.name.he} ${peA.toFixed(1)}, ${entityB.name.he} ${peB.toFixed(1)}.`
+      : `P/E ratio: ${entityA.name.en} ${peA.toFixed(1)}, ${entityB.name.en} ${peB.toFixed(1)}.`);
+  } else {
+    // The honest gap: no fabricated "winner" on profitability/valuation
+    // when the underlying fundamentals data isn't available for one or
+    // both sides.
+    lines.push(he
+      ? `אין לי נתוני מכפיל רווח/רווחיות אמינים לשתי החברות כרגע כדי להשוות ביניהן על הבסיס הזה — יש לי רק נתוני מחיר ומגמה.`
+      : `I don't have reliable P/E or profitability data for both companies right now to compare on that basis — only price and trend data.`);
+  }
+  lines.push(he ? asOfLine(a, true) : asOfLine(a, false));
+
+  return {
+    text: lines.join(' '),
+    topicId: 'stock-data',
+    relatedIds: [],
+  };
+}
+
 
 // Maps each on-site lesson section to the KB topic it's about, so "explain
 // this chart to me" can respond with whatever the visitor is actually
@@ -4363,11 +6407,12 @@ function tryCalculators(rawText, langCode){
     if(m1){ if(/^price/i.test(lower.match(/price|eps/i)[0]) || lower.search(/price/i) < lower.search(/eps/i)){ price=parseFloat(m1[1]); eps=parseFloat(m1[2]); } else { eps=parseFloat(m1[1]); price=parseFloat(m1[2]); } }
     else { if(rawText.search('מחיר') < rawText.search('רווח למניה')){ price=parseFloat(mHe1[1]); eps=parseFloat(mHe1[2]); } else { eps=parseFloat(mHe1[1]); price=parseFloat(mHe1[2]); } }
     if(eps > 0 && price > 0){
-      const pe = (price/eps).toFixed(1);
-      const peComment = METRIC_PATTERNS.find(p=>p.id==='pe').comment(parseFloat(pe), he);
+      const { pe } = peRatio(price, eps);
+      const peRounded = pe.toFixed(1);
+      const peComment = METRIC_PATTERNS.find(p=>p.id==='pe').comment(pe, he);
       return { text: he
-        ? `מחיר ${price} חלקי רווח למניה ${eps} נותן מכפיל רווח (P/E) של ${pe}. ${peComment}`
-        : `Price ${price} divided by EPS ${eps} gives a P/E ratio of ${pe}. ${peComment}`, topicId: 'pe' };
+        ? `מחיר ${price} חלקי רווח למניה ${eps} נותן מכפיל רווח (P/E) של ${peRounded}. ${peComment}`
+        : `Price ${price} divided by EPS ${eps} gives a P/E ratio of ${peRounded}. ${peComment}`, topicId: 'pe' };
     }
   }
 
@@ -4381,11 +6426,12 @@ function tryCalculators(rawText, langCode){
     if(m2){ if(lower.search(/price/i) < lower.search(/dividend/i)){ price=parseFloat(m2[1]); div=parseFloat(m2[2]); } else { div=parseFloat(m2[1]); price=parseFloat(m2[2]); } }
     else { if(rawText.search('מחיר') < rawText.search('דיבידנד')){ price=parseFloat(mHe2[1]); div=parseFloat(mHe2[2]); } else { div=parseFloat(mHe2[1]); price=parseFloat(mHe2[2]); } }
     if(price > 0 && div >= 0){
-      const yieldPct = (div/price*100).toFixed(2);
-      const ydComment = METRIC_PATTERNS.find(p=>p.id==='dividend-yield').comment(parseFloat(yieldPct), he);
+      const { yieldPct } = dividendYield(price, div);
+      const yieldRounded = yieldPct.toFixed(2);
+      const ydComment = METRIC_PATTERNS.find(p=>p.id==='dividend-yield').comment(yieldPct, he);
       return { text: he
-        ? `דיבידנד שנתי ${div} חלקי מחיר ${price} נותן תשואת דיבידנד של ${yieldPct}%. ${ydComment}`
-        : `Annual dividend ${div} divided by price ${price} gives a dividend yield of ${yieldPct}%. ${ydComment}`, topicId: 'dividend-yield' };
+        ? `דיבידנד שנתי ${div} חלקי מחיר ${price} נותן תשואת דיבידנד של ${yieldRounded}%. ${ydComment}`
+        : `Annual dividend ${div} divided by price ${price} gives a dividend yield of ${yieldRounded}%. ${ydComment}`, topicId: 'dividend-yield' };
     }
   }
 
@@ -4396,11 +6442,11 @@ function tryCalculators(rawText, langCode){
     const rate = parseFloat(ciMatch[2]) / 100;
     const years = parseInt(ciMatch[3], 10);
     if(principal > 0 && rate > 0 && years > 0 && years <= 100){
-      const fv = principal * Math.pow(1+rate, years);
-      const fvRounded = fv.toLocaleString(undefined, {maximumFractionDigits:0});
+      const { futureValue } = compoundInterest(principal, rate*100, years, 0);
+      const fvRounded = futureValue.toLocaleString(undefined, {maximumFractionDigits:0});
       return { text: he
-        ? `${principal.toLocaleString()} בריבית דריבית של ${(rate*100).toFixed(1)}% למשך ${years} שנים יגיע ל-כ-${fvRounded} — כלומר גידול של פי ${(fv/principal).toFixed(1)}. זה ממחיש למה התחלה מוקדמת משנה כל כך: רוב הגידול מגיע מהשנים המאוחרות, אחרי שהריבית "מצטברת על ריבית" לאורך זמן.`
-        : `${principal.toLocaleString()} compounding at ${(rate*100).toFixed(1)}% for ${years} years grows to roughly ${fvRounded} — about ${(fv/principal).toFixed(1)}x. This illustrates why starting early matters so much: most of the growth comes in the later years, once interest has been "compounding on interest" for a while.`, topicId: 'compound-interest' };
+        ? `${principal.toLocaleString()} בריבית דריבית של ${(rate*100).toFixed(1)}% למשך ${years} שנים יגיע ל-כ-${fvRounded} — כלומר גידול של פי ${(futureValue/principal).toFixed(1)}. זה ממחיש למה התחלה מוקדמת משנה כל כך: רוב הגידול מגיע מהשנים המאוחרות, אחרי שהריבית "מצטברת על ריבית" לאורך זמן.`
+        : `${principal.toLocaleString()} compounding at ${(rate*100).toFixed(1)}% for ${years} years grows to roughly ${fvRounded} — about ${(futureValue/principal).toFixed(1)}x. This illustrates why starting early matters so much: most of the growth comes in the later years, once interest has been "compounding on interest" for a while.`, topicId: 'compound-interest' };
     }
   }
 
@@ -4492,6 +6538,22 @@ const COMPARISON_KW = ['difference between','vs','versus','compared to','ההב�
 function looksComparison(norm){
   return COMPARISON_KW.some(k => norm.includes(normalizeText(k)));
 }
+// Order-independent comparison detection: a comparison entry that declares
+// `sides: [idA, idB]` is matched whenever BOTH side entries' own keywords
+// appear in the message, regardless of which order they're written in —
+// derived entirely from keywords those entries already need for standalone
+// matching, so there's nothing extra to keep in sync.
+function findComparisonBySides(norm){
+  const comparisonEntries = KB.filter(e => e.cat === 'comparisons' && Array.isArray(e.sides));
+  for(const entry of comparisonEntries){
+    const [idA, idB] = entry.sides;
+    const a = kbById(idA), b = kbById(idB);
+    if(!a || !b) continue;
+    const matches = e2 => e2.kw.some(k => norm.includes(normalizeText(k)));
+    if(matches(a) && matches(b)) return entry;
+  }
+  return null;
+}
 function detectFacet(norm){
   for(const p of FACET_PATTERNS){
     if(p.kw.some(k => norm.includes(normalizeText(k)))) return p.facet;
@@ -4541,8 +6603,16 @@ function tryMovingAveragePeriod(rawText, langCode){
   return { text: body, topicId: 'moving-averages' };
 }
 
-async function generateAiReply(userText, langCode, lastTopicId){
+async function generateAiReply(userText, langCode, lastTopicId, conversationContext){
   const norm = normalizeText(userText);
+  // Entity-context bookkeeping happens right here, before any routing:
+  // count this as one more turn that hasn't touched the active entity yet
+  // (touchEntityContext during this same call, from recordActiveEntity or
+  // a successful comparison, will reset it back to 0 if it turns out this
+  // turn IS about the entity) — and expire stale context from PRIOR turns
+  // before the pronoun/comparison paths below get a chance to use it.
+  noteTurnPassed(conversationContext);
+  expireEntityContextIfStale(conversationContext);
 
   // Greetings are matched on the WHOLE message, never as a substring. Short
   // Hebrew greetings are substrings of ordinary words ("הי" sits inside
@@ -4601,8 +6671,10 @@ async function generateAiReply(userText, langCode, lastTopicId){
   //     data for exactly the facet asked (price/PE/technical/fundamental/
   //     trend/change/risks/full). Returns null if no ticker is recognized,
   //     so an unrelated question naturally falls through to normal KB
-  //     matching below.
-  const stockAnswer = await tryStockDataAnswerStatic(norm, langCode);
+  //     matching below. Also records the entity into conversationContext
+  //     (when provided) so a LATER message with no company name at all —
+  //     "מה ה-P/E שלה?", "זה גבוה?" — can still resolve.
+  const stockAnswer = await tryStockDataAnswerStatic(norm, langCode, conversationContext);
   if(stockAnswer) return stockAnswer;
 
   // 7) Dynamic company lookup for anything not in the curated list above.
@@ -4616,8 +6688,22 @@ async function generateAiReply(userText, langCode, lastTopicId){
   //     noun-shaped token — an ordinary conceptual question like "מה זה
   //     מניה" or "what is a stock" matches neither and never reaches the
   //     network call.
-  const dynamicStockAnswer = await tryStockDataAnswerDynamic(norm, langCode, userText);
+  const dynamicStockAnswer = await tryStockDataAnswerDynamic(norm, langCode, userText, conversationContext);
   if(dynamicStockAnswer) return dynamicStockAnswer;
+
+  // 7b) Entity comparison ("who is more profitable, A or B") and pronoun
+  //     reference ("her P/E", "is that high?") — reachable only once steps
+  //     6-7 already failed to find a company NAMED in this message, and
+  //     only meaningful with conversationContext carrying entity memory
+  //     from earlier turns. Comparison checked first: it requires two
+  //     distinct entities in context, a strictly narrower condition than
+  //     the pronoun path's single active entity, so it should win when both
+  //     could theoretically apply.
+  const entityComparisonAnswer = await tryEntityComparisonAnswer(norm, langCode, conversationContext);
+  if(entityComparisonAnswer) return entityComparisonAnswer;
+
+  const pronounEntityAnswer = await tryPronounEntityAnswer(norm, langCode, conversationContext);
+  if(pronounEntityAnswer) return pronounEntityAnswer;
 
   // 8) Normal (possibly compound) topic matching. Checked BEFORE the meta
   //    follow-ups below: a real question like "what is an ETF for
@@ -4637,8 +6723,20 @@ async function generateAiReply(userText, langCode, lastTopicId){
     // Comparison questions: promote a comparison-category entry if one also
     // matched, so "difference between a bear and a bull market" answers the
     // comparison rather than just one of the two concepts.
+    //
+    // Two mechanisms, because a comparison phrase's word order varies a lot
+    // ("X vs Y" vs "Y vs X") and hand-listing every order as its own keyword
+    // is exactly the one-off-patch trap this project already fell into twice
+    // (SanDisk, Fiverr, on the entity-resolution side). The general fix: if
+    // a comparison entry declares which two entries it compares (`sides`),
+    // it's promoted whenever BOTH sides' own keywords are present in the
+    // message, in EITHER order — no per-order phrase needed. Entries without
+    // a clean pair of standalone "side" entries keep using explicit keyword
+    // phrases (still checked first below).
     if(looksComparison(norm)){
-      const cmp = scored.find(s => s.entry.cat === 'comparisons');
+      const bySides = findComparisonBySides(norm);
+      const byKeyword = scored.find(s => s.entry.cat === 'comparisons');
+      const cmp = byKeyword || (bySides ? scored.find(s => s.entry.id === bySides.id) || { entry: bySides } : null);
       if(cmp && cmp !== scored[0]){
         scored = [cmp].concat(scored.filter(s => s !== cmp));
       }
@@ -4739,6 +6837,7 @@ async function generateAiReply(userText, langCode, lastTopicId){
   return { text: fallback, relatedIds: [] };
 }
 
+
 // Follow-up chip labels are derived automatically from each entry's own
 // keyword list, so 124 entries don't require 248 hand-written phrasings.
 function pickLabelTerm(kwList, hebrew){
@@ -4801,9 +6900,15 @@ function topicsInCategory(cat){
   return KB.filter(e => e.cat === cat);
 }
 
+
 const aiHistory = [];
 let aiSending = false;
 let lastTopicId = null;
+// Entity memory (active company, comparison target, active metric) —
+// separate from lastTopicId, which only tracks KB-concept topics. See
+// docs/AI_ENGINE.md "Conversation context" for why these are two axes,
+// not one.
+const aiConversationContext = createConversationContext();
 
 const AI_EXAMPLE_KEYS = ['aiEx1','aiEx2','aiEx3','aiEx4'];
 const BROWSE_LABEL = { he:'📚 עיין בכל הנושאים', en:'📚 Browse all topics' };
@@ -4879,8 +6984,9 @@ function closeAiChat(){
   window.scrollTo(0, aiSavedScrollY);
 }
 document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape' && document.getElementById('ai-overlay').classList.contains('open')) closeAiChat();
+  if(e.key === 'Escape' && document.getElementById('ai-overlay').classList.contains('open')) navigateTo('');
 });
+registerRoute('ai', { onEnter: openAiChat, onLeave: closeAiChat });
 
 function askAiExample(text){
   const inp = document.getElementById('ai-input');
@@ -4937,8 +7043,8 @@ function appendStockCard(card){
   const pctStr = (up?'+':'') + card.changePct.toFixed(2) + '%';
   box.innerHTML = `
     <div class="stock-card-top">
-      <div class="stock-card-name">${card.name[lang] || card.name.en}</div>
-      <div class="stock-card-ticker">${card.exchange}: ${card.ticker}</div>
+      <div class="stock-card-name">${escapeHtml(card.name[lang] || card.name.en)}</div>
+      <div class="stock-card-ticker">${escapeHtml(card.exchange)}: ${escapeHtml(card.ticker)}</div>
     </div>
     <div class="stock-card-bottom">
       <div class="stock-card-price">$${card.price.toFixed(2)}</div>
@@ -4996,34 +7102,34 @@ function openStockDetail(card){
   if(!overlay){
     overlay = document.createElement('div');
     overlay.id = 'stock-detail-overlay';
-    overlay.className = 'stock-detail-overlay';
+    overlay.className = 'app-overlay';
     document.body.appendChild(overlay);
   }
   stockDetailLoaded = {};
   const up = card.changePct >= 0;
   const pctStr = (up?'+':'') + card.changePct.toFixed(2) + '%';
   overlay.innerHTML = `
-    <div class="stock-detail-header">
-      <button class="stock-detail-close" aria-label="close">&times;</button>
-      <div class="stock-detail-title">
-        <div class="stock-detail-name">${card.name[lang] || card.name.en} <span class="stock-detail-ticker">${card.exchange}: ${card.ticker}</span></div>
+    <div class="app-overlay-header">
+      <button class="app-overlay-close" aria-label="close">&times;</button>
+      <div class="app-overlay-title">
+        <div class="stock-detail-name">${escapeHtml(card.name[lang] || card.name.en)} <span class="stock-detail-ticker">${escapeHtml(card.exchange)}: ${escapeHtml(card.ticker)}</span></div>
         <div class="stock-detail-price">$${card.price.toFixed(2)} <span class="stock-card-change ${up?'up':'down'}">${pctStr}</span></div>
       </div>
     </div>
-    <div class="stock-detail-tabs"></div>
-    <div class="stock-detail-content"></div>
+    <div class="app-overlay-tabs"></div>
+    <div class="app-overlay-content"></div>
   `;
-  const tabsBar = overlay.querySelector('.stock-detail-tabs');
-  const content = overlay.querySelector('.stock-detail-content');
+  const tabsBar = overlay.querySelector('.app-overlay-tabs');
+  const content = overlay.querySelector('.app-overlay-content');
   STOCK_DETAIL_TABS.forEach((tab, i) => {
     const btn = document.createElement('button');
-    btn.className = 'stock-detail-tab' + (i===0 ? ' active' : '');
+    btn.className = 'app-overlay-tab' + (i===0 ? ' active' : '');
     btn.textContent = tab.label[lang] || tab.label.en;
     btn.addEventListener('click', () => selectStockDetailTab(tab.id, card));
     btn.dataset.tabId = tab.id;
     tabsBar.appendChild(btn);
   });
-  overlay.querySelector('.stock-detail-close').addEventListener('click', closeStockDetail);
+  overlay.querySelector('.app-overlay-close').addEventListener('click', closeStockDetail);
   overlay.classList.add('open');
   selectStockDetailTab(STOCK_DETAIL_TABS[0].id, card);
 }
@@ -5031,19 +7137,19 @@ function openStockDetail(card){
 function selectStockDetailTab(tabId, card){
   const overlay = document.getElementById('stock-detail-overlay');
   if(!overlay) return;
-  overlay.querySelectorAll('.stock-detail-tab').forEach(btn => {
+  overlay.querySelectorAll('.app-overlay-tab').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tabId === tabId);
   });
-  const content = overlay.querySelector('.stock-detail-content');
+  const content = overlay.querySelector('.app-overlay-content');
   const tab = STOCK_DETAIL_TABS.find(t => t.id === tabId);
   if(!tab) return;
   const paneId = 'stock-detail-pane-' + tabId;
-  content.querySelectorAll('.stock-detail-pane').forEach(p => p.style.display = 'none');
+  content.querySelectorAll('.app-overlay-pane').forEach(p => p.style.display = 'none');
   let pane = content.querySelector('#' + paneId);
   if(!pane){
     pane = document.createElement('div');
     pane.id = paneId;
-    pane.className = 'stock-detail-pane';
+    pane.className = 'app-overlay-pane';
     content.appendChild(pane);
   }
   pane.style.display = 'block';
@@ -5088,6 +7194,31 @@ function appendChipRow(buttons){
   row.appendChild(chipWrap);
   wrap.appendChild(row);
   document.getElementById('ai-body').scrollTop = document.getElementById('ai-body').scrollHeight;
+}
+
+// ---------------------------------------------------------------------------
+// Entity-aware follow-up chips — for a stock-data answer (relatedIds is
+// always empty for these; there's no KB entry to derive chips from). Built
+// from the same entityContext the answer already carries, plus whatever
+// conversationContext knows, so a company answer gets suggestions like
+// "what's her P/E?" instead of the generic KB-topic chips, and never
+// hardcodes a specific company as an example — a comparison suggestion only
+// appears when a real second company is actually in context.
+// ---------------------------------------------------------------------------
+function entityFollowupChips(entityContext, conversationContext, langCode){
+  const he = langCode === 'he';
+  const facet = entityContext.facet;
+  const chips = [];
+  if(facet !== 'pe') chips.push(he ? 'מה ה-P/E שלה?' : "What's its P/E?");
+  if(facet !== 'technical' && facet !== 'full') chips.push(he ? 'מה המצב הטכני שלה?' : 'What does the technical picture look like?');
+  if(facet !== 'risks') chips.push(he ? 'מה הסיכונים המרכזיים שלה?' : 'What are the main risks?');
+  if(facet !== 'change') chips.push(he ? 'איך היא השתנתה בחודש האחרון?' : 'How has it changed over the last month?');
+  const prev = conversationContext && conversationContext.previousEntity;
+  if(prev && prev.ticker !== entityContext.ticker){
+    const prevName = prev.name[langCode] || prev.name.en;
+    chips.push(he ? `איך היא בהשוואה ל-${prevName}?` : `How does it compare to ${prevName}?`);
+  }
+  return chips.slice(0, 4);
 }
 
 function appendRelatedChips(relatedIds){
@@ -5150,13 +7281,23 @@ async function sendAiMessage(){
   await new Promise(resolve => setTimeout(resolve, 350 + Math.random()*250));
 
   removeTypingIndicator();
-  const reply = await generateAiReply(text, lang, lastTopicId);
+  const reply = await generateAiReply(text, lang, lastTopicId, aiConversationContext);
   appendAiBubble('assistant', reply.text);
   aiHistory.push({role:'assistant', content:reply.text});
   if(reply.topicId) lastTopicId = reply.topicId;
   if(reply.stockCard) appendStockCard(reply.stockCard);
   if(reply.browse){
     renderTopicCategories();
+  } else if(reply.clarificationCandidates){
+    appendChipRow(reply.clarificationCandidates.map(c => ({
+      label: c.label,
+      onClick: function(){ askAiExample(c.query); }
+    })));
+  } else if(reply.entityContext){
+    appendChipRow(entityFollowupChips(reply.entityContext, aiConversationContext, lang).map(text => ({
+      label: text,
+      onClick: function(){ askAiExample(text); }
+    })));
   } else {
     appendRelatedChips(reply.relatedIds);
   }
@@ -5181,6 +7322,32 @@ async function sendAiMessage(){
 })();
 renderAiExamples();
 
+
+// Initial language: an explicit earlier choice (saved via setLang, which
+// persists it) wins; otherwise a Hebrew-speaking browser gets Hebrew by
+// default rather than always starting in English regardless of audience —
+// this product's primary audience is Hebrew-speaking. Runs setLang() (not
+// just the html lang/dir attributes) so attributes and on-screen text stay
+// in sync. Placed here, after the AI section, because setLang() calls
+// renderAiExamples() — an AI-script function that doesn't exist yet
+// earlier in this same script tag; calling it too early throws on
+// AI_EXAMPLE_KEYS being read before its own initialization runs.
+(function(){
+  const saved = getLanguagePreference();
+  if(saved === 'he' || saved === 'en'){
+    setLang(saved);
+  } else if(navigator.language && navigator.language.toLowerCase().indexOf('he') === 0){
+    setLang('he');
+  }
+  // else: leave the default 'en' already reflected in the static markup —
+  // no need to re-run setLang('en') redundantly.
+})();
+
+// Initialized last, after every module (including chat-ui.js, which
+// registers the 'ai' route) has had a chance to call registerRoute() —
+// this is what makes a page load with #ai already in the URL open the
+// assistant immediately instead of needing a click first.
+routerInit();
 </script>
 </body>
 </html>

@@ -1,0 +1,12 @@
+{
+  "name": "Chart Lab — Learn Technical Analysis",
+  "short_name": "Chart Lab",
+  "description": "Learn technical and fundamental stock-market analysis on real price charts, with an AI tutor.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#161B1F",
+  "theme_color": "#161B1F",
+  "lang": "en",
+  "dir": "auto",
+  "icons": []
+}

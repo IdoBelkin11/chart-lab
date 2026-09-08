@@ -1,0 +1,2408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chart Lab — Learn Technical Analysis on Real Price Action</title>
+<meta name="description" content="Chart Lab teaches technical and fundamental stock-market analysis on real price charts, in Hebrew and English, with an AI tutor that answers questions about concepts and specific companies.">
+<meta name="theme-color" content="#161B1F">
+<link rel="canonical" href="https://chart-lab.netlify.app/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Chart Lab — Learn Technical Analysis on Real Price Action">
+<meta property="og:description" content="Learn to read stock charts and analyze companies, in Hebrew and English, with an AI tutor built into every lesson.">
+<meta property="og:url" content="https://chart-lab.netlify.app/">
+<meta property="og:locale" content="he_IL">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chart Lab — Learn Technical Analysis on Real Price Action">
+<meta name="twitter:description" content="Learn to read stock charts and analyze companies, in Hebrew and English, with an AI tutor built into every lesson.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* "Chart Lab" identity: the accent is a chart-line blue — the same
+       family of color you'd see tracing a moving average — rather than a
+       generic finance-dashboard gold. Dark mode is a neutral graphite
+       workshop tone, not a navy-black trading-terminal cliché. */
+    --bg:#161B1F;
+    --bg-raise:#1D2328;
+    --bg-raise-2:#242B31;
+    --line:#323A41;
+    --text:#E9EDEF;
+    --text-muted:#93A0A7;
+    --gold:#6FA8DC;
+    --bull:#5FC28C;
+    --bear:#F0787B;
+    --bull-dim: rgba(95,194,140,0.16);
+    --bear-dim: rgba(240,120,123,0.16);
+    --gold-dim: rgba(111,168,220,0.14);
+    --ema20:#E2A94E; --sma50:#8FBFE8; --sma150:#C594DE;
+    --radius: 10px;
+    --serif: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --sans: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --header-h: 57px;
+    --nav-h: 41px;
+    --shadow: 0 14px 30px -18px rgba(0,0,0,0.5);
+    color-scheme: dark;
+  }
+  html[dir="rtl"]{
+    --serif: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --sans: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  html[data-theme="light"]{
+    /* Cool paper tone rather than the warm-cream-and-terracotta look —
+       closer to graph paper under daylight than a coffee-shop blog. */
+    --bg:#F3F5F6;
+    --bg-raise:#FFFFFF;
+    --bg-raise-2:#E9EEF0;
+    --line:#D7E0E3;
+    --text:#16232B;
+    --text-muted:#57666E;
+    --gold:#1D5CAD;
+    --bull:#1E7A4C;
+    --bear:#B23A3C;
+    --bull-dim: rgba(30,122,76,0.11);
+    --bear-dim: rgba(178,58,60,0.11);
+    --gold-dim: rgba(29,92,173,0.10);
+    --ema20:#A8701E; --sma50:#2E6FA8; --sma150:#7A4A96;
+    --shadow: 0 14px 30px -18px rgba(22,35,43,0.16);
+    color-scheme: light;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  html{background:var(--bg);}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased;
+    transition:background .25s ease, color .25s ease;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1040px; margin:0 auto; padding:0 24px;}
+
+  #progress-bar{
+    position:fixed; top:0; left:0; height:3px; width:0%; z-index:60;
+    background:linear-gradient(90deg, var(--gold), var(--bull));
+    transition:width .08s linear;
+  }
+
+  header{
+    border-bottom:1px solid var(--line);
+    padding:14px 0;
+    position:sticky; top:0; background:rgba(22,27,31,0.92); backdrop-filter:blur(6px);
+    z-index:20; transition:box-shadow .2s ease, background .25s ease, border-color .25s ease;
+  }
+  html[data-theme="light"] header{background:rgba(243,245,246,0.92);}
+  header.is-scrolled{box-shadow:var(--shadow);}
+  header .wrap{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;}
+  .brand{font-family:var(--serif); font-size:20px; font-weight:600; letter-spacing:0.2px; display:flex; align-items:center; gap:10px;}
+  .brand .mark{color:var(--gold); font-family:var(--mono); font-size:15px; border:1px solid var(--gold); border-radius:4px; padding:2px 6px;}
+  .header-controls{display:flex; align-items:center; gap:10px;}
+  .lang-toggle{
+    display:flex; background:var(--bg-raise); border:1px solid var(--line); border-radius:999px; padding:3px; gap:2px;
+  }
+  .lang-toggle button{
+    border:none; background:transparent; color:var(--text-muted); font-family:var(--mono); font-size:13px;
+    padding:7px 14px; border-radius:999px; cursor:pointer; transition:background .18s ease, color .18s ease;
+  }
+  .lang-toggle button.active{background:var(--gold); color:#1a1305; font-weight:600;}
+  .theme-toggle{
+    display:flex; align-items:center; justify-content:center; width:34px; height:34px;
+    background:var(--bg-raise); border:1px solid var(--line); border-radius:999px; cursor:pointer;
+    color:var(--text-muted); transition:color .18s ease, border-color .18s ease, transform .18s ease;
+  }
+  .theme-toggle:hover{color:var(--gold); border-color:var(--gold);}
+  .theme-toggle:active{transform:scale(0.92);}
+  .theme-toggle svg{width:16px; height:16px; display:block;}
+  .theme-toggle .icon-moon{display:none;}
+  html[data-theme="light"] .theme-toggle .icon-sun{display:none;}
+  html[data-theme="light"] .theme-toggle .icon-moon{display:block;}
+
+  .lesson-nav{
+    border-bottom:1px solid var(--line); position:sticky; top:var(--header-h); background:rgba(22,27,31,0.96);
+    backdrop-filter:blur(6px); z-index:19; overflow-x:auto; scrollbar-width:none;
+    transition:background .25s ease, border-color .25s ease;
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+    mask-image:linear-gradient(90deg, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+  }
+  html[data-theme="light"] .lesson-nav{background:rgba(243,245,246,0.96);}
+  .lesson-nav::-webkit-scrollbar{display:none;}
+  .lesson-nav .wrap{display:flex; gap:6px; padding:10px 24px; min-height:20px; align-items:center;}
+  .lesson-nav a{
+    font-family:var(--sans); font-weight:500; font-size:13px; color:var(--text-muted); text-decoration:none; white-space:nowrap;
+    padding:6px 12px; border-radius:999px; border:1px solid transparent; transition:color .15s ease, border-color .15s ease, background .15s ease;
+    line-height:1.4;
+  }
+  .lesson-nav a:hover{color:var(--text);}
+  .lesson-nav a.active{color:var(--gold); border-color:var(--gold); background:var(--gold-dim);}
+
+  section.lesson{scroll-margin-top:calc(var(--header-h) + var(--nav-h) + 14px);}
+
+  .hero{padding:64px 0 48px;}
+  .hero h1{
+    font-family:var(--serif); font-weight:500; font-size:clamp(30px,4.4vw,46px);
+    line-height:1.15; max-width:15ch; margin:0 0 18px;
+  }
+  .hero p{color:var(--text-muted); max-width:56ch; font-size:16px; margin:0;}
+  .hero .path{
+    display:flex; flex-wrap:wrap; gap:8px; margin-top:28px; font-family:var(--mono); font-size:12.5px; color:var(--text-muted);
+  }
+  .hero .path span{border:1px solid var(--line); border-radius:6px; padding:5px 10px; background:var(--bg-raise);}
+
+  section.lesson{padding:56px 0; border-top:1px solid var(--line);}
+  .lesson-head{margin-bottom:22px;}
+  .lesson-tag{font-family:var(--mono); font-size:12px; color:var(--gold); margin:0 0 8px;}
+  .lesson-head h2{font-family:var(--serif); font-weight:500; font-size:28px; margin:0 0 8px;}
+  .lesson-head .meta{font-family:var(--mono); font-size:13px; color:var(--text-muted);}
+  .lesson-intro{color:var(--text-muted); max-width:64ch; margin:14px 0 0; font-size:15px;}
+
+  .lesson-grid{
+    display:grid; grid-template-columns:1fr 300px; gap:22px; margin-top:26px; align-items:start;
+  }
+  @media (max-width:840px){ .lesson-grid{grid-template-columns:1fr;} }
+
+  .chart-card{
+    background:var(--bg-raise); border:1px solid var(--line); border-radius:var(--radius); padding:16px; position:relative;
+  }
+  .chart-toolbar{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;}
+  .chip{
+    font-family:var(--mono); font-size:12px; color:var(--text-muted); background:var(--bg-raise-2);
+    border:1px solid var(--line); border-radius:6px; padding:6px 10px; cursor:pointer; user-select:none;
+    display:flex; align-items:center; gap:6px;
+  }
+  .chip input{accent-color:var(--gold); margin:0;}
+  .chip.active{color:var(--text); border-color:var(--gold);}
+  canvas{display:block; width:100%; border-radius:6px;}
+  .tooltip{
+    position:absolute; pointer-events:none; background:#0A0F16; border:1px solid var(--line); border-radius:6px;
+    padding:8px 10px; font-family:var(--mono); font-size:11.5px; color:var(--text); line-height:1.6; opacity:0; transition:opacity .1s;
+    white-space:nowrap; z-index:5;
+  }
+  html[data-theme="light"] .tooltip{background:#FFFFFF; color:#16232B; box-shadow:0 8px 20px -8px rgba(33,28,19,0.35);}
+
+  .panel{
+    background:var(--bg-raise); border:1px solid var(--line); border-radius:var(--radius); padding:18px;
+  }
+  .panel h3{font-family:var(--serif); font-weight:500; font-size:16px; margin:0 0 10px;}
+  .legend-item{display:flex; gap:10px; margin-bottom:14px; align-items:flex-start;}
+  .legend-swatch{width:12px; height:12px; border-radius:3px; margin-top:4px; flex:none;}
+  .legend-item p{margin:0; font-size:13.5px; color:var(--text-muted);}
+  .legend-item strong{color:var(--text); display:block; font-size:13.5px; margin-bottom:2px;}
+
+  .interact-box{
+    margin-top:16px; padding-top:16px; border-top:1px dashed var(--line);
+  }
+  .interact-box p.prompt{font-size:13.5px; color:var(--text); margin:0 0 10px;}
+  .btn{
+    font-family:var(--sans); font-size:13.5px; font-weight:500; color:#1a1305; background:var(--gold);
+    border:none; border-radius:7px; padding:9px 16px; cursor:pointer;
+  }
+  .btn.ghost{background:transparent; color:var(--gold); border:1px solid var(--gold);}
+  .feedback{margin-top:12px; font-size:13.5px; padding:10px 12px; border-radius:7px; display:none;}
+  .feedback.show{display:block;}
+  .feedback.correct{background:var(--bull-dim); border:1px solid var(--bull);}
+  .feedback.incorrect{background:var(--gold-dim); border:1px solid var(--gold);}
+
+  .quiz{margin-top:20px; border-top:1px dashed var(--line); padding-top:16px;}
+  .quiz p.q{font-size:14px; margin:0 0 10px; font-weight:500;}
+  .quiz-opt{
+    display:block; width:100%; text-align:start; background:var(--bg-raise-2); border:1px solid var(--line);
+    color:var(--text); font-family:var(--sans); font-size:13.5px; padding:10px 12px; border-radius:7px;
+    margin-bottom:8px; cursor:pointer;
+  }
+  .quiz-opt:hover{border-color:var(--gold);}
+  .quiz-opt.right{border-color:var(--bull); background:var(--bull-dim);}
+  .quiz-opt.wrong{border-color:var(--bear); background:var(--bear-dim);}
+  .quiz-explain{font-size:13px; color:var(--text-muted); margin-top:8px; display:none;}
+  .quiz-explain.show{display:block;}
+  /* Standalone Quiz view uses its OWN classes (quiz-view-opt/-explain),
+     deliberately distinct from quiz-opt/quiz-explain above — those are
+     also globally reset whenever the language toggle switches (see
+     setLang()), which would otherwise desync this view's button states
+     from its actual session state if someone switched language mid-quiz. */
+  .quiz-view-opt{
+    display:block; width:100%; text-align:start; margin-bottom:8px; padding:10px 14px;
+    border-radius:10px; border:1px solid var(--line); background:var(--bg-raise);
+    color:var(--text); font-family:inherit; font-size:13.5px; cursor:pointer;
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+  .quiz-view-opt:hover:not(:disabled){border-color:var(--gold);}
+  .quiz-view-opt:active:not(:disabled){transform:scale(0.99);}
+  .quiz-view-opt:disabled{cursor:default;}
+  .quiz-view-opt.right{border-color:var(--bull); background:var(--bull-dim);}
+  .quiz-view-opt.wrong{border-color:var(--bear); background:var(--bear-dim);}
+  .quiz-view-explain{font-size:13px; color:var(--text-muted); margin-top:8px; display:none; line-height:1.6;}
+  .quiz-view-explain.show{display:block;}
+  /* Calculators view */
+  .calc-body{padding:20px 4px; max-width:480px; margin:0 auto;}
+  .calc-field{margin-bottom:14px;}
+  .calc-field label{display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:5px;}
+  .calc-input{
+    width:100%; box-sizing:border-box; padding:9px 12px; border-radius:8px;
+    border:1px solid var(--line); background:var(--bg-raise); color:var(--text);
+    font-family:var(--mono); font-size:14px;
+  }
+  .calc-input:focus{outline:none; border-color:var(--gold);}
+  .calc-result{margin-top:20px; padding:16px; border-radius:12px; background:var(--bg-raise); border:1px solid var(--line);}
+  .calc-result-big{font-family:var(--mono); font-size:26px; font-weight:700; color:var(--text);}
+  .calc-result-line{font-size:13px; color:var(--text-muted); margin-top:4px;}
+  .calc-note{font-size:11.5px; color:var(--text-muted); margin-top:10px; line-height:1.5; font-style:italic;}
+  /* Lesson progress footer, appended to each existing lesson section via JS */
+  .lesson-progress-footer{margin-top:32px; padding-top:20px; border-top:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;}
+  .lesson-complete-btn{
+    padding:8px 18px; border-radius:20px; border:1px solid var(--line); background:var(--bg-raise);
+    color:var(--text-muted); font-size:13px; cursor:pointer; transition:all .15s ease;
+  }
+  .lesson-complete-btn:hover{border-color:var(--gold);}
+  .lesson-complete-btn.done{border-color:var(--bull); background:var(--bull-dim); color:var(--bull); font-weight:600;}
+  .lesson-progress-nav{display:flex; gap:14px; font-size:13px;}
+  .lesson-nav-arrow{color:var(--text-muted); text-decoration:none;}
+  .lesson-nav-arrow:hover{color:var(--gold);}
+  .lesson-nav a.lesson-done{position:relative;}
+  .lesson-nav a.lesson-done::after{content:'✓'; color:var(--bull); margin-inline-start:4px; font-weight:700;}
+  #lesson-progress-summary{font-family:var(--mono); font-size:11px; color:var(--text-muted); padding-inline-start:10px;}
+  /* Stock view */
+  .stock-search-box{display:flex; gap:10px; max-width:480px; margin:0 auto 20px;}
+  .stock-search-box .calc-input{flex:1;}
+  .stock-view-loading, .stock-view-empty{text-align:center; padding:30px; color:var(--text-muted); font-size:13.5px;}
+  .stock-view-demo-badge{
+    max-width:480px; margin:0 auto 12px; padding:6px 14px; border-radius:8px; text-align:center;
+    background:var(--gold-dim); border:1px solid var(--gold); color:var(--gold); font-size:12px; font-weight:600;
+  }
+  .stock-view-header{max-width:480px; margin:0 auto 16px; text-align:center;}
+  .stock-view-name{font-weight:700; font-size:16px; color:var(--text);}
+  .stock-view-price{font-family:var(--mono); font-size:26px; font-weight:700; color:var(--text); margin-top:4px;}
+  .stock-view-asof{font-size:11px; color:var(--text-muted); margin-top:4px;}
+  .stock-view-canvas{width:100%; max-width:720px; display:block; margin:0 auto 20px; border-radius:10px; border:1px solid var(--line);}
+  .stock-view-metrics{max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:10px;}
+  .stock-metric-row{padding:10px 14px; border-radius:10px; background:var(--bg-raise); border:1px solid var(--line);}
+  .stock-metric-label{font-size:12px; color:var(--text-muted);}
+  .stock-metric-value{font-family:var(--mono); font-size:17px; font-weight:700; color:var(--text); margin-top:2px;}
+  .stock-metric-note{font-size:11px; color:var(--text-muted); margin-top:3px;}
+  .stock-view-ask-ai{display:block; margin:20px auto 0; max-width:480px; width:100%;}
+  /* Comparison view */
+  .cmpview-inputs{display:flex; align-items:center; gap:10px; max-width:560px; margin:0 auto 20px; flex-wrap:wrap;}
+  .cmpview-inputs .calc-input{flex:1; min-width:140px;}
+  .cmpview-vs{color:var(--text-muted); font-size:12px; font-weight:600;}
+  .cmpview-header-row{display:grid; grid-template-columns:1fr auto 1fr; gap:10px; max-width:560px; margin:0 auto 8px; text-align:center;}
+  .cmpview-col-name{font-weight:700; font-size:14px; color:var(--text);}
+  .cmpview-row{display:grid; grid-template-columns:1fr auto 1fr; gap:10px; max-width:560px; margin:0 auto; padding:10px 0; border-top:1px solid var(--line); align-items:center; text-align:center;}
+  .cmpview-label{font-size:11.5px; color:var(--text-muted);}
+  .cmpview-val{font-family:var(--mono); font-size:15px; color:var(--text);}
+  .cmpview-val.ahead{color:var(--bull); font-weight:700;}
+  .cmpview-note{max-width:560px; margin:14px auto 0; font-size:11.5px; color:var(--text-muted); font-style:italic; text-align:center;}
+  /* App navigation menu — stacked above the AI FAB */
+  .app-nav-wrap{position:fixed; left:24px; bottom:92px; z-index:60;}
+  .app-nav-fab{
+    width:46px; height:46px; border-radius:50%; background:var(--bg-raise); color:var(--text);
+    border:1px solid var(--line); cursor:pointer; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 20px -6px rgba(0,0,0,0.5); transition:transform .15s ease;
+  }
+  .app-nav-fab:hover{transform:scale(1.06); border-color:var(--gold);}
+  .app-nav-fab svg{width:19px; height:19px;}
+  .app-nav-menu{
+    position:absolute; bottom:56px; left:0; display:none; flex-direction:column; gap:6px;
+    background:var(--bg-raise); border:1px solid var(--line); border-radius:12px; padding:8px;
+    box-shadow:0 12px 28px -10px rgba(0,0,0,0.55); min-width:150px;
+  }
+  .app-nav-menu.open{display:flex;}
+  .app-nav-menu button{
+    text-align:start; padding:8px 12px; border-radius:8px; border:none; background:none;
+    color:var(--text); font-size:13px; cursor:pointer; font-family:inherit;
+  }
+  .app-nav-menu button:hover{background:var(--bg); color:var(--gold);}
+  @media (max-width:640px){ .app-nav-wrap{left:16px; bottom:84px;} .ai-fab{left:16px;} }
+  /* Standalone Quiz view (reuses .quiz-opt/.quiz-explain above for the
+     actual question styling — this is just the surrounding view chrome). */
+  .quiz-body{padding:20px 4px; max-width:640px; margin:0 auto;}
+  .quiz-title{font-weight:700; font-size:17px; color:var(--text);}
+  .quiz-subtitle{font-size:12px; color:var(--text-muted); margin-top:2px;}
+  .quiz-progress{font-family:var(--mono); font-size:12px; color:var(--text-muted); margin-bottom:10px;}
+  .quiz-next-btn{
+    margin-top:12px; padding:9px 20px; border-radius:20px; border:1px solid var(--gold);
+    background:var(--gold); color:#1a1305; font-weight:700; font-size:13.5px; cursor:pointer;
+  }
+  .quiz-results{text-align:center; padding:40px 0;}
+  .quiz-results-score{font-family:var(--mono); font-size:40px; font-weight:700; color:var(--text);}
+  .quiz-results-percent{font-size:15px; color:var(--text-muted); margin-top:4px;}
+
+  .compare-row{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:20px;}
+  @media (max-width:640px){ .compare-row{grid-template-columns:1fr;} }
+  .compare-row .chart-card h4{font-family:var(--mono); font-size:12px; margin:0 0 10px; color:var(--text-muted); font-weight:500;}
+
+  .candle-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:18px; margin-top:24px;}
+  .candle-note{margin-top:12px;}
+  .candle-note strong{display:block; font-family:var(--serif); font-size:15px; font-weight:500; margin-bottom:6px;}
+  .candle-note p{margin:0; font-size:13.5px; color:var(--text-muted);}
+
+  footer{border-top:1px solid var(--line); padding:36px 0; color:var(--text-muted); font-size:13px;}
+
+  /* ---------- chart zoom ---------- */
+  .chart-zoom-wrap{position:relative; overflow-x:auto; overflow-y:hidden; border-radius:6px;}
+  .chart-zoom-wrap::-webkit-scrollbar{height:6px;}
+  .chart-zoom-wrap::-webkit-scrollbar-thumb{background:var(--line); border-radius:6px;}
+  .chart-surface{position:relative;}
+  .chart-zoom-wrap.zoomed{cursor:grab;}
+  .chart-zoom-wrap.zoomed.dragging{cursor:grabbing;}
+  .zoom-controls{
+    position:absolute; top:8px; z-index:6; display:flex; gap:3px; padding:3px;
+    background:var(--bg-raise-2); border:1px solid var(--line); border-radius:8px;
+    opacity:0; transform:translateY(-3px); transition:opacity .16s ease, transform .16s ease;
+  }
+  html[dir="ltr"] .zoom-controls{right:8px;}
+  html[dir="rtl"] .zoom-controls{left:8px;}
+  .chart-card:hover .zoom-controls, .zoom-controls.active{opacity:1; transform:translateY(0);}
+  .zoom-controls button{
+    width:24px; height:24px; border:none; border-radius:5px; background:transparent; color:var(--text-muted);
+    font-family:var(--mono); font-size:14px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background .15s ease, color .15s ease;
+  }
+  .zoom-controls button:hover:not(:disabled){background:var(--bg-raise); color:var(--gold);}
+  .zoom-controls button:disabled{opacity:0.35; cursor:default;}
+  .zoom-controls .zoom-level{
+    font-family:var(--mono); font-size:10.5px; color:var(--text-muted); display:flex; align-items:center; padding:0 4px; min-width:32px; justify-content:center;
+  }
+
+  /* ---------- scroll reveal ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .55s ease, transform .55s ease;}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1; transform:none; transition:none;}
+    html{scroll-behavior:auto;}
+  }
+
+  /* ---------- extra polish ---------- */
+  .chart-card, .panel{transition:border-color .2s ease, background .25s ease;}
+  .chart-card:hover, .panel:hover{border-color:#3a4757;}
+  html[data-theme="light"] .chart-card:hover, html[data-theme="light"] .panel:hover{border-color:#cfc6b0;}
+  .btn{transition:filter .15s ease, transform .1s ease;}
+  .btn:hover{filter:brightness(1.08);}
+  .btn:active{transform:scale(0.97);}
+  .quiz-opt{transition:border-color .15s ease, background .15s ease, transform .1s ease;}
+  .quiz-opt:active{transform:scale(0.99);}
+
+  .deeper-dive{
+    margin-top:16px; padding:16px 18px; border-radius:10px; background:var(--bg-raise-2);
+    border:1px solid var(--line); border-inline-start:3px solid var(--gold);
+  }
+  .deeper-dive p{margin:0; font-size:15px; line-height:1.7; color:var(--text); max-width:70ch;}
+  .deeper-dive .dd-label{
+    display:block; font-family:var(--sans); font-weight:700; font-size:12.5px; color:var(--gold);
+    margin-bottom:8px; letter-spacing:0.4px; text-transform:uppercase;
+  }
+
+  .risk-callout{
+    margin-top:30px; padding:20px 22px; border-radius:12px; background:var(--bg-raise);
+    border:1px solid var(--line); border-inline-start:4px solid var(--bear);
+  }
+  .risk-callout .rc-label{
+    display:block; font-family:var(--sans); font-weight:700; font-size:12.5px; color:var(--bear);
+    margin-bottom:8px; letter-spacing:0.4px; text-transform:uppercase;
+  }
+  .risk-callout p{margin:0; font-size:15.5px; line-height:1.75; color:var(--text); max-width:72ch;}
+
+  .concept-heading{font-family:var(--serif); font-weight:500; font-size:20px; margin:36px 0 8px;}
+
+  .to-top{
+    position:fixed; bottom:22px; z-index:40; width:42px; height:42px; border-radius:50%;
+    background:var(--gold); color:#1a1305; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    box-shadow:var(--shadow); opacity:0; pointer-events:none; transform:translateY(8px);
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  html[dir="ltr"] .to-top{right:22px;}
+  html[dir="rtl"] .to-top{left:22px; bottom:92px;}
+  .to-top.show{opacity:1; pointer-events:auto; transform:translateY(0);}
+  .to-top svg{width:18px; height:18px;}
+
+  /* ---------- AI assistant: floating button ---------- */
+  .ai-fab{
+    position:fixed; left:24px; bottom:24px; z-index:60;
+    width:58px; height:58px; border-radius:50%;
+    background:var(--gold); color:#1a1305; border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 10px 26px -8px rgba(0,0,0,0.55);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .ai-fab:hover{transform:translateY(-2px) scale(1.05);}
+  .ai-fab svg{width:25px; height:25px;}
+  .ai-fab .ai-dot{
+    position:absolute; top:2px; right:2px; width:11px; height:11px; border-radius:50%;
+    background:var(--bull); border:2px solid var(--bg);
+  }
+
+  /* ---------- AI assistant: full-screen chat overlay ---------- */
+  .ai-overlay{
+    position:fixed; inset:0; z-index:100; background:var(--bg);
+    display:flex; flex-direction:column;
+    opacity:0; pointer-events:none; transform:translateY(14px);
+    transition:opacity .22s ease;
+  }
+  .ai-overlay.open{opacity:1; pointer-events:auto; transform:translateY(0);}
+  /* Scroll lock for the page behind the chat. `overflow:hidden` on body is
+     not honoured by iOS Safari, so the body is pinned instead; openAiChat()
+     stores/restores the scroll position around this. */
+  body.ai-lock{position:fixed; left:0; right:0; width:100%; overflow:hidden;}
+  /* Keep rubber-band scrolling inside the message list from chaining to the
+     page behind it. */
+  .ai-body{overscroll-behavior:contain;}
+  /* Stock card + TradingView panel */
+  .stock-card{
+    max-width:80%; margin-top:-8px; margin-bottom:16px; padding:14px 16px;
+    border-radius:14px; background:var(--bg-raise); border:1px solid var(--line);
+    cursor:pointer; position:relative; overflow:hidden;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08);
+    transition:border-color .18s ease, box-shadow .18s ease, transform .15s ease;
+  }
+  .stock-card::before{
+    content:''; position:absolute; inset-inline-start:0; top:0; bottom:0; width:3px;
+    background:var(--gold); opacity:0; transition:opacity .18s ease;
+  }
+  .stock-card:hover{border-color:var(--gold); box-shadow:0 4px 14px rgba(0,0,0,0.14); transform:translateY(-1px);}
+  .stock-card:hover::before{opacity:1;}
+  .stock-card:active{transform:translateY(0); box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+  .stock-card-top{display:flex; justify-content:space-between; align-items:baseline; gap:10px;}
+  .stock-card-name{font-weight:600; font-size:14.5px; color:var(--text);}
+  .stock-card-ticker{font-family:var(--mono); font-size:11px; color:var(--text-muted); background:var(--bg); padding:2px 7px; border-radius:6px; border:1px solid var(--line);}
+  .stock-card-bottom{display:flex; align-items:baseline; gap:10px; margin-top:8px;}
+  .stock-card-price{font-family:var(--mono); font-size:20px; font-weight:700; color:var(--text); letter-spacing:-0.2px;}
+  .stock-card-change{font-family:var(--mono); font-size:12.5px; font-weight:700; padding:2px 8px; border-radius:6px;}
+  .stock-card-change.up{color:var(--bull); background:var(--bull-dim);}
+  .stock-card-change.down{color:var(--bear); background:var(--bear-dim);}
+  .stock-card-hint{font-size:11px; color:var(--text-muted); margin-top:9px; display:flex; align-items:center; gap:5px;}
+  .stock-card-hint::after{content:'›'; font-size:14px; transition:transform .18s ease;}
+  .stock-card:hover .stock-card-hint::after{transform:translateX(3px);}
+  /* Full-screen stock detail view (chart / technical / profile / news tabs).
+     TradingView's widgets are built for a wide dashboard panel, not an
+     80%-width chat bubble, so this opens above everything at full viewport
+     size instead of expanding inline in the chat thread. */
+  .app-overlay{
+    position:fixed; inset:0; z-index:200; background:var(--bg);
+    display:flex; flex-direction:column;
+    opacity:0; pointer-events:none; transform:translateY(10px);
+    transition:opacity .22s ease, transform .22s ease;
+  }
+  .app-overlay.open{opacity:1; pointer-events:auto; transform:translateY(0);}
+  .app-overlay-header{
+    display:flex; align-items:flex-start; gap:14px; padding:18px 18px 14px;
+    border-bottom:1px solid var(--line); flex-shrink:0;
+    background:linear-gradient(180deg, var(--bg-raise), var(--bg));
+  }
+  .app-overlay-close{
+    width:34px; height:34px; border-radius:50%; border:1px solid var(--line);
+    background:var(--bg-raise); color:var(--text); font-size:20px; line-height:1;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .app-overlay-close:hover{background:var(--bear-dim); color:var(--bear); transform:rotate(90deg);}
+  .app-overlay-title{flex:1; min-width:0;}
+  .stock-detail-name{font-weight:700; font-size:17px; color:var(--text);}
+  .stock-detail-ticker{
+    font-family:var(--mono); font-size:11px; color:var(--text-muted); font-weight:500;
+    margin-inline-start:8px; background:var(--bg); border:1px solid var(--line);
+    padding:2px 7px; border-radius:6px; vertical-align:middle;
+  }
+  .stock-detail-price{font-family:var(--mono); font-size:21px; font-weight:700; color:var(--text); margin-top:6px; display:flex; align-items:baseline; gap:10px; letter-spacing:-0.3px;}
+  .app-overlay-tabs{
+    display:flex; gap:6px; padding:12px 14px; overflow-x:auto; flex-shrink:0;
+    border-bottom:1px solid var(--line);
+    scrollbar-width:none;
+  }
+  .app-overlay-tabs::-webkit-scrollbar{display:none;}
+  .app-overlay-tab{
+    padding:8px 18px; border-radius:20px; border:1px solid var(--line);
+    background:var(--bg-raise); color:var(--text-muted); font-size:13.5px;
+    font-family:inherit; white-space:nowrap; cursor:pointer; flex-shrink:0;
+    transition:background .18s ease, color .18s ease, border-color .18s ease, transform .12s ease;
+  }
+  .app-overlay-tab:hover{border-color:var(--gold); color:var(--text);}
+  .app-overlay-tab.active{background:var(--gold); border-color:var(--gold); color:#1a1305; font-weight:700;}
+  .app-overlay-tab:active{transform:scale(0.96);}
+  .app-overlay-content{flex:1; min-height:0; position:relative;}
+  .app-overlay-pane{height:100%; overflow:auto; position:relative; animation:stockPaneIn .22s ease;}
+  .stock-detail-widget-slot{height:100%;}
+  .stock-detail-widget-slot .tradingview-widget-container,
+  .stock-detail-widget-slot .tradingview-widget-container__widget{height:100%;}
+  @keyframes stockPaneIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  /* Loading spinner shown while a TradingView widget script is fetching —
+     without this the pane sat blank for a beat, which read as broken. */
+  .stock-detail-loader-wrap{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    background:var(--bg); z-index:1;
+  }
+  .stock-detail-loader{
+    width:34px; height:34px; border-radius:50%;
+    border:3px solid var(--line); border-top-color:var(--gold);
+    animation:stockSpin .8s linear infinite;
+  }
+  @keyframes stockSpin{to{transform:rotate(360deg);}}
+  @media (min-width:820px){
+    .app-overlay-header{padding:24px 32px 18px;}
+    .app-overlay-tabs{padding:14px 32px;}
+    .app-overlay-content{padding:0 32px 24px; max-width:1100px; margin:0 auto; width:100%; box-sizing:border-box;}
+    .stock-detail-name{font-size:21px;}
+    .stock-detail-price{font-size:26px;}
+    .app-overlay-tab{padding:9px 22px; font-size:14px;}
+  }
+  .ai-header{
+    display:flex; align-items:center; gap:12px; padding:14px 20px; flex:none;
+    border-bottom:1px solid var(--line); background:var(--bg-raise);
+  }
+  .ai-back{
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--bg-raise-2);
+    color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none;
+  }
+  .ai-back:hover{border-color:var(--gold);}
+  .ai-back svg{width:18px; height:18px;}
+  html[dir="rtl"] .ai-back svg{transform:scaleX(-1);}
+  .ai-header .ai-htext{flex:1; min-width:0;}
+  .ai-header h2{font-family:var(--serif); font-weight:600; font-size:16px; margin:0;}
+  .ai-header .ai-sub{font-size:12px; color:var(--text-muted); margin:2px 0 0;}
+  .ai-badge{
+    font-family:var(--mono); font-size:10.5px; color:var(--gold); border:1px solid var(--gold);
+    border-radius:999px; padding:3px 9px; flex:none;
+  }
+
+  .ai-body{flex:1; overflow-y:auto; padding:26px 24px;}
+  .ai-body-inner{max-width:740px; margin:0 auto;}
+
+  .ai-empty{padding:8vh 0 10px; text-align:center;}
+  .ai-empty .ai-icon{
+    width:54px; height:54px; border-radius:50%; background:var(--gold-dim); color:var(--gold);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 18px;
+  }
+  .ai-empty .ai-icon svg{width:26px; height:26px;}
+  .ai-empty h3{font-family:var(--serif); font-weight:500; font-size:20px; margin:0 0 8px;}
+  .ai-empty p{color:var(--text-muted); font-size:14px; max-width:46ch; margin:0 auto; line-height:1.6;}
+
+  .ai-examples{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin-top:26px;}
+  .ai-example-btn{
+    text-align:start; background:var(--bg-raise); border:1px solid var(--line); border-radius:10px;
+    padding:13px 15px; font-family:var(--sans); font-size:13.5px; color:var(--text); cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .ai-example-btn:hover{border-color:var(--gold); background:var(--bg-raise-2);}
+
+  .ai-msg{display:flex; margin-bottom:16px;}
+  .ai-msg.user{justify-content:flex-end;}
+  .ai-msg.assistant{justify-content:flex-start;}
+  .ai-bubble{max-width:80%; padding:12px 15px; border-radius:15px; font-size:14.5px; line-height:1.65; white-space:pre-wrap;}
+  .ai-msg.user .ai-bubble{background:var(--gold); color:#1a1305; border-end-end-radius:4px;}
+  .ai-msg.assistant .ai-bubble{background:var(--bg-raise); border:1px solid var(--line); color:var(--text); border-end-start-radius:4px;}
+
+  .ai-typing{display:flex; gap:4px; padding:5px 2px;}
+  .ai-typing span{width:6px; height:6px; border-radius:50%; background:var(--text-muted); animation:ai-blink 1.2s infinite ease-in-out;}
+  .ai-typing span:nth-child(2){animation-delay:.2s;}
+  .ai-typing span:nth-child(3){animation-delay:.4s;}
+  @keyframes ai-blink{0%,80%,100%{opacity:.25;} 40%{opacity:1;}}
+
+  .ai-footer{border-top:1px solid var(--line); background:var(--bg-raise); padding:14px 20px 10px; flex:none;}
+  .ai-input-row{display:flex; gap:10px; align-items:flex-end; max-width:740px; margin:0 auto;}
+  .ai-input{
+    flex:1; resize:none; max-height:120px; min-height:46px; padding:12px 14px; border-radius:13px;
+    border:1px solid var(--line); background:var(--bg-raise-2); color:var(--text);
+    font-family:var(--sans); font-size:14.5px; line-height:1.5;
+  }
+  .ai-input:focus{outline:none; border-color:var(--gold);}
+  .ai-send{
+    width:46px; height:46px; border-radius:13px; border:none; background:var(--gold); color:#1a1305;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none; transition:opacity .15s ease;
+  }
+  .ai-send:disabled{opacity:.45; cursor:default;}
+  .ai-send svg{width:19px; height:19px;}
+  html[dir="rtl"] .ai-send svg{transform:scaleX(-1);}
+  .ai-disclaimer{text-align:center; font-size:11px; color:var(--text-muted); max-width:740px; margin:8px auto 0;}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<header>
+  <div class="wrap">
+    <div class="brand"><span class="mark">▲▼</span><span data-i18n="brandName">Chart Lab</span></div>
+    <div class="header-controls">
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>
+      </button>
+      <div class="lang-toggle">
+        <button id="btn-en" class="active" onclick="setLang('en')">EN</button>
+        <button id="btn-he" onclick="setLang('he')">HE</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="lesson-nav">
+  <div class="wrap">
+    <a href="#l0" data-navlbl="nav0" data-i18n="nav0">Basics</a>
+    <a href="#l1" data-navlbl="nav1" data-i18n="nav1">Support/Resistance</a>
+    <a href="#l2" data-navlbl="nav2" data-i18n="nav2">Breakout &amp; Retest</a>
+    <a href="#l3" data-navlbl="nav3" data-i18n="nav3">Moving Averages</a>
+    <a href="#l4" data-navlbl="nav4" data-i18n="nav4">Candlesticks</a>
+    <a href="#l5" data-navlbl="nav5" data-i18n="nav5">Fibonacci</a>
+    <a href="#l6" data-navlbl="nav6" data-i18n="nav6">RSI</a>
+    <a href="#l7" data-navlbl="nav7" data-i18n="nav7">Chart Patterns</a>
+    <span id="lesson-progress-summary"></span>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap">
+    <h1 data-i18n="heroTitle">Learn to read the chart, not just the theory</h1>
+    <p data-i18n="heroBody">Every concept here is shown on real price behavior first, explained second. Try to spot the pattern yourself before we reveal it.</p>
+    <div class="path">
+      <span data-i18n="pathStep1">See it on a real chart</span>
+      <span data-i18n="pathStep2">Try to identify it</span>
+      <span data-i18n="pathStep3">Reveal the answer</span>
+      <span data-i18n="pathStep4">Understand why</span>
+    </div>
+  </div>
+</section>
+
+<!-- LESSON 0: MARKET BASICS -->
+<section class="lesson" id="l0">
+  <div class="wrap">
+    <div class="lesson-head">
+      <p class="lesson-tag" data-i18n="l0tag">START HERE — MARKET BASICS</p>
+      <h2 data-i18n="l0title">Before the charts: how markets actually work</h2>
+      <p class="meta" data-i18n="l0meta">General concepts — the foundation everything else builds on</p>
+      <p class="lesson-intro" data-i18n="l0intro">Every lesson after this one assumes you already know what a stock is, what actually moves its price, and why we're even looking at charts in the first place. This page covers that groundwork in plain language, once, so the rest of the site can focus on charts.</p>
+      <div class="deeper-dive"><span class="dd-label" data-i18n="ddLabel">WORTH KNOWING</span><p data-i18n="dd0">Everything on this site is taught using stocks, but technical analysis isn't just for stocks. The same tools — support, resistance, trends, candlesticks, RSI — are used almost identically on crypto, forex, commodities, and indices, because they all come down to the same thing: a chart of buyers and sellers agreeing on a price over time.</p></div>
+    </div>
+
+    <div class="candle-grid">
+      <div class="chart-card"><div class="candle-note"><strong data-i18n="c1H">What is a stock?</strong><p data-i18n="c1B">A share of stock is a small piece of ownership in a company. When you buy one share, you literally own a tiny fraction of that business — its future profits, and its future risks. Companies list their shares on an exchange (like the NYSE or Nasdaq) so ownership can be bought and sold freely, and that constant buying and selling is what creates a moving price.</p></div></div>
+      <div class="chart-card"><div class="candle-note"><strong data-i18n="c2H">What actually moves the price?</strong><p data-i18n="c2B">At every moment, a stock's price is simply the last price a buyer and a seller agreed on. It rises when more people want to buy than are willing to sell at that price, and falls when the opposite is true. News and earnings matter only because they change how buyers and sellers feel about the future — that feeling is what moves the price, not the news itself.</p></div></div>
+      <div class="chart-card"><div class="candle-note"><strong data-i18n="c3H">Technical vs. fundamental analysis</strong><p data-i18n="c3B">Fundamental analysis asks "is this a good company, priced fairly?" — it studies financial statements and industry conditions to judge long-term value. Technical analysis asks a different question: "what is the price actually doing, and what has it tended to do next?" This whole site teaches the second one, but plenty of successful investors use both together.</p></div></div>
+      <div class="chart-card"><div class="candle-note"><strong data-i18n="c4H">Reading a chart, in short</strong><p data-i18n="c4B">A price chart is a timeline of trades, and each candlestick summarizes one time period: where price opened, how high and low it went, and where it closed. Green usually means it closed higher than it opened; red means lower. That's most of what you need before Lesson 04 goes deep on what specific candle shapes tend to mean.</p></div></div>
+      <div class="chart-card"><div class="candle-note"><strong data-i18n="c5H">Timeframes change the story</strong><p data-i18n="c5B">The same stock can look like it's crashing on a 5-minute chart and calmly climbing on a weekly chart — both are "true" at once, they're just answering different questions. Shorter timeframes suit short-term trading; longer ones suit longer-term decisions. Always know which timeframe you're looking at before drawing a conclusion from it.</p></div></div>
+      <div class="chart-card"><div class="candle-note"><strong data-i18n="c6H">Volume: the market's heartbeat</strong><p data-i18n="c6B">Volume is simply how many shares changed hands in a given period. A price move on heavy volume means a lot of participants agreed with it — real conviction. The same move on light volume is easier to dismiss, and easier to reverse. You'll see this idea come up constantly in the lessons ahead.</p></div></div>
+    </div>
+
+    <h3 class="concept-heading" data-i18n="trendH">Trend: probably the single most useful concept in TA</h3>
+    <p class="lesson-intro" data-i18n="trendB">An uptrend is a series of higher highs and higher lows — each rally goes a bit further than the last, and each pullback stops a bit higher than the one before. A downtrend is the mirror image: lower highs and lower lows. Almost everything else on this site — support, resistance, breakouts, moving averages — is really just a more detailed way of describing this one idea.</p>
+    <p class="meta" style="margin-top:12px;" data-i18n="illustrationTag">Simplified illustration</p>
+    <div class="compare-row">
+      <div class="chart-card">
+        <h4 data-i18n="uptrendLabel">Uptrend</h4>
+        <svg viewBox="0 0 320 160" style="width:100%; height:auto; display:block;">
+          <polyline points="15,140 60,75 100,105 150,45 195,80 245,20 300,55" fill="none" stroke="var(--bull)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="15" cy="140" r="3.5" fill="var(--bull)"/><circle cx="60" cy="75" r="3.5" fill="var(--bull)"/><circle cx="100" cy="105" r="3.5" fill="var(--bull)"/>
+          <circle cx="150" cy="45" r="4.5" fill="var(--bull)"/><circle cx="195" cy="80" r="4.5" fill="var(--bull)"/><circle cx="245" cy="20" r="4.5" fill="var(--bull)"/><circle cx="300" cy="55" r="4.5" fill="var(--bull)"/>
+          <text x="150" y="32" font-size="11" font-weight="600" fill="var(--bull)" text-anchor="middle" font-family="Rubik, sans-serif" data-i18n="lblHH">Higher High</text>
+          <text x="195" y="100" font-size="11" fill="var(--text-muted)" text-anchor="middle" font-family="Rubik, sans-serif" data-i18n="lblHL">Higher Low</text>
+          <text x="245" y="10" font-size="11" font-weight="600" fill="var(--bull)" text-anchor="middle" font-family="Rubik, sans-serif" data-i18n="lblHH">Higher High</text>
+          <text x="300" y="75" font-size="11" fill="var(--text-muted)" text-anchor="middle" font-family="Rubik, sans-serif" data-i18n="lblHL">Higher Low</text>
+        </svg>
+      </div>
+      <div class="chart-card">
+        <h4 data-i18n="downtrendLabel">Downtrend</h4>
+        <svg viewBox="0 0 320 160" style="width:100%; height:auto; display:block;">
+          <polyline points="15,20 60,85 100,55 150,115 195,80 245,140 300,105" fill="none" stroke="var(--bear)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="15" cy="20" r="3.5" fill="var(--bear)"/><circle cx="60" cy="85" r="3.5" fill="var(--bear)"/><circle cx="100" cy="55" r="3.5" fill="var(--bear)"/>
+          <circle cx="150" cy="115" r="4.5" fill="var(--bear)"/><circle cx="195" cy="80" r="4.5" fill="var(--bear)"/><circle cx="245" cy="140" r="4.5" fill="var(--bear)"/><circle cx="300" cy="105" r="4.5" fill="var(--bear)"/>
+          <text x="150" y="135" font-size="11" font-weight="600" fill="var(--bear)" text-anchor="middle" font-family="Rubik, sans-serif" data-i18n="lblLL">Lower Low</text>
+          <text x="195" y="68" font-size="11" fill="var(--text-muted)" text-anchor="middle" font-family="Rubik, sans-serif" data-i18n="lblLH">Lower High</text>
+          <text x="245" y="158" font-size="11" font-weight="600" fill="var(--bear)" text-anchor="middle" font-family="Rubik, sans-serif" data-i18n="lblLL">Lower Low</text>
+          <text x="300" y="92" font-size="11" fill="var(--text-muted)" text-anchor="middle" font-family="Rubik, sans-serif" data-i18n="lblLH">Lower High</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="risk-callout">
+      <span class="rc-label" data-i18n="riskLabel">BEFORE YOU GO FURTHER</span>
+      <p data-i18n="riskBody">Every lesson on this site describes what price has tended to do — never what it will do. The single habit that protects traders more than any pattern or indicator is risking only a small, fixed slice of their capital on any one idea — many professionals cap it around 1% of their account per trade — because the math of losses is brutal: a 20% loss needs a 25% gain just to break even, and a 50% loss needs a 100% gain. A position size and a stop-loss decided before you enter are what let you be wrong repeatedly and still stay in the game long enough to be right.</p>
+    </div>
+  </div>
+</section>
+
+<!-- LESSON 1: SUPPORT & RESISTANCE -->
+<section class="lesson" id="l1">
+  <div class="wrap">
+    <div class="lesson-head">
+      <p class="lesson-tag" data-i18n="l1tag">LESSON 01 — SUPPORT &amp; RESISTANCE</p>
+      <h2 data-i18n="l1title">Where does price keep bouncing?</h2>
+      <p class="meta" data-i18n="l1meta">Historical pattern — AAPL, Jan–Jun 2024 (daily)</p>
+      <p class="lesson-intro" data-i18n="l1intro">Support is a price area where buying pressure has repeatedly overwhelmed selling pressure in the past — not a hard floor, just a zone worth watching. Look at the chart below before reading the panel on the right.</p>
+      <div class="deeper-dive"><span class="dd-label" data-i18n="ddLabel">WORTH KNOWING</span><p data-i18n="dd1">Every time a level holds, more traders notice it and place orders around it — which is part of what makes it hold again next time. But that same crowding is also why levels eventually break: once price finally pushes through, all the stop-losses clustered just beyond it get triggered at once, which is often exactly what fuels the strength of a breakout.</p></div>
+    </div>
+    <div class="lesson-grid">
+      <div class="chart-card">
+        <div class="chart-toolbar">
+          <label class="chip"><input type="checkbox" id="l1-vol" checked onchange="renderL1()"><span data-i18n="toggleVolume">Volume</span></label>
+          <label class="chip"><input type="checkbox" id="l1-annot" onchange="renderL1()"><span data-i18n="toggleAnnotations">Show annotations</span></label>
+        </div>
+        <div class="chart-surface">
+          <canvas id="chart-l1" width="1000" height="440"></canvas>
+          <div class="tooltip" id="tip-l1"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 data-i18n="tryTitle">Try it yourself</h3>
+        <p class="prompt" data-i18n="l1prompt">Click on the chart where you think the support zone is.</p>
+        <div class="interact-box">
+          <p class="prompt" id="l1-result"></p>
+          <button class="btn ghost" id="l1-reveal-btn" onclick="toggleL1Reveal()" data-i18n="revealBtn">Reveal annotations</button>
+        </div>
+        <div id="l1-legend" style="margin-top:18px; display:none;">
+          <div class="legend-item"><div class="legend-swatch" style="background:var(--bull)"></div><div><strong data-i18n="legendSupportH">Support zone (~$165)</strong><p data-i18n="legendSupportB">Price reacted from this area three separate times in April and May, each time finding buyers before a new leg up.</p></div></div>
+          <div class="legend-item"><div class="legend-swatch" style="background:var(--bear)"></div><div><strong data-i18n="legendResistH">Resistance zone (~$194)</strong><p data-i18n="legendResistB">Sellers stepped in here in March and again in June — the same price area rejecting price twice is what defines it as resistance.</p></div></div>
+          <div class="legend-item"><div class="legend-swatch" style="background:var(--gold)"></div><div><strong data-i18n="legendWhyH">Why it's not a guarantee</strong><p data-i18n="legendWhyB">Support held three times here, but nothing forces it to hold a fourth. It's a probability zone built from history, not a rule.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LESSON 2: BREAKOUT & RETEST -->
+<section class="lesson" id="l2">
+  <div class="wrap">
+    <div class="lesson-head">
+      <p class="lesson-tag" data-i18n="l2tag">LESSON 02 — BREAKOUT &amp; RETEST</p>
+      <h2 data-i18n="l2title">Resistance breaks. Then price comes back to check it.</h2>
+      <p class="meta" data-i18n="l2meta">Historical pattern — NVDA, 2023 (daily)</p>
+      <p class="lesson-intro" data-i18n="l2intro">A breakout is price closing decisively above a resistance zone. A retest is when price returns to that same zone afterward — often turning former resistance into new support — before continuing. Watch how volume behaves at the breakout candle.</p>
+      <div class="deeper-dive"><span class="dd-label" data-i18n="ddLabel">WORTH KNOWING</span><p data-i18n="dd2">Not every dip after a breakout is a retest — sometimes it's a full reversal. The distinction traders look for: a genuine retest usually pauses close to the old resistance and doesn't spend more than a candle or two trading back below it. A close that stays under the old level for longer than that is a warning the breakout may be failing.</p></div>
+    </div>
+    <div class="lesson-grid">
+      <div class="chart-card">
+        <div class="chart-toolbar">
+          <label class="chip"><input type="checkbox" id="l2-vol" checked onchange="renderL2()"><span data-i18n="toggleVolume">Volume</span></label>
+          <label class="chip"><input type="checkbox" id="l2-annot" checked onchange="renderL2()"><span data-i18n="toggleAnnotations">Show annotations</span></label>
+        </div>
+        <div class="chart-surface">
+          <canvas id="chart-l2" width="1000" height="440"></canvas>
+          <div class="tooltip" id="tip-l2"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--gold)"></div><div><strong data-i18n="legendBreakH">Breakout</strong><p data-i18n="legendBreakB">Price closes above the ~$140 zone on a volume spike — a sign that more participants than usual agreed the level should give way.</p></div></div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--bull)"></div><div><strong data-i18n="legendRetestH">Retest</strong><p data-i18n="legendRetestB">A few sessions later, price dips back to the ~$140 area, finds buyers, and resumes the move — the old ceiling now acting as a floor.</p></div></div>
+        <div class="quiz">
+          <p class="q" data-i18n="quizQ">What typically happens right when price first reaches a resistance zone?</p>
+          <button class="quiz-opt" data-key="a" onclick="answerQuiz('a')" data-i18n="quizA">It always falls immediately</button>
+          <button class="quiz-opt" data-key="b" onclick="answerQuiz('b')" data-i18n="quizB">It may react, but can eventually break through</button>
+          <button class="quiz-opt" data-key="c" onclick="answerQuiz('c')" data-i18n="quizC">Nothing happens, ever</button>
+          <p class="quiz-explain" id="quiz-explain" data-i18n="quizExplain">Correct answer: B. Resistance marks an area of potential selling pressure, not an impenetrable ceiling — as this exact chart shows.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare-row">
+      <div class="chart-card">
+        <h4 data-i18n="compareRealH">Real breakout — held</h4>
+        <canvas id="chart-l2b-real" width="480" height="260"></canvas>
+      </div>
+      <div class="chart-card">
+        <h4 data-i18n="compareFalseH">False breakout — failed</h4>
+        <canvas id="chart-l2b-false" width="480" height="260"></canvas>
+      </div>
+    </div>
+    <p class="lesson-intro" data-i18n="compareNote">Not every breakout continues. On the right, price pokes above resistance for a day or two on weak volume, then falls back inside the range — a reminder that breakouts describe a probability, not a certainty.</p>
+  </div>
+</section>
+
+<!-- LESSON 3: MOVING AVERAGES -->
+<section class="lesson" id="l3">
+  <div class="wrap">
+    <div class="lesson-head">
+      <p class="lesson-tag" data-i18n="l3tag">LESSON 03 — MOVING AVERAGES</p>
+      <h2 data-i18n="l3title">Smoothing out the noise to see the trend</h2>
+      <p class="meta" data-i18n="l3meta">Historical pattern — MSFT, 2023 (daily)</p>
+      <p class="lesson-intro" data-i18n="l3intro">A moving average is the average closing price over a fixed number of past sessions, recalculated every day. Shorter averages react faster; longer averages describe the broader trend. Toggle them on and off to see what each one is actually showing.</p>
+      <div class="deeper-dive"><span class="dd-label" data-i18n="ddLabel">WORTH KNOWING</span><p data-i18n="dd3">Why 20 and 150 specifically? The 20-day average covers roughly a month of trading — short enough to track the current swing, which is why short-term traders watch for pullbacks toward it rather than breaks below it. The 150-day average gets talked about far less, but it's a cornerstone of professional trend-screening systems: Mark Minervini's well-known "Trend Template" requires price to hold above a rising 150-day average before a stock even qualifies as a long-term uptrend candidate — precisely because it reacts faster than the 200-day, catching real trend strength earlier without being as noisy as the shorter averages.</p></div>
+    </div>
+    <div class="lesson-grid">
+      <div class="chart-card">
+        <div class="chart-toolbar">
+          <label class="chip"><input type="checkbox" id="l3-ema20" checked onchange="renderL3()"><span data-i18n="toggleEma20">20 EMA</span></label>
+          <label class="chip"><input type="checkbox" id="l3-sma50" checked onchange="renderL3()"><span data-i18n="toggleSma50">50 SMA</span></label>
+          <label class="chip"><input type="checkbox" id="l3-sma150" checked onchange="renderL3()"><span data-i18n="toggleSma150">150 SMA</span></label>
+        </div>
+        <div class="chart-surface">
+          <canvas id="chart-l3" width="1000" height="440"></canvas>
+          <div class="tooltip" id="tip-l3"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--ema20)"></div><div><strong data-i18n="legendEma20H">20 EMA — the short-term pulse</strong><p data-i18n="legendEma20B">Covers roughly a month of trading. It's fast enough to hug recent price closely, which is why swing traders often watch for a pullback toward the 20 — and a bounce off it — as a rough entry area within an uptrend, rather than a break below it. That same speed means it also whips back and forth more in choppy, directionless stretches.</p></div></div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--sma50)"></div><div><strong data-i18n="legendSma50H">50 SMA — the medium trend</strong><p data-i18n="legendSma50B">Smoother than the 20. It confirms whether the medium-term trend actually agrees with the short-term one — trend-following traders generally want to see price holding above a rising 50 before trusting a rally.</p></div></div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--sma150)"></div><div><strong data-i18n="legendSma150H">150 SMA — the line institutions watch</strong><p data-i18n="legendSma150B">Less talked about on retail charts, but it's a cornerstone of professional trend-screening systems — Mark Minervini's well-known "Trend Template" requires price to hold above a rising 150-day average before a stock even qualifies as a healthy long-term uptrend. Sitting between the 50 and the 200, it tends to confirm real staying power in a trend earlier than the slower 200 does.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LESSON 4: CANDLESTICK PATTERNS -->
+<section class="lesson" id="l4">
+  <div class="wrap">
+    <div class="lesson-head">
+      <p class="lesson-tag" data-i18n="l4tag">LESSON 04 — CANDLESTICK PATTERNS</p>
+      <h2 data-i18n="l4title">What a single candle is telling you</h2>
+      <p class="meta" data-i18n="l4meta">Simplified illustrations — built to isolate each shape clearly</p>
+      <p class="lesson-intro" data-i18n="l4intro">A candlestick pattern is only meaningful in context — where it sits after a trend, and what happens to price right after. The dotted box marks the candle to focus on in each chart below.</p>
+      <div class="deeper-dive"><span class="dd-label" data-i18n="ddLabel">WORTH KNOWING</span><p data-i18n="dd4">One candle is a hint, not proof. A hammer or an engulfing pattern describes what happened during one or two sessions — it isn't a guarantee about tomorrow. Most experienced traders treat a single candlestick pattern as something to watch for confirmation on the next candle or two, not something to act on by itself.</p></div>
+    </div>
+
+    <div class="candle-grid">
+      <div class="chart-card">
+        <div class="chart-surface">
+          <canvas id="chart-c-hammer" width="480" height="260"></canvas>
+          <div class="tooltip" id="tip-c-hammer"></div>
+        </div>
+        <div class="candle-note">
+          <strong data-i18n="hammerH">Hammer</strong>
+          <p data-i18n="hammerB">Small body near the top of the range, a long lower wick, appearing after a downtrend. It shows sellers pushed price down during the session, but buyers dragged it back up before the close — often a sign the selling is losing strength.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-surface">
+          <canvas id="chart-c-star" width="480" height="260"></canvas>
+          <div class="tooltip" id="tip-c-star"></div>
+        </div>
+        <div class="candle-note">
+          <strong data-i18n="starH">Shooting Star</strong>
+          <p data-i18n="starB">The mirror image of a hammer: small body near the bottom of the range, a long upper wick, appearing after an uptrend. Buyers pushed price up during the session, but sellers dragged it back down before the close — often a sign the buying is losing strength.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-surface">
+          <canvas id="chart-c-doji" width="480" height="260"></canvas>
+          <div class="tooltip" id="tip-c-doji"></div>
+        </div>
+        <div class="candle-note">
+          <strong data-i18n="dojiH">Doji</strong>
+          <p data-i18n="dojiB">Open and close are almost identical, so the body nearly disappears. On its own it just means indecision; appearing after a strong move up, it can flag that the move is running out of buyers.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-surface">
+          <canvas id="chart-c-bullE" width="480" height="260"></canvas>
+          <div class="tooltip" id="tip-c-bullE"></div>
+        </div>
+        <div class="candle-note">
+          <strong data-i18n="bullEH">Bullish engulfing</strong>
+          <p data-i18n="bullEB">A down candle is immediately followed by an up candle whose body fully covers it — buyers didn't just show up, they overpowered the entire previous session's range in one move.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-surface">
+          <canvas id="chart-c-bearE" width="480" height="260"></canvas>
+          <div class="tooltip" id="tip-c-bearE"></div>
+        </div>
+        <div class="candle-note">
+          <strong data-i18n="bearEH">Bearish engulfing</strong>
+          <p data-i18n="bearEB">The mirror image: an up candle is swallowed by a down candle right after. The same idea, working against the trend instead of with it.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:22px;">
+      <div class="quiz" style="border-top:none; padding-top:0;">
+        <p class="q" data-i18n="quiz2Q">Which pattern has a small body near the top of its range and a long lower wick, after a downtrend?</p>
+        <button class="quiz-opt" data-key2="hammer" onclick="answerQuiz2('hammer')" data-i18n="quiz2A">Hammer</button>
+        <button class="quiz-opt" data-key2="doji" onclick="answerQuiz2('doji')" data-i18n="quiz2B">Doji</button>
+        <button class="quiz-opt" data-key2="bullE" onclick="answerQuiz2('bullE')" data-i18n="quiz2C">Bullish engulfing</button>
+        <button class="quiz-opt" data-key2="bearE" onclick="answerQuiz2('bearE')" data-i18n="quiz2D">Bearish engulfing</button>
+        <button class="quiz-opt" data-key2="star" onclick="answerQuiz2('star')" data-i18n="quiz2E">Shooting Star</button>
+        <p class="quiz-explain" id="quiz2-explain" data-i18n="quiz2Explain">Correct answer: Hammer. The long lower wick after a decline shows buyers rejected the lower prices within that same session.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LESSON 5: FIBONACCI RETRACEMENT -->
+<section class="lesson" id="l5">
+  <div class="wrap">
+    <div class="lesson-head">
+      <p class="lesson-tag" data-i18n="l5tag">LESSON 05 — FIBONACCI RETRACEMENT</p>
+      <h2 data-i18n="l5title">How far back does a pullback usually go?</h2>
+      <p class="meta" data-i18n="l5meta">Historical pattern — TSLA, 2023 (daily)</p>
+      <p class="lesson-intro" data-i18n="l5intro">After a strong move, price often pulls back before continuing. Fibonacci retracement marks the pullback as a percentage of that move — 23.6%, 38.2%, 50%, 61.8%, 78.6% — so traders have reference levels to watch. These levels don't predict anything by themselves; they just mark where many participants happen to be watching.</p>
+      <div class="deeper-dive"><span class="dd-label" data-i18n="ddLabel">WORTH KNOWING</span><p data-i18n="dd5">Why do these specific percentages matter? Honestly, not because of anything mystical about the numbers. So many traders, algorithms, and institutions plot the exact same retracement lines that they end up placing similar buy and sell orders near the same prices — creating real supply and demand right where everyone is already looking. It's partly a self-fulfilling prophecy. One curiosity: 50% isn't actually a Fibonacci ratio at all — it was added because markets often retrace around half of a move, an older observation from Dow Theory that stuck around.</p></div>
+    </div>
+    <div class="lesson-grid">
+      <div class="chart-card">
+        <div class="chart-toolbar">
+          <label class="chip"><input type="checkbox" id="l5-annot" checked onchange="renderL5()"><span data-i18n="toggleAnnotations">Show annotations</span></label>
+        </div>
+        <div class="chart-surface">
+          <canvas id="chart-l5" width="1000" height="440"></canvas>
+          <div class="tooltip" id="tip-l5"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--bull)"></div><div><strong data-i18n="legendSwingH">Swing low → swing high</strong><p data-i18n="legendSwingB">The move being measured. Every retracement level below is calculated as a percentage of this exact range.</p></div></div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--gold)"></div><div><strong data-i18n="legendFibH">This pullback stalled near 61.8%</strong><p data-i18n="legendFibB">Price retraced down through the shallower levels and found buyers close to the 61.8% line, then resumed the original uptrend. That's a common outcome — not a rule the market has to obey.</p></div></div>
+        <div class="legend-item"><div class="legend-swatch" style="background:var(--bear)"></div><div><strong data-i18n="legendFibWhyH">Don't read this backwards</strong><p data-i18n="legendFibWhyB">Fibonacci didn't cause the bounce, and it doesn't forecast the next one. It's a way to describe where a reaction happened after the fact, and a level worth watching next time.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LESSON 6: RSI -->
+<section class="lesson" id="l6">
+  <div class="wrap">
+    <div class="lesson-head">
+      <p class="lesson-tag" data-i18n="l6tag">LESSON 06 — RSI (RELATIVE STRENGTH INDEX)</p>
+      <h2 data-i18n="l6title">Measuring momentum, not just price</h2>
+      <p class="meta" data-i18n="l6meta">Historical patterns, 2023 (daily)</p>
+      <p class="lesson-intro" data-i18n="l6intro">RSI moves between 0 and 100 based on the size of recent gains versus recent losses. Above 70 is generally called "overbought," below 30 "oversold" — but neither is an automatic trade signal, as the first example below shows clearly.</p>
+      <div class="deeper-dive"><span class="dd-label" data-i18n="ddLabel">WORTH KNOWING</span><p data-i18n="dd6">Two more things worth knowing: first, 50 acts as an informal dividing line — RSI consistently above 50 tends to describe an uptrend, consistently below 50 a downtrend. Second, RSI is a lagging measure, calculated from price that already happened, so by the time it flags something, part of the move is usually already behind it. Some traders shift the classic 70/30 thresholds to 80/20 during strong trends, precisely because 70/30 triggers too early and too often in a one-directional market.</p></div>
+    </div>
+
+    <div class="candle-grid">
+      <div class="chart-card">
+        <h4 data-i18n="rsiOBTitle">Overbought ≠ automatic sell</h4>
+        <div class="chart-surface">
+          <canvas id="chart-rsi-ob" width="480" height="320"></canvas>
+          <div class="tooltip" id="tip-rsi-ob"></div>
+        </div>
+        <div class="candle-note"><p data-i18n="rsiOBNote">RSI pushed above 70 early in this rally and stayed there for months while price nearly doubled. Selling the moment RSI crossed 70 here would have meant missing most of the move.</p></div>
+      </div>
+      <div class="chart-card">
+        <h4 data-i18n="rsiOSTitle">Oversold bounce</h4>
+        <div class="chart-surface">
+          <canvas id="chart-rsi-os" width="480" height="320"></canvas>
+          <div class="tooltip" id="tip-rsi-os"></div>
+        </div>
+        <div class="candle-note"><p data-i18n="rsiOSNote">A sustained decline pushed RSI down near single digits. Shortly after, buyers stepped back in and price turned higher — the kind of setup "oversold" is meant to describe.</p></div>
+      </div>
+    </div>
+    <div class="candle-grid" style="margin-top:18px;">
+      <div class="chart-card" style="grid-column:1/-1;">
+        <h4 data-i18n="rsiDivTitle">Bearish divergence</h4>
+        <div class="chart-surface">
+          <canvas id="chart-rsi-div" width="1000" height="320"></canvas>
+          <div class="tooltip" id="tip-rsi-div"></div>
+        </div>
+        <div class="candle-note"><p data-i18n="rsiDivNote">Price pushed to a higher high on the right — but RSI made a lower high at the same time. Momentum was quietly weakening even as price still looked strong. Price rolled over shortly after.</p></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:22px;">
+      <div class="quiz" style="border-top:none; padding-top:0;">
+        <p class="q" data-i18n="quiz3Q">In the divergence chart above, price made a higher high. What does a lower high on RSI at the same time typically suggest?</p>
+        <button class="quiz-opt" data-key3="a" onclick="answerQuiz3('a')" data-i18n="quiz3A">Nothing — RSI and price always move together</button>
+        <button class="quiz-opt" data-key3="b" onclick="answerQuiz3('b')" data-i18n="quiz3B">Momentum behind the move may be fading, even though price is still rising</button>
+        <button class="quiz-opt" data-key3="c" onclick="answerQuiz3('c')" data-i18n="quiz3C">It guarantees an immediate reversal</button>
+        <p class="quiz-explain" id="quiz3-explain" data-i18n="quiz3Explain">Correct answer: B. Divergence is a warning sign that momentum is weakening, not a precise timing signal — price can keep rising for a while before it matters.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LESSON 7: CHART PATTERNS -->
+<section class="lesson" id="l7">
+  <div class="wrap">
+    <div class="lesson-head">
+      <p class="lesson-tag" data-i18n="l7tag">LESSON 07 — CHART PATTERNS</p>
+      <h2 data-i18n="l7title">Shapes that tend to repeat</h2>
+      <p class="meta" data-i18n="l7meta">Simplified illustrations — built to isolate each shape clearly</p>
+      <p class="lesson-intro" data-i18n="l7intro">These are recurring shapes in price action, each with a typical (not guaranteed) outcome once it completes. The dashed lines mark the structure that defines each pattern.</p>
+      <div class="deeper-dive"><span class="dd-label" data-i18n="ddLabel">WORTH KNOWING</span><p data-i18n="dd7">How traders estimate a price target — a common (rough) technique is the "measured move": take the height of the pattern itself, for example the distance from the head down to the neckline in a head &amp; shoulders, and project that same distance from the breakout point in the direction of the breakout. It's a starting estimate, not a promise — real moves regularly fall short of it or run well past it.</p></div>
+    </div>
+
+    <div class="candle-grid">
+      <div class="chart-card">
+        <div class="chart-surface">
+          <canvas id="chart-p-doubleBottom" width="480" height="280"></canvas>
+          <div class="tooltip" id="tip-p-doubleBottom"></div>
+        </div>
+        <div class="candle-note">
+          <strong data-i18n="dbH">Double Bottom</strong>
+          <p data-i18n="dbB">Price falls to a low, bounces, falls back to roughly the same low, then breaks above the peak between the two lows (the "neckline"). Two failed attempts to go lower is read as sellers running out of conviction.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-surface">
+          <canvas id="chart-p-doubleTop" width="480" height="280"></canvas>
+          <div class="tooltip" id="tip-p-doubleTop"></div>
+        </div>
+        <div class="candle-note">
+          <strong data-i18n="dtH">Double Top</strong>
+          <p data-i18n="dtB">The mirror image of a double bottom — two attempts to push to a similar high, followed by a break below the trough between them. Two failed pushes higher is read as buyers running out of conviction.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-surface">
+          <canvas id="chart-p-hs" width="480" height="280"></canvas>
+          <div class="tooltip" id="tip-p-hs"></div>
+        </div>
+        <div class="candle-note">
+          <strong data-i18n="hsH">Head &amp; Shoulders</strong>
+          <p data-i18n="hsB">Three peaks — a shoulder, a taller head, then a second shoulder close in height to the first. A break below the "neckline" connecting the two troughs is the classic trigger traders watch for.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-surface">
+          <canvas id="chart-p-flag" width="480" height="280"></canvas>
+          <div class="tooltip" id="tip-p-flag"></div>
+        </div>
+        <div class="candle-note">
+          <strong data-i18n="flagH">Bull Flag</strong>
+          <p data-i18n="flagB">A sharp rally (the "pole") followed by a tight, slightly downward-drifting pause (the "flag") as the market catches its breath — then a breakout that resumes the original trend.</p>
+        </div>
+      </div>
+      <div class="chart-card" style="grid-column:1/-1;">
+        <div class="chart-surface">
+          <canvas id="chart-p-triangle" width="1000" height="300"></canvas>
+          <div class="tooltip" id="tip-p-triangle"></div>
+        </div>
+        <div class="candle-note">
+          <strong data-i18n="triH">Ascending Triangle</strong>
+          <p data-i18n="triB">A flat resistance line gets tested repeatedly while the lows keep rising underneath it — buyers getting more eager while sellers hold the same line — until the range finally breaks, usually upward.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p data-i18n="footerNote">Historical examples are for educational illustration only and do not imply future performance. This is not investment advice.</p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top" title="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<!-- App navigation: floating menu linking Stock/Compare/Calculators/Quiz -->
+<div class="app-nav-wrap">
+  <button class="app-nav-fab" id="app-nav-fab" aria-label="Menu" title="Menu" onclick="toggleAppNavMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+  <div class="app-nav-menu" id="app-nav-menu">
+    <button onclick="navigateTo('stock'); closeAppNavMenu();" data-i18n="navStock">Stock Search</button>
+    <button onclick="navigateTo('compare'); closeAppNavMenu();" data-i18n="navCompare">Compare</button>
+    <button onclick="navigateTo('calculators'); closeAppNavMenu();" data-i18n="navCalculators">Calculators</button>
+    <button onclick="navigateTo('quiz'); closeAppNavMenu();" data-i18n="navQuiz">Quiz</button>
+  </div>
+</div>
+
+<!-- AI assistant: floating launcher -->
+<button class="ai-fab" id="ai-fab" onclick="navigateTo('ai')" data-i18n-aria="aiFabLabel" aria-label="AI assistant" title="AI assistant">
+  <span class="ai-dot"></span>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3l1.6 3.9L17.5 8.5l-3.9 1.6L12 14l-1.6-3.9L6.5 8.5l3.9-1.6L12 3z"/>
+    <path d="M19 14l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z"/>
+  </svg>
+</button>
+
+<!-- AI assistant: full-screen chat -->
+<div class="ai-overlay" id="ai-overlay" role="dialog" aria-modal="true">
+  <div class="ai-header">
+    <button class="ai-back" onclick="navigateTo('')" data-i18n-aria="aiBackLabel" aria-label="Back to site" title="Back to site">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <div class="ai-htext">
+      <h2 data-i18n="aiTitle">Market Assistant</h2>
+      <p class="ai-sub" data-i18n="aiSubtitle">Ask about anything on this site or in the markets</p>
+    </div>
+    <span class="ai-badge">AI</span>
+  </div>
+
+  <div class="ai-body" id="ai-body">
+    <div class="ai-body-inner">
+      <div class="ai-empty" id="ai-empty">
+        <div class="ai-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 3.9L17.5 8.5l-3.9 1.6L12 14l-1.6-3.9L6.5 8.5l3.9-1.6L12 3z"/><path d="M19 14l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z"/></svg>
+        </div>
+        <h3 data-i18n="aiEmptyTitle">Ask me anything about the markets</h3>
+        <p data-i18n="aiEmptyBody">Stocks, indices, ETFs, bonds, financial terms, or anything confusing on this site — including the charts and lessons themselves.</p>
+        <div class="ai-examples" id="ai-examples"></div>
+      </div>
+      <div id="ai-messages"></div>
+    </div>
+  </div>
+
+  <div class="ai-footer">
+    <div class="ai-input-row">
+      <textarea class="ai-input" id="ai-input" rows="1" maxlength="2000" data-i18n-placeholder="aiPlaceholder" placeholder="Ask a question..."></textarea>
+      <button class="ai-send" id="ai-send" onclick="sendAiMessage()" data-i18n-aria="aiSendLabel" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+    <p class="ai-disclaimer" data-i18n="aiDisclaimer">Educational information only, not investment advice — the assistant can be wrong.</p>
+  </div>
+</div>
+
+<script>
+__CORE_SCRIPTS_INJECTION_POINT__
+/* ---------- deterministic RNG ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+function genCandles(seed, waypoints, n, baseVol){
+  const rng=mulberry32(seed);
+  const candles=[];
+  const start=new Date(waypoints[0].t);
+  for(let i=0;i<n;i++){
+    const frac=i/(n-1);
+    let lo=waypoints[0], hi=waypoints[waypoints.length-1];
+    for(let k=0;k<waypoints.length-1;k++){
+      if(frac>=waypoints[k].f && frac<=waypoints[k+1].f){lo=waypoints[k]; hi=waypoints[k+1]; break;}
+    }
+    const span=hi.f-lo.f||1;
+    const local=(frac-lo.f)/span;
+    const base=lo.p+(hi.p-lo.p)*local;
+    const noise=(rng()-0.5)*(hi.p+lo.p)/2*0.018;
+    const close=base+noise;
+    const prevClose=i===0?close:candles[i-1].c;
+    const open=prevClose+(rng()-0.5)*Math.abs(close-prevClose)*0.6;
+    const wick=Math.abs(close-open)*(0.4+rng()*0.9)+base*0.004;
+    const high=Math.max(open,close)+wick*rng();
+    const low=Math.min(open,close)-wick*rng();
+    const vol=baseVol*(0.6+rng()*0.8);
+    const d=new Date(start); d.setDate(d.getDate()+i);
+    candles.push({t:d, o:open,h:high,l:low,c:close,v:vol});
+  }
+  return candles;
+}
+
+/* Lesson 1: AAPL Jan-Jun 2024 — bounces off ~165, rejects ~194 */
+const L1 = genCandles(11, [
+  {f:0,p:186,t:'2024-01-02'},{f:0.12,p:165,t:''},{f:0.22,p:184,t:''},
+  {f:0.34,p:166,t:''},{f:0.46,p:188,t:''},{f:0.58,p:167,t:''},
+  {f:0.72,p:194,t:''},{f:0.86,p:178,t:''},{f:1,p:196,t:''}
+], 110, 55000000);
+L1.supportZone=[163,168]; L1.resistZone=[192,196];
+
+/* Lesson 2: NVDA 2023 — consolidation under ~140, breakout with volume, retest, continuation */
+const L2 = genCandles(23, [
+  {f:0,p:118,t:'2023-01-03'},{f:0.30,p:132,t:''},{f:0.45,p:138,t:''},
+  {f:0.52,p:136,t:''},{f:0.60,p:158,t:''},{f:0.66,p:141,t:''},
+  {f:0.75,p:172,t:''},{f:0.88,p:210,t:''},{f:1,p:245,t:''}
+], 130, 300000000);
+L2.resistZone=[136,142];
+// mark breakout index (~60%) and retest index (~66%) with volume spike at breakout
+const l2BreakIdx = Math.round(130*0.61);
+const l2RetestIdx = Math.round(130*0.665);
+if(L2[l2BreakIdx]) L2[l2BreakIdx].v *= 2.4;
+L2.breakIdx = l2BreakIdx; L2.retestIdx = l2RetestIdx;
+
+/* Comparison mini-charts */
+const L2_REAL = genCandles(31, [
+  {f:0,p:128,t:'2023-04-01'},{f:0.4,p:139,t:''},{f:0.55,p:137,t:''},
+  {f:0.62,p:158,t:''},{f:0.7,p:140,t:''},{f:1,p:170,t:''}
+], 48, 180000000);
+const L2_FALSE = genCandles(41, [
+  {f:0,p:128,t:'2023-04-01'},{f:0.4,p:139,t:''},{f:0.5,p:137,t:''},
+  {f:0.58,p:144,t:''},{f:0.66,p:135,t:''},{f:1,p:126,t:''}
+], 48, 90000000);
+L2_REAL.resistZone=[136,141]; L2_FALSE.resistZone=[136,141];
+
+/* Lesson 3: MSFT 2023 — steady uptrend */
+const L3 = genCandles(37, [
+  {f:0,p:239,t:'2023-01-03'},{f:0.2,p:255,t:''},{f:0.4,p:310,t:''},
+  {f:0.6,p:335,t:''},{f:0.8,p:322,t:''},{f:1,p:378,t:''}
+], 260, 30000000);
+
+/* helper: find the extreme (lowest low / highest high) candle index within a fractional window */
+function findExtreme(candles, f1, f2, type){
+  const n=candles.length;
+  let i1=Math.max(0,Math.round(f1*(n-1))), i2=Math.min(n-1,Math.round(f2*(n-1)));
+  if(i2<i1){ const tmp=i1; i1=i2; i2=tmp; }
+  let idx=i1;
+  for(let i=i1;i<=i2;i++){
+    if(type==='low'){ if(candles[i].l<candles[idx].l) idx=i; }
+    else { if(candles[i].h>candles[idx].h) idx=i; }
+  }
+  return idx;
+}
+
+/* Lesson 5: TSLA 2023 — swing low to swing high, pullback stalling near 61.8% */
+const L5 = genCandles(43, [
+  {f:0,p:152,t:'2023-01-06'},{f:0.12,p:146,t:''},{f:0.5,p:293,t:''},
+  {f:0.72,p:207,t:''},{f:0.86,p:222,t:''},{f:1,p:262,t:''}
+], 145, 120000000);
+L5.lowIdx = findExtreme(L5, 0.03, 0.18, 'low');
+L5.highIdx = findExtreme(L5, 0.42, 0.58, 'high');
+(function(){
+  const lowP = L5[L5.lowIdx].l, highP = L5[L5.highIdx].h;
+  L5.swingLow = lowP; L5.swingHigh = highP;
+  const range = highP - lowP;
+  L5.fibLevels = [0.236, 0.382, 0.5, 0.618, 0.786].map(r => ({ ratio:r, price: highP - range*r }));
+})();
+
+/* Lesson 6: RSI examples */
+// (a) sustained rally — RSI pushes above 70 early and stays elevated for a long stretch
+const RSI_OB = genCandles(51, [
+  {f:0,p:100,t:'2023-02-01'},{f:0.15,p:118,t:''},{f:0.3,p:128,t:''},
+  {f:0.5,p:150,t:''},{f:0.7,p:168,t:''},{f:0.85,p:184,t:''},{f:1,p:196,t:''}
+], 100, 60000000);
+// (b) sustained decline into an oversold bounce
+const RSI_OS = genCandles(52, [
+  {f:0,p:180,t:'2023-03-01'},{f:0.25,p:150,t:''},{f:0.5,p:118,t:''},
+  {f:0.75,p:92,t:''},{f:0.9,p:85,t:''},{f:1,p:104,t:''}
+], 100, 60000000);
+// (c) bearish divergence — price higher high, RSI lower high
+const RSI_DIV = genCandles(53, [
+  {f:0,p:110,t:'2023-05-01'},{f:0.18,p:120,t:''},{f:0.4,p:158,t:''},
+  {f:0.55,p:138,t:''},{f:0.72,p:150,t:''},{f:0.92,p:172,t:''},{f:1,p:150,t:''}
+], 110, 60000000);
+[RSI_OB, RSI_OS, RSI_DIV].forEach(d=>{ d.rsi = computeRSI(d.map(c=>c.c), 14); });
+RSI_DIV.peak1Idx = findExtreme(RSI_DIV, 0.3, 0.44, 'high');
+RSI_DIV.peak2Idx = findExtreme(RSI_DIV, 0.82, 0.98, 'high');
+
+/* Lesson 7: chart pattern illustrations (simplified, not tied to a real ticker) */
+const P_DBL_BOTTOM = genCandles(61, [
+  {f:0,p:100,t:'2023-01-01'},{f:0.22,p:70,t:''},{f:0.42,p:88,t:''},
+  {f:0.62,p:71,t:''},{f:0.8,p:90,t:''},{f:1,p:104,t:''}
+], 70, 30000000);
+P_DBL_BOTTOM.b1Idx = findExtreme(P_DBL_BOTTOM, 0.15, 0.3, 'low');
+P_DBL_BOTTOM.b2Idx = findExtreme(P_DBL_BOTTOM, 0.55, 0.7, 'low');
+P_DBL_BOTTOM.neckIdx = findExtreme(P_DBL_BOTTOM, 0.32, 0.5, 'high');
+
+const P_DBL_TOP = genCandles(62, [
+  {f:0,p:70,t:'2023-02-01'},{f:0.22,p:100,t:''},{f:0.42,p:82,t:''},
+  {f:0.62,p:99,t:''},{f:0.8,p:80,t:''},{f:1,p:66,t:''}
+], 70, 30000000);
+P_DBL_TOP.t1Idx = findExtreme(P_DBL_TOP, 0.15, 0.3, 'high');
+P_DBL_TOP.t2Idx = findExtreme(P_DBL_TOP, 0.55, 0.7, 'high');
+P_DBL_TOP.neckIdx = findExtreme(P_DBL_TOP, 0.32, 0.5, 'low');
+
+const P_HS = genCandles(63, [
+  {f:0,p:80,t:'2023-03-01'},{f:0.16,p:100,t:''},{f:0.32,p:88,t:''},
+  {f:0.5,p:114,t:''},{f:0.68,p:89,t:''},{f:0.82,p:99,t:''},{f:1,p:80,t:''}
+], 80, 30000000);
+P_HS.shoulder1Idx = findExtreme(P_HS, 0.1, 0.22, 'high');
+P_HS.headIdx = findExtreme(P_HS, 0.44, 0.56, 'high');
+P_HS.shoulder2Idx = findExtreme(P_HS, 0.76, 0.88, 'high');
+P_HS.trough1Idx = findExtreme(P_HS, 0.24, 0.4, 'low');
+P_HS.trough2Idx = findExtreme(P_HS, 0.6, 0.74, 'low');
+
+const P_FLAG = genCandles(64, [
+  {f:0,p:60,t:'2023-04-01'},{f:0.32,p:112,t:''},{f:0.42,p:108,t:''},
+  {f:0.52,p:103,t:''},{f:0.62,p:99,t:''},{f:0.66,p:102,t:''},{f:1,p:138,t:''}
+], 70, 30000000);
+P_FLAG.poleStartIdx = findExtreme(P_FLAG, 0, 0.06, 'low');
+P_FLAG.poleTopIdx = findExtreme(P_FLAG, 0.26, 0.36, 'high');
+P_FLAG.flagEndIdx = findExtreme(P_FLAG, 0.6, 0.7, 'low');
+
+const P_TRIANGLE = genCandles(65, [
+  {f:0,p:78,t:'2023-05-01'},{f:0.12,p:100,t:''},{f:0.25,p:85,t:''},
+  {f:0.38,p:100,t:''},{f:0.5,p:90,t:''},{f:0.62,p:100,t:''},
+  {f:0.72,p:95,t:''},{f:0.84,p:100,t:''},{f:1,p:114,t:''}
+], 90, 30000000);
+P_TRIANGLE.touch1Idx = findExtreme(P_TRIANGLE, 0.06, 0.18, 'high');
+P_TRIANGLE.touch2Idx = findExtreme(P_TRIANGLE, 0.32, 0.44, 'high');
+P_TRIANGLE.touch3Idx = findExtreme(P_TRIANGLE, 0.56, 0.68, 'high');
+P_TRIANGLE.low1Idx = findExtreme(P_TRIANGLE, 0.18, 0.3, 'low');
+P_TRIANGLE.low2Idx = findExtreme(P_TRIANGLE, 0.44, 0.56, 'low');
+P_TRIANGLE.breakIdx = findExtreme(P_TRIANGLE, 0.86, 1, 'high');
+
+/* ---------- Lesson 4: candlestick pattern illustrations ---------- */
+function overrideCandle(candles, idx, patch){
+  const cd = candles[idx];
+  cd.o=patch.o; cd.h=patch.h; cd.l=patch.l; cd.c=patch.c;
+  if(patch.volMult) cd.v *= patch.volMult;
+}
+
+// Hammer: downtrend into a small-bodied, long-lower-wick candle, then a recovery
+const C_HAMMER = genCandles(501, [
+  {f:0,p:100,t:'2023-02-01'},{f:0.65,p:68,t:''},{f:1,p:88,t:''}
+], 20, 18000000);
+overrideCandle(C_HAMMER, 13, {o:74, h:76, l:64, c:75.5});
+C_HAMMER.highlightIdx = 13;
+
+// Shooting Star: uptrend into a small-bodied, long-upper-wick candle, then a reversal down (mirror of the hammer)
+const C_STAR = genCandles(505, [
+  {f:0,p:70,t:'2023-06-01'},{f:0.65,p:100,t:''},{f:1,p:80,t:''}
+], 20, 18000000);
+overrideCandle(C_STAR, 13, {o:98, h:109, l:96, c:96.7});
+C_STAR.highlightIdx = 13;
+
+// Doji: uptrend into a near-zero-body candle at the top, then a pause/pullback
+const C_DOJI = genCandles(502, [
+  {f:0,p:60,t:'2023-03-01'},{f:0.6,p:95,t:''},{f:1,p:90,t:''}
+], 20, 15000000);
+overrideCandle(C_DOJI, 12, {o:94.8, h:98, l:91, c:95.0});
+C_DOJI.highlightIdx = 12;
+
+// Bullish engulfing: downtrend, small red candle, then a green candle that fully engulfs it
+const C_BULLE = genCandles(503, [
+  {f:0,p:90,t:'2023-04-01'},{f:0.6,p:65,t:''},{f:1,p:85,t:''}
+], 20, 16000000);
+overrideCandle(C_BULLE, 12, {o:67, h:67.5, l:62, c:63});
+overrideCandle(C_BULLE, 13, {o:62, h:69, l:61.5, c:68.5, volMult:1.9});
+C_BULLE.highlightIdx = 12; C_BULLE.highlightIdx2 = 13;
+
+// Bearish engulfing: uptrend, small green candle, then a red candle that fully engulfs it
+const C_BEARE = genCandles(504, [
+  {f:0,p:65,t:'2023-05-01'},{f:0.6,p:92,t:''},{f:1,p:72,t:''}
+], 20, 16000000);
+overrideCandle(C_BEARE, 12, {o:90, h:94.5, l:89.5, c:94});
+overrideCandle(C_BEARE, 13, {o:95, h:95.5, l:87.5, c:88, volMult:1.9});
+C_BEARE.highlightIdx = 12; C_BEARE.highlightIdx2 = 13;
+
+function ema(vals,period){
+  const k=2/(period+1); const out=[]; let prev;
+  vals.forEach((v,i)=>{ if(i===0){prev=v;} else {prev=v*k+prev*(1-k);} out.push(prev); });
+  return out;
+}
+function sma(vals,period){
+  const out=[];
+  for(let i=0;i<vals.length;i++){
+    if(i<period-1){out.push(null);continue;}
+    let s=0; for(let j=i-period+1;j<=i;j++) s+=vals[j];
+    out.push(s/period);
+  }
+  return out;
+}
+function computeRSI(closes, period){
+  period = period||14;
+  const out = new Array(closes.length).fill(null);
+  let avgG=0, avgL=0;
+  for(let i=1;i<=period && i<closes.length;i++){
+    const diff = closes[i]-closes[i-1];
+    if(diff>=0) avgG+=diff; else avgL-=diff;
+  }
+  avgG/=period; avgL/=period;
+  out[period] = avgL===0 ? 100 : 100 - 100/(1+avgG/avgL);
+  for(let i=period+1;i<closes.length;i++){
+    const diff = closes[i]-closes[i-1];
+    const gain = diff>0? diff:0, loss = diff<0? -diff:0;
+    avgG = (avgG*(period-1)+gain)/period;
+    avgL = (avgL*(period-1)+loss)/period;
+    out[i] = avgL===0 ? 100 : 100 - 100/(1+avgG/avgL);
+  }
+  return out;
+}
+
+/* ---------- theme-aware chart colors ---------- */
+function chartColors(){
+  const light = document.documentElement.getAttribute('data-theme') === 'light';
+  return {
+    grid: light ? '#D7E0E3' : '#323A41',
+    text: light ? '#57666E' : '#93A0A7',
+    ema20: light ? '#A8701E' : '#E2A94E',
+    sma50: light ? '#2E6FA8' : '#8FBFE8',
+    sma150: light ? '#7A4A96' : '#C594DE',
+    gold: light ? '#1D5CAD' : '#6FA8DC',
+    goldDim: light ? 'rgba(29,92,173,0.10)' : 'rgba(111,168,220,0.14)',
+    bull: light ? '#1E7A4C' : '#5FC28C',
+    bear: light ? '#B23A3C' : '#F0787B'
+  };
+}
+
+/* ---------- generic candlestick renderer ---------- */
+function drawChart(canvas, tipEl, candles, opts){
+  opts = opts||{};
+  const CC = chartColors();
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
+  const cssW = canvas.clientWidth || canvas.width;
+  const cssH = canvas.height / (canvas.width/cssW) || canvas.height;
+  const W = canvas.width = cssW*dpr;
+  const H = canvas.height = (opts.height||440)*dpr;
+  canvas.style.height=(opts.height||440)+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.direction='ltr';
+  const w=cssW, h=opts.height||440;
+  ctx.clearRect(0,0,w,h);
+
+  const padL=54, padR=16, padT=16;
+  const showVol = opts.showVolume;
+  const volH = showVol? h*0.16 : 0;
+  const padB = 24 + volH;
+  const chartH = h-padT-padB;
+  const n=candles.length;
+  const candleW = (w-padL-padR)/n;
+
+  let lo=Infinity, hi=-Infinity;
+  candles.forEach(c=>{lo=Math.min(lo,c.l); hi=Math.max(hi,c.h);});
+  if(opts.extraLines){opts.extraLines.forEach(line=>line.forEach(v=>{if(v!=null){lo=Math.min(lo,v);hi=Math.max(hi,v);}}));}
+  const pad=(hi-lo)*0.08; lo-=pad; hi+=pad;
+
+  const xFor = i => padL + i*candleW + candleW/2;
+  const yFor = p => padT + (1-(p-lo)/(hi-lo))*chartH;
+
+  // grid
+  ctx.strokeStyle=CC.grid; ctx.lineWidth=1; ctx.font='11px IBM Plex Mono, monospace'; ctx.fillStyle=CC.text;
+  for(let g=0; g<=4; g++){
+    const p = lo + (hi-lo)*g/4;
+    const y = yFor(p);
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+    ctx.fillText('$'+p.toFixed(0), 6, y+4);
+  }
+
+  // zones
+  if(opts.zones){
+    opts.zones.forEach(z=>{
+      const y1=yFor(z.range[1]), y2=yFor(z.range[0]);
+      ctx.fillStyle=z.color;
+      ctx.fillRect(padL, y1, w-padL-padR, y2-y1);
+      if(opts.showAnnotations!==false){
+        ctx.setLineDash([4,4]); ctx.strokeStyle=z.line;
+        ctx.beginPath(); ctx.moveTo(padL,y1); ctx.lineTo(w-padR,y1); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(padL,y2); ctx.lineTo(w-padR,y2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle=z.line; ctx.font='600 12px IBM Plex Sans, sans-serif';
+        ctx.fillText(z.label, padL+10, y1-6);
+      }
+    });
+  }
+
+  // candles
+  for(let i=0;i<n;i++){
+    const c=candles[i]; const x=xFor(i);
+    const up = c.c>=c.o;
+    ctx.strokeStyle = up? chartColors().bull:chartColors().bear;
+    ctx.fillStyle = up? chartColors().bull:chartColors().bear;
+    ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x,yFor(c.h)); ctx.lineTo(x,yFor(c.l)); ctx.stroke();
+    const bw=Math.max(candleW*0.55,1.5);
+    const yO=yFor(c.o), yC=yFor(c.c);
+    ctx.fillRect(x-bw/2, Math.min(yO,yC), bw, Math.max(Math.abs(yC-yO),1));
+  }
+
+  // extra lines (moving averages)
+  if(opts.extraLines){
+    opts.extraLines.forEach((line,li)=>{
+      ctx.strokeStyle=opts.extraColors[li]; ctx.lineWidth=1.8; ctx.beginPath();
+      let started=false;
+      line.forEach((v,i)=>{
+        if(v==null) return;
+        const x=xFor(i), y=yFor(v);
+        if(!started){ctx.moveTo(x,y); started=true;} else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+    });
+  }
+
+  // highlight boxes (candlestick pattern focus)
+  if(opts.highlights){
+    opts.highlights.forEach(hlt=>{
+      const x1=xFor(hlt.i1)-candleW*0.5-3, x2=xFor(hlt.i2!=null?hlt.i2:hlt.i1)+candleW*0.5+3;
+      ctx.setLineDash([4,3]); ctx.strokeStyle=hlt.color; ctx.lineWidth=1.5;
+      ctx.strokeRect(x1, padT+2, x2-x1, chartH-4);
+      ctx.setLineDash([]);
+      ctx.font='600 11.5px IBM Plex Sans, sans-serif'; ctx.fillStyle=hlt.color;
+      ctx.fillText(hlt.label, x1, padT-2>10? padT-2: 10);
+    });
+  }
+
+  // arbitrary line segments (trendlines, necklines, fib levels)
+  if(opts.segments && opts.showAnnotations!==false){
+    opts.segments.forEach(seg=>{
+      const x1=xFor(seg.x1), y1=yFor(seg.y1), x2=xFor(seg.x2), y2=yFor(seg.y2);
+      ctx.strokeStyle=seg.color; ctx.lineWidth=seg.width||1.6;
+      if(seg.dash) ctx.setLineDash(seg.dash); else ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.setLineDash([]);
+      if(seg.label){
+        ctx.font='600 11.5px IBM Plex Sans, sans-serif'; ctx.fillStyle=seg.color;
+        ctx.textAlign = seg.labelAlign||'left';
+        const lx = seg.labelAt==='start'? x1 : x2;
+        const ly = (seg.labelAt==='start'? y1 : y2) + (seg.labelDy!=null?seg.labelDy:-8);
+        ctx.fillText(seg.label, lx + (seg.labelDx||0), ly);
+        ctx.textAlign='left';
+      }
+    });
+  }
+
+  // point dots (pattern extremes)
+  if(opts.dots && opts.showAnnotations!==false){
+    opts.dots.forEach(d=>{
+      const x=xFor(d.idx), y=yFor(d.price);
+      ctx.fillStyle=d.color;
+      ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2); ctx.fill();
+      if(d.label){
+        ctx.font='600 11.5px IBM Plex Sans, sans-serif'; ctx.fillStyle=d.color;
+        ctx.textAlign = d.labelAlign||'center';
+        ctx.fillText(d.label, x+(d.labelDx||0), y+(d.labelDy!=null?d.labelDy:-10));
+        ctx.textAlign='left';
+      }
+    });
+  }
+
+  // point markers (breakout / retest)
+  if(opts.points && opts.showAnnotations!==false){
+    opts.points.forEach(pt=>{
+      const c=candles[pt.idx]; if(!c) return;
+      const x=xFor(pt.idx), y=yFor(pt.idx<candles.length? Math.max(c.h,c.o,c.c) : c.h);
+      ctx.fillStyle=pt.color;
+      ctx.beginPath(); ctx.arc(x, yFor(c.h)-8, 4, 0, Math.PI*2); ctx.fill();
+      ctx.font='600 12px IBM Plex Sans, sans-serif'; ctx.fillStyle=pt.color;
+      ctx.textAlign = pt.align||'left';
+      ctx.fillText(pt.label, x + (pt.align==='right'? -8:8), yFor(c.h)-10);
+      ctx.textAlign='left';
+    });
+  }
+
+  // volume
+  if(showVol){
+    const volTop = h-volH-2;
+    let maxV=0; candles.forEach(c=>maxV=Math.max(maxV,c.v));
+    for(let i=0;i<n;i++){
+      const c=candles[i]; const x=xFor(i);
+      const up = c.c>=c.o;
+      const bh = (c.v/maxV)*volH;
+      ctx.fillStyle = up? 'rgba(76,175,125,0.55)':'rgba(224,87,91,0.55)';
+      const bw=Math.max(candleW*0.55,1.5);
+      ctx.fillRect(x-bw/2, h-bh-2, bw, bh);
+    }
+    ctx.strokeStyle=CC.grid; ctx.beginPath(); ctx.moveTo(padL,volTop); ctx.lineTo(w-padR,volTop); ctx.stroke();
+  }
+
+  // hover
+  canvas.onmousemove = function(ev){
+    if(!tipEl) return;
+    const rect=canvas.getBoundingClientRect();
+    const mx=ev.clientX-rect.left;
+    let idx=Math.round((mx-padL-candleW/2)/candleW);
+    idx=Math.max(0,Math.min(n-1,idx));
+    const c=candles[idx];
+    if(!c){tipEl.style.opacity=0; return;}
+    const dateStr=c.t.toISOString().slice(0,10);
+    tipEl.innerHTML = dateStr+'<br>O '+c.o.toFixed(2)+' H '+c.h.toFixed(2)+'<br>L '+c.l.toFixed(2)+' C '+c.c.toFixed(2)+'<br>V '+(c.v/1e6).toFixed(1)+'M';
+    tipEl.style.left=Math.min(mx+14, w-140)+'px';
+    tipEl.style.top='10px';
+    tipEl.style.opacity=1;
+  };
+  canvas.onmouseleave = function(){ if(tipEl) tipEl.style.opacity=0; };
+
+  // click handler for try-it-yourself
+  if(opts.onClick){
+    canvas.onclick = function(ev){
+      const rect=canvas.getBoundingClientRect();
+      const my=ev.clientY-rect.top;
+      const price = lo + (1-(my-padT)/chartH)*(hi-lo);
+      opts.onClick(price);
+    };
+  }
+}
+
+/* ---------- price + RSI combo chart renderer (Lesson 6) ---------- */
+function drawPriceRSI(canvas, tipEl, candles, opts){
+  opts = opts || {};
+  const CC = chartColors();
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
+  const cssW = canvas.clientWidth || canvas.width;
+  const H = opts.height || 320;
+  canvas.width = cssW*dpr; canvas.height = H*dpr; canvas.style.height=H+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.direction='ltr';
+  const w=cssW, h=H;
+  ctx.clearRect(0,0,w,h);
+
+  const padL=54, padR=16, padT=14, gap=14, padB=20;
+  const rsiH = h*0.28;
+  const priceH = h - padT - gap - rsiH - padB;
+  const n = candles.length;
+  const candleW = (w-padL-padR)/n;
+
+  let lo=Infinity, hi=-Infinity;
+  candles.forEach(c=>{lo=Math.min(lo,c.l); hi=Math.max(hi,c.h);});
+  const padPrice=(hi-lo)*0.08; lo-=padPrice; hi+=padPrice;
+
+  const xFor = i => padL + i*candleW + candleW/2;
+  const yForPrice = p => padT + (1-(p-lo)/(hi-lo))*priceH;
+  const rsiTop = padT+priceH+gap;
+  const yForRsi = v => rsiTop + (1-v/100)*rsiH;
+
+  ctx.strokeStyle=CC.grid; ctx.lineWidth=1; ctx.font='11px IBM Plex Mono, monospace'; ctx.fillStyle=CC.text;
+  for(let g=0; g<=3; g++){
+    const p = lo + (hi-lo)*g/3;
+    const y = yForPrice(p);
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+    ctx.fillText('$'+p.toFixed(0), 6, y+4);
+  }
+
+  for(let i=0;i<n;i++){
+    const c=candles[i]; const x=xFor(i);
+    const up = c.c>=c.o;
+    ctx.strokeStyle = up? chartColors().bull:chartColors().bear;
+    ctx.fillStyle = up? chartColors().bull:chartColors().bear;
+    ctx.beginPath(); ctx.moveTo(x,yForPrice(c.h)); ctx.lineTo(x,yForPrice(c.l)); ctx.stroke();
+    const bw=Math.max(candleW*0.55,1.5);
+    const yO=yForPrice(c.o), yC=yForPrice(c.c);
+    ctx.fillRect(x-bw/2, Math.min(yO,yC), bw, Math.max(Math.abs(yC-yO),1));
+  }
+
+  ctx.fillStyle='rgba(224,87,91,0.08)';
+  ctx.fillRect(padL, yForRsi(100), w-padL-padR, yForRsi(70)-yForRsi(100));
+  ctx.fillStyle='rgba(76,175,125,0.08)';
+  ctx.fillRect(padL, yForRsi(30), w-padL-padR, yForRsi(0)-yForRsi(30));
+  ctx.setLineDash([3,3]); ctx.strokeStyle=CC.grid; ctx.lineWidth=1;
+  [30,70].forEach(v=>{
+    const y=yForRsi(v);
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+  });
+  ctx.setLineDash([]);
+  ctx.font='10.5px IBM Plex Mono, monospace'; ctx.fillStyle=CC.text;
+  ctx.fillText('70', 6, yForRsi(70)+4);
+  ctx.fillText('30', 6, yForRsi(30)+4);
+
+  ctx.strokeStyle=CC.ema20; ctx.lineWidth=1.8; ctx.beginPath();
+  let started=false;
+  candles.rsi.forEach((v,i)=>{
+    if(v==null) return;
+    const x=xFor(i), y=yForRsi(v);
+    if(!started){ ctx.moveTo(x,y); started=true; } else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  if(opts.divergence){
+    const p1i=opts.divergence.peak1Idx, p2i=opts.divergence.peak2Idx;
+    const p1=candles[p1i], p2=candles[p2i];
+    const r1=candles.rsi[p1i], r2=candles.rsi[p2i];
+    ctx.strokeStyle=chartColors().bull; ctx.lineWidth=2; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(xFor(p1i), yForPrice(p1.h)); ctx.lineTo(xFor(p2i), yForPrice(p2.h)); ctx.stroke();
+    ctx.font='600 11.5px IBM Plex Sans, sans-serif'; ctx.fillStyle=chartColors().bull; ctx.textAlign='right';
+    ctx.fillText(opts.divHigherLabel||'Higher High', xFor(p2i)-4, yForPrice(p2.h)-8);
+    if(r1!=null && r2!=null){
+      ctx.strokeStyle=chartColors().bear; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(xFor(p1i), yForRsi(r1)); ctx.lineTo(xFor(p2i), yForRsi(r2)); ctx.stroke();
+      ctx.fillStyle=chartColors().bear;
+      ctx.fillText(opts.divLowerLabel||'Lower High', xFor(p2i)-4, yForRsi(r2)-8);
+    }
+    ctx.textAlign='left';
+  }
+
+  canvas.onmousemove = function(ev){
+    if(!tipEl) return;
+    const rect=canvas.getBoundingClientRect();
+    const mx=ev.clientX-rect.left;
+    let idx=Math.round((mx-padL-candleW/2)/candleW);
+    idx=Math.max(0,Math.min(n-1,idx));
+    const c=candles[idx]; const r=candles.rsi[idx];
+    if(!c){tipEl.style.opacity=0; return;}
+    const dateStr=c.t.toISOString().slice(0,10);
+    tipEl.innerHTML = dateStr+'<br>C '+c.c.toFixed(2)+'<br>RSI '+(r!=null? r.toFixed(1):'—');
+    tipEl.style.left=Math.min(mx+14, w-120)+'px';
+    tipEl.style.top='10px';
+    tipEl.style.opacity=1;
+  };
+  canvas.onmouseleave = function(){ if(tipEl) tipEl.style.opacity=0; };
+}
+
+/* ---------- lesson render functions ---------- */
+function renderL1(){
+  const showAnnot = document.getElementById('l1-annot').checked;
+  const zones = showAnnot? [
+    {range:L1.supportZone, color:'rgba(76,175,125,0.16)', line:chartColors().bull, label:t[lang].zoneSupportLabel},
+    {range:L1.resistZone, color:'rgba(224,87,91,0.16)', line:chartColors().bear, label:t[lang].zoneResistLabel}
+  ] : [];
+  drawChart(document.getElementById('chart-l1'), document.getElementById('tip-l1'), L1, {
+    showVolume: document.getElementById('l1-vol').checked,
+    showAnnotations: showAnnot,
+    zones: zones,
+    onClick: guessPrice=>{
+      const mid=(L1.supportZone[0]+L1.supportZone[1])/2;
+      const close = Math.abs(guessPrice-mid) < 10;
+      const el=document.getElementById('l1-result');
+      el.textContent = close? t[lang].l1guessGood : t[lang].l1guessOff;
+      el.style.color = close? 'var(--bull)':'var(--gold)';
+    }
+  });
+}
+function toggleL1Reveal(){
+  const annotCb = document.getElementById('l1-annot');
+  const legendEl = document.getElementById('l1-legend');
+  const btn = document.getElementById('l1-reveal-btn');
+  const nowShown = !annotCb.checked;
+  annotCb.checked = nowShown;
+  legendEl.style.display = nowShown ? 'block' : 'none';
+  btn.textContent = t[lang][nowShown ? 'hideBtn' : 'revealBtn'];
+  renderL1();
+}
+
+function renderL2(){
+  const showAnnot = document.getElementById('l2-annot').checked;
+  const zones = showAnnot? [{range:L2.resistZone, color:chartColors().goldDim, line:chartColors().gold, label:t[lang].zoneResistLabel}] : [];
+  const points = showAnnot? [
+    {idx:L2.breakIdx, color:chartColors().gold, label:t[lang].pointBreakout, align:'left'},
+    {idx:L2.retestIdx, color:chartColors().bull, label:t[lang].pointRetest, align:'left'}
+  ] : [];
+  drawChart(document.getElementById('chart-l2'), document.getElementById('tip-l2'), L2, {
+    showVolume: document.getElementById('l2-vol').checked,
+    showAnnotations: showAnnot,
+    zones: zones, points: points
+  });
+}
+
+function renderCompare(){
+  drawChart(document.getElementById('chart-l2b-real'), null, L2_REAL, {
+    height:260, showVolume:false, showAnnotations:true,
+    zones:[{range:L2_REAL.resistZone, color:'rgba(76,175,125,0.14)', line:chartColors().bull, label:''}]
+  });
+  drawChart(document.getElementById('chart-l2b-false'), null, L2_FALSE, {
+    height:260, showVolume:false, showAnnotations:true,
+    zones:[{range:L2_FALSE.resistZone, color:'rgba(224,87,91,0.14)', line:chartColors().bear, label:''}]
+  });
+}
+
+function renderL3(){
+  const closes = L3.map(c=>c.c);
+  const lines=[], colors=[];
+  if(document.getElementById('l3-ema20').checked){lines.push(ema(closes,20)); colors.push(chartColors().ema20);}
+  if(document.getElementById('l3-sma50').checked){lines.push(sma(closes,50)); colors.push(chartColors().sma50);}
+  if(document.getElementById('l3-sma150').checked){lines.push(sma(closes,150)); colors.push(chartColors().sma150);}
+  drawChart(document.getElementById('chart-l3'), document.getElementById('tip-l3'), L3, {
+    showVolume:false, showAnnotations:true, extraLines:lines, extraColors:colors
+  });
+}
+
+function renderCandlePatterns(){
+  const defs = [
+    ['chart-c-hammer','tip-c-hammer', C_HAMMER, 'labelHammer'],
+    ['chart-c-star','tip-c-star', C_STAR, 'labelStar'],
+    ['chart-c-doji','tip-c-doji', C_DOJI, 'labelDoji'],
+    ['chart-c-bullE','tip-c-bullE', C_BULLE, 'labelBullE'],
+    ['chart-c-bearE','tip-c-bearE', C_BEARE, 'labelBearE']
+  ];
+  defs.forEach(([canvasId, tipId, data, labelKey])=>{
+    const canvas = document.getElementById(canvasId);
+    if(!canvas) return;
+    const highlights = [{
+      i1:data.highlightIdx,
+      i2: data.highlightIdx2!=null? data.highlightIdx2 : data.highlightIdx,
+      color:chartColors().gold,
+      label:t[lang][labelKey]
+    }];
+    drawChart(canvas, document.getElementById(tipId), data, {
+      height:260, showVolume:false, showAnnotations:true, highlights:highlights
+    });
+  });
+}
+
+function renderL5(){
+  const showAnnot = document.getElementById('l5-annot').checked;
+  const segments = [], dots = [];
+  if(showAnnot){
+    segments.push({x1:L5.lowIdx, y1:L5.swingLow, x2:L5.highIdx, y2:L5.swingHigh, color:chartColors().bull, width:2});
+    dots.push({idx:L5.lowIdx, price:L5.swingLow, color:chartColors().bull, label:t[lang].swingLowLabel, labelDy:16});
+    dots.push({idx:L5.highIdx, price:L5.swingHigh, color:chartColors().bull, label:t[lang].swingHighLabel, labelDy:-12});
+    L5.fibLevels.forEach(lv=>{
+      const isKey = Math.abs(lv.ratio-0.618)<0.001;
+      segments.push({
+        x1:L5.highIdx, y1:lv.price, x2:L5.length-1, y2:lv.price,
+        color: isKey? chartColors().gold : chartColors().text,
+        width: isKey? 2 : 1,
+        dash: isKey? null : [4,4],
+        label: (lv.ratio*100).toFixed(1)+'%  $'+lv.price.toFixed(0),
+        labelAt:'end', labelAlign:'right', labelDx:-6, labelDy:-6
+      });
+    });
+  }
+  drawChart(document.getElementById('chart-l5'), document.getElementById('tip-l5'), L5, {
+    showVolume:false, showAnnotations:showAnnot, segments:segments, dots:dots
+  });
+}
+
+function renderL6(){
+  drawPriceRSI(document.getElementById('chart-rsi-ob'), document.getElementById('tip-rsi-ob'), RSI_OB, {height:320});
+  drawPriceRSI(document.getElementById('chart-rsi-os'), document.getElementById('tip-rsi-os'), RSI_OS, {height:320});
+  drawPriceRSI(document.getElementById('chart-rsi-div'), document.getElementById('tip-rsi-div'), RSI_DIV, {
+    height:320,
+    divergence:{peak1Idx:RSI_DIV.peak1Idx, peak2Idx:RSI_DIV.peak2Idx},
+    divHigherLabel:t[lang].divHigherHigh, divLowerLabel:t[lang].divLowerHigh
+  });
+}
+
+function renderChartPatterns(){
+  // Double Bottom
+  (function(){
+    const d = P_DBL_BOTTOM;
+    const neckPrice = d[d.neckIdx].h;
+    const segments = [{x1:d.neckIdx, y1:neckPrice, x2:d.length-1, y2:neckPrice, color:chartColors().gold, dash:[4,4], width:1.6, label:t[lang].necklineLabel, labelAt:'end', labelAlign:'right', labelDy:-6}];
+    const dots = [
+      {idx:d.b1Idx, price:d[d.b1Idx].l, color:chartColors().bull},
+      {idx:d.b2Idx, price:d[d.b2Idx].l, color:chartColors().bull}
+    ];
+    drawChart(document.getElementById('chart-p-doubleBottom'), document.getElementById('tip-p-doubleBottom'), d, {height:280, showVolume:false, showAnnotations:true, segments:segments, dots:dots});
+  })();
+
+  // Double Top
+  (function(){
+    const d = P_DBL_TOP;
+    const neckPrice = d[d.neckIdx].l;
+    const segments = [{x1:d.neckIdx, y1:neckPrice, x2:d.length-1, y2:neckPrice, color:chartColors().gold, dash:[4,4], width:1.6, label:t[lang].necklineLabel, labelAt:'end', labelAlign:'right', labelDy:14}];
+    const dots = [
+      {idx:d.t1Idx, price:d[d.t1Idx].h, color:chartColors().bear},
+      {idx:d.t2Idx, price:d[d.t2Idx].h, color:chartColors().bear}
+    ];
+    drawChart(document.getElementById('chart-p-doubleTop'), document.getElementById('tip-p-doubleTop'), d, {height:280, showVolume:false, showAnnotations:true, segments:segments, dots:dots});
+  })();
+
+  // Head & Shoulders
+  (function(){
+    const d = P_HS;
+    const tr1P = d[d.trough1Idx].l, tr2P = d[d.trough2Idx].l;
+    const slope = (tr2P-tr1P)/(d.trough2Idx-d.trough1Idx);
+    const endP = tr1P + slope*((d.length-1)-d.trough1Idx);
+    const segments = [{x1:d.trough1Idx, y1:tr1P, x2:d.length-1, y2:endP, color:chartColors().gold, dash:[4,4], width:1.6, label:t[lang].necklineLabel, labelAt:'end', labelAlign:'right', labelDy:-6}];
+    const dots = [
+      {idx:d.shoulder1Idx, price:d[d.shoulder1Idx].h, color:chartColors().text, label:t[lang].shoulderLabel, labelDy:-10},
+      {idx:d.headIdx, price:d[d.headIdx].h, color:chartColors().bear, label:t[lang].headLabel, labelDy:-10},
+      {idx:d.shoulder2Idx, price:d[d.shoulder2Idx].h, color:chartColors().text, label:t[lang].shoulderLabel, labelDy:-10}
+    ];
+    drawChart(document.getElementById('chart-p-hs'), document.getElementById('tip-p-hs'), d, {height:280, showVolume:false, showAnnotations:true, segments:segments, dots:dots});
+  })();
+
+  // Bull Flag
+  (function(){
+    const d = P_FLAG;
+    const poleTopP = d[d.poleTopIdx].h, poleStartP = d[d.poleStartIdx].l;
+    const flagEndP = d[d.flagEndIdx].l;
+    const margin = (poleTopP-flagEndP)*0.16;
+    const segments = [
+      {x1:d.poleStartIdx, y1:poleStartP, x2:d.poleTopIdx, y2:poleTopP, color:chartColors().bull, width:2, label:t[lang].poleLabel, labelAt:'end', labelAlign:'left', labelDx:6, labelDy:-4},
+      {x1:d.poleTopIdx, y1:poleTopP+margin, x2:d.flagEndIdx, y2:flagEndP+margin, color:chartColors().gold, dash:[4,4], width:1.4},
+      {x1:d.poleTopIdx, y1:poleTopP-margin, x2:d.flagEndIdx, y2:flagEndP-margin, color:chartColors().gold, dash:[4,4], width:1.4, label:t[lang].flagChannelLabel, labelAt:'end', labelAlign:'right', labelDy:14}
+    ];
+    drawChart(document.getElementById('chart-p-flag'), document.getElementById('tip-p-flag'), d, {height:280, showVolume:false, showAnnotations:true, segments:segments});
+  })();
+
+  // Ascending Triangle
+  (function(){
+    const d = P_TRIANGLE;
+    const resP = (d[d.touch1Idx].h + d[d.touch2Idx].h + d[d.touch3Idx].h)/3;
+    const low1P = d[d.low1Idx].l, low2P = d[d.low2Idx].l;
+    const slope = (low2P-low1P)/(d.low2Idx-d.low1Idx);
+    const endIdx = d.length-1;
+    const endP = low1P + slope*(endIdx-d.low1Idx);
+    const segments = [
+      {x1:d.touch1Idx, y1:resP, x2:endIdx, y2:resP, color:chartColors().bear, dash:[4,4], width:1.6, label:t[lang].zoneResistLabel, labelAt:'end', labelAlign:'right', labelDy:-6},
+      {x1:d.low1Idx, y1:low1P, x2:endIdx, y2:endP, color:chartColors().bull, width:1.8, label:t[lang].risingLowsLabel, labelAt:'end', labelAlign:'right', labelDy:12}
+    ];
+    drawChart(document.getElementById('chart-p-triangle'), document.getElementById('tip-p-triangle'), d, {height:300, showVolume:false, showAnnotations:true, segments:segments});
+  })();
+}
+
+function answerQuiz3(key){
+  document.querySelectorAll('[data-key3]').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.key3==='b') b.classList.add('right');
+    else if(b.dataset.key3===key) b.classList.add('wrong');
+  });
+  document.getElementById('quiz3-explain').classList.add('show');
+}
+
+function answerQuiz2(key){
+  document.querySelectorAll('[data-key2]').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.key2==='hammer') b.classList.add('right');
+    else if(b.dataset.key2===key) b.classList.add('wrong');
+  });
+  document.getElementById('quiz2-explain').classList.add('show');
+}
+
+function answerQuiz(key){
+  document.querySelectorAll('.quiz-opt').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.key==='b') b.classList.add('right');
+    else if(b.dataset.key===key) b.classList.add('wrong');
+  });
+  document.getElementById('quiz-explain').classList.add('show');
+}
+
+/* ---------- i18n ---------- */
+const t = {
+  en:{
+    brandName:'Chart Lab',
+    aiFabLabel:'AI assistant', aiBackLabel:'Back to site', navStock:'Stock Search', navCompare:'Compare', navCalculators:'Calculators', navQuiz:'Quiz',
+    aiTitle:'Market Assistant', aiSubtitle:'Ask about anything on this site or in the markets',
+    aiEmptyTitle:'Ask me anything about the markets',
+    aiEmptyBody:'Stocks, indices, ETFs, bonds, financial terms, or anything confusing on this site — including the charts and lessons themselves.',
+    aiPlaceholder:'Ask a question...', aiSendLabel:'Send',
+    aiDisclaimer:'Educational information only, not investment advice — the assistant can be wrong.',
+    aiError:'Sorry, something went wrong connecting to the assistant. Please try again.',
+    aiRateLimited:'You\'re sending messages a bit fast — please wait a moment and try again.',
+    aiEx1:'What is P/E?', aiEx2:'How do you analyze a stock?', aiEx3:"What's the difference between the S&P 500 and Nasdaq?", aiEx4:'Explain this chart to me',
+    heroTitle:'Learn to read the chart, not just the theory',
+    heroBody:'Every concept here is shown on real price behavior first, explained second. Try to spot the pattern yourself before we reveal it.',
+    pathStep1:'See it on a real chart', pathStep2:'Try to identify it', pathStep3:'Reveal the answer', pathStep4:'Understand why',
+    l0tag:'START HERE — MARKET BASICS',
+    l0title:'Before the charts: how markets actually work',
+    l0meta:'General concepts — the foundation everything else builds on',
+    l0intro:"Every lesson after this one assumes you already know what a stock is, what actually moves its price, and why we're even looking at charts in the first place. This page covers that groundwork in plain language, once, so the rest of the site can focus on charts.",
+    dd0:"Everything on this site is taught using stocks, but technical analysis isn't just for stocks. The same tools — support, resistance, trends, candlesticks, RSI — are used almost identically on crypto, forex, commodities, and indices, because they all come down to the same thing: a chart of buyers and sellers agreeing on a price over time.",
+    c1H:'What is a stock?', c1B:"A share of stock is a small piece of ownership in a company. When you buy one share, you literally own a tiny fraction of that business — its future profits, and its future risks. Companies list their shares on an exchange (like the NYSE or Nasdaq) so ownership can be bought and sold freely, and that constant buying and selling is what creates a moving price.",
+    c2H:'What actually moves the price?', c2B:"At every moment, a stock's price is simply the last price a buyer and a seller agreed on. It rises when more people want to buy than are willing to sell at that price, and falls when the opposite is true. News and earnings matter only because they change how buyers and sellers feel about the future — that feeling is what moves the price, not the news itself.",
+    c3H:'Technical vs. fundamental analysis', c3B:'Fundamental analysis asks "is this a good company, priced fairly?" — it studies financial statements and industry conditions to judge long-term value. Technical analysis asks a different question: "what is the price actually doing, and what has it tended to do next?" This whole site teaches the second one, but plenty of successful investors use both together.',
+    c4H:'Reading a chart, in short', c4B:"A price chart is a timeline of trades, and each candlestick summarizes one time period: where price opened, how high and low it went, and where it closed. Green usually means it closed higher than it opened; red means lower. That's most of what you need before Lesson 04 goes deep on what specific candle shapes tend to mean.",
+    c5H:'Timeframes change the story', c5B:'The same stock can look like it\'s crashing on a 5-minute chart and calmly climbing on a weekly chart — both are "true" at once, they\'re just answering different questions. Shorter timeframes suit short-term trading; longer ones suit longer-term decisions. Always know which timeframe you\'re looking at before drawing a conclusion from it.',
+    c6H:"Volume: the market's heartbeat", c6B:"Volume is simply how many shares changed hands in a given period. A price move on heavy volume means a lot of participants agreed with it — real conviction. The same move on light volume is easier to dismiss, and easier to reverse. You'll see this idea come up constantly in the lessons ahead.",
+    trendH:'Trend: probably the single most useful concept in TA',
+    trendB:"An uptrend is a series of higher highs and higher lows — each rally goes a bit further than the last, and each pullback stops a bit higher than the one before. A downtrend is the mirror image: lower highs and lower lows. Almost everything else on this site — support, resistance, breakouts, moving averages — is really just a more detailed way of describing this one idea.",
+    illustrationTag:'Simplified illustration', uptrendLabel:'Uptrend', downtrendLabel:'Downtrend',
+    lblHH:'Higher High', lblHL:'Higher Low', lblLH:'Lower High', lblLL:'Lower Low',
+    riskLabel:'BEFORE YOU GO FURTHER',
+    riskBody:"Every lesson on this site describes what price has tended to do — never what it will do. The single habit that protects traders more than any pattern or indicator is risking only a small, fixed slice of their capital on any one idea — many professionals cap it around 1% of their account per trade — because the math of losses is brutal: a 20% loss needs a 25% gain just to break even, and a 50% loss needs a 100% gain. A position size and a stop-loss decided before you enter are what let you be wrong repeatedly and still stay in the game long enough to be right.",
+    l1tag:'LESSON 01 — SUPPORT & RESISTANCE',
+    l1title:'Where does price keep bouncing?',
+    l1meta:'Historical pattern — AAPL, Jan–Jun 2024 (daily)',
+    l1intro:"Support is a price area where buying pressure has repeatedly overwhelmed selling pressure in the past — not a hard floor, just a zone worth watching. Look at the chart below before reading the panel on the right.",
+    toggleVolume:'Volume', toggleAnnotations:'Show annotations',
+    tryTitle:'Try it yourself', l1prompt:'Click on the chart where you think the support zone is.',
+    revealBtn:'Reveal annotations', hideBtn:'Hide annotations',
+    l1guessGood:'Close — that lines up with where price actually bounced.',
+    l1guessOff:"Not quite in that area. Click 'Reveal annotations' to see where it held.",
+    legendSupportH:'Support zone (~$165)', legendSupportB:'Price reacted from this area three separate times in April and May, each time finding buyers before a new leg up.',
+    legendResistH:'Resistance zone (~$194)', legendResistB:'Sellers stepped in here in March and again in June — the same price area rejecting price twice is what defines it as resistance.',
+    legendWhyH:"Why it's not a guarantee", legendWhyB:"Support held three times here, but nothing forces it to hold a fourth. It's a probability zone built from history, not a rule.",
+    zoneSupportLabel:'Support', zoneResistLabel:'Resistance',
+    l2tag:'LESSON 02 — BREAKOUT & RETEST',
+    l2title:'Resistance breaks. Then price comes back to check it.',
+    l2meta:'Historical pattern — NVDA, 2023 (daily)',
+    l2intro:'A breakout is price closing decisively above a resistance zone. A retest is when price returns to that same zone afterward — often turning former resistance into new support — before continuing. Watch how volume behaves at the breakout candle.',
+    legendBreakH:'Breakout', legendBreakB:'Price closes above the ~$140 zone on a volume spike — a sign that more participants than usual agreed the level should give way.',
+    legendRetestH:'Retest', legendRetestB:'A few sessions later, price dips back to the ~$140 area, finds buyers, and resumes the move — the old ceiling now acting as a floor.',
+    pointBreakout:'Breakout', pointRetest:'Retest',
+    quizQ:'What typically happens right when price first reaches a resistance zone?',
+    quizA:'It always falls immediately', quizB:'It may react, but can eventually break through', quizC:'Nothing happens, ever',
+    quizExplain:'Correct answer: B. Resistance marks an area of potential selling pressure, not an impenetrable ceiling — as this exact chart shows.',
+    compareRealH:'Real breakout — held', compareFalseH:'False breakout — failed',
+    compareNote:'Not every breakout continues. On the right, price pokes above resistance for a day or two on weak volume, then falls back inside the range — a reminder that breakouts describe a probability, not a certainty.',
+    l3tag:'LESSON 03 — MOVING AVERAGES',
+    l3title:'Smoothing out the noise to see the trend',
+    l3meta:'Historical pattern — MSFT, 2023 (daily)',
+    l3intro:'A moving average is the average closing price over a fixed number of past sessions, recalculated every day. Shorter averages react faster; longer averages describe the broader trend. Toggle them on and off to see what each one is actually showing.',
+    toggleEma20:'20 EMA', toggleSma50:'50 SMA', toggleSma150:'150 SMA',
+    legendEma20H:'20 EMA — the short-term pulse', legendEma20B:"Covers roughly a month of trading. It's fast enough to hug recent price closely, which is why swing traders often watch for a pullback toward the 20 — and a bounce off it — as a rough entry area within an uptrend, rather than a break below it. That same speed means it also whips back and forth more in choppy, directionless stretches.",
+    legendSma50H:'50 SMA — the medium trend', legendSma50B:'Smoother than the 20. It confirms whether the medium-term trend actually agrees with the short-term one — trend-following traders generally want to see price holding above a rising 50 before trusting a rally.',
+    legendSma150H:'150 SMA — the line institutions watch', legendSma150B:'Less talked about on retail charts, but it\'s a cornerstone of professional trend-screening systems — Mark Minervini\'s well-known "Trend Template" requires price to hold above a rising 150-day average before a stock even qualifies as a healthy long-term uptrend. Sitting between the 50 and the 200, it tends to confirm real staying power in a trend earlier than the slower 200 does.',
+    l4tag:'LESSON 04 — CANDLESTICK PATTERNS',
+    l4title:'What a single candle is telling you',
+    l4meta:'Simplified illustrations — built to isolate each shape clearly',
+    l4intro:'A candlestick pattern is only meaningful in context — where it sits after a trend, and what happens to price right after. The dotted box marks the candle to focus on in each chart below.',
+    hammerH:'Hammer', hammerB:"Small body near the top of the range, a long lower wick, appearing after a downtrend. It shows sellers pushed price down during the session, but buyers dragged it back up before the close — often a sign the selling is losing strength.",
+    starH:'Shooting Star', starB:"The mirror image of a hammer: small body near the bottom of the range, a long upper wick, appearing after an uptrend. Buyers pushed price up during the session, but sellers dragged it back down before the close — often a sign the buying is losing strength.",
+    dojiH:'Doji', dojiB:"Open and close are almost identical, so the body nearly disappears. On its own it just means indecision; appearing after a strong move up, it can flag that the move is running out of buyers.",
+    bullEH:'Bullish engulfing', bullEB:"A down candle is immediately followed by an up candle whose body fully covers it — buyers didn't just show up, they overpowered the entire previous session's range in one move.",
+    bearEH:'Bearish engulfing', bearEB:'The mirror image: an up candle is swallowed by a down candle right after. The same idea, working against the trend instead of with it.',
+    labelHammer:'Hammer', labelDoji:'Doji', labelBullE:'Engulfing', labelBearE:'Engulfing', labelStar:'Shooting Star',
+    quiz2Q:'Which pattern has a small body near the top of its range and a long lower wick, after a downtrend?',
+    quiz2A:'Hammer', quiz2B:'Doji', quiz2C:'Bullish engulfing', quiz2D:'Bearish engulfing', quiz2E:'Shooting Star',
+    quiz2Explain:'Correct answer: Hammer. The long lower wick after a decline shows buyers rejected the lower prices within that same session.',
+    nav0:'Basics', nav1:'Support / Resistance', nav2:'Breakout & Retest', nav3:'Moving Averages', nav4:'Candlesticks', nav5:'Fibonacci', nav6:'RSI', nav7:'Chart Patterns',
+    l5tag:'LESSON 05 — FIBONACCI RETRACEMENT',
+    l5title:'How far back does a pullback usually go?',
+    l5meta:'Historical pattern — TSLA, 2023 (daily)',
+    l5intro:"After a strong move, price often pulls back before continuing. Fibonacci retracement marks the pullback as a percentage of that move — 23.6%, 38.2%, 50%, 61.8%, 78.6% — so traders have reference levels to watch. These levels don't predict anything by themselves; they just mark where many participants happen to be watching.",
+    legendSwingH:'Swing low → swing high', legendSwingB:'The move being measured. Every retracement level below is calculated as a percentage of this exact range.',
+    legendFibH:'This pullback stalled near 61.8%', legendFibB:"Price retraced down through the shallower levels and found buyers close to the 61.8% line, then resumed the original uptrend. That's a common outcome — not a rule the market has to obey.",
+    legendFibWhyH:"Don't read this backwards", legendFibWhyB:"Fibonacci didn't cause the bounce, and it doesn't forecast the next one. It's a way to describe where a reaction happened after the fact, and a level worth watching next time.",
+    swingLowLabel:'Swing Low', swingHighLabel:'Swing High',
+    l6tag:'LESSON 06 — RSI (RELATIVE STRENGTH INDEX)',
+    l6title:'Measuring momentum, not just price',
+    l6meta:'Historical patterns, 2023 (daily)',
+    l6intro:'RSI moves between 0 and 100 based on the size of recent gains versus recent losses. Above 70 is generally called "overbought," below 30 "oversold" — but neither is an automatic trade signal, as the first example below shows clearly.',
+    rsiOBTitle:'Overbought ≠ automatic sell', rsiOBNote:'RSI pushed above 70 early in this rally and stayed there for months while price nearly doubled. Selling the moment RSI crossed 70 here would have meant missing most of the move.',
+    rsiOSTitle:'Oversold bounce', rsiOSNote:'A sustained decline pushed RSI down near single digits. Shortly after, buyers stepped back in and price turned higher — the kind of setup "oversold" is meant to describe.',
+    rsiDivTitle:'Bearish divergence', rsiDivNote:'Price pushed to a higher high on the right — but RSI made a lower high at the same time. Momentum was quietly weakening even as price still looked strong. Price rolled over shortly after.',
+    divHigherHigh:'Higher High', divLowerHigh:'Lower High',
+    quiz3Q:'In the divergence chart above, price made a higher high. What does a lower high on RSI at the same time typically suggest?',
+    quiz3A:'Nothing — RSI and price always move together', quiz3B:'Momentum behind the move may be fading, even though price is still rising', quiz3C:'It guarantees an immediate reversal',
+    quiz3Explain:'Correct answer: B. Divergence is a warning sign that momentum is weakening, not a precise timing signal — price can keep rising for a while before it matters.',
+    l7tag:'LESSON 07 — CHART PATTERNS',
+    l7title:'Shapes that tend to repeat',
+    l7meta:'Simplified illustrations — built to isolate each shape clearly',
+    l7intro:'These are recurring shapes in price action, each with a typical (not guaranteed) outcome once it completes. The dashed lines mark the structure that defines each pattern.',
+    dbH:'Double Bottom', dbB:'Price falls to a low, bounces, falls back to roughly the same low, then breaks above the peak between the two lows (the "neckline"). Two failed attempts to go lower is read as sellers running out of conviction.',
+    dtH:'Double Top', dtB:'The mirror image of a double bottom — two attempts to push to a similar high, followed by a break below the trough between them. Two failed pushes higher is read as buyers running out of conviction.',
+    hsH:'Head & Shoulders', hsB:'Three peaks — a shoulder, a taller head, then a second shoulder close in height to the first. A break below the "neckline" connecting the two troughs is the classic trigger traders watch for.',
+    flagH:'Bull Flag', flagB:'A sharp rally (the "pole") followed by a tight, slightly downward-drifting pause (the "flag") as the market catches its breath — then a breakout that resumes the original trend.',
+    triH:'Ascending Triangle', triB:'A flat resistance line gets tested repeatedly while the lows keep rising underneath it — buyers getting more eager while sellers hold the same line — until the range finally breaks, usually upward.',
+    necklineLabel:'Neckline', risingLowsLabel:'Rising lows', poleLabel:'Pole', flagChannelLabel:'Flag', shoulderLabel:'Shoulder', headLabel:'Head',
+    ddLabel:'WORTH KNOWING',
+    dd1:'Every time a level holds, more traders notice it and place orders around it — which is part of what makes it hold again next time. But that same crowding is also why levels eventually break: once price finally pushes through, all the stop-losses clustered just beyond it get triggered at once, which is often exactly what fuels the strength of a breakout.',
+    dd2:"Not every dip after a breakout is a retest — sometimes it's a full reversal. The distinction traders look for: a genuine retest usually pauses close to the old resistance and doesn't spend more than a candle or two trading back below it. A close that stays under the old level for longer than that is a warning the breakout may be failing.",
+    dd3:'Why 20 and 150 specifically? The 20-day average covers roughly a month of trading — short enough to track the current swing, which is why short-term traders watch for pullbacks toward it rather than breaks below it. The 150-day average gets talked about far less, but it\'s a cornerstone of professional trend-screening systems: Mark Minervini\'s well-known "Trend Template" requires price to hold above a rising 150-day average before a stock even qualifies as a long-term uptrend candidate — precisely because it reacts faster than the 200-day, catching real trend strength earlier without being as noisy as the shorter averages.',
+    dd4:"One candle is a hint, not proof. A hammer or an engulfing pattern describes what happened during one or two sessions — it isn't a guarantee about tomorrow. Most experienced traders treat a single candlestick pattern as something to watch for confirmation on the next candle or two, not something to act on by itself.",
+    dd5:"Why do these specific percentages matter? Honestly, not because of anything mystical about the numbers. So many traders, algorithms, and institutions plot the exact same retracement lines that they end up placing similar buy and sell orders near the same prices — creating real supply and demand right where everyone is already looking. It's partly a self-fulfilling prophecy. One curiosity: 50% isn't actually a Fibonacci ratio at all — it was added because markets often retrace around half of a move, an older observation from Dow Theory that stuck around.",
+    dd6:"Two more things worth knowing: first, 50 acts as an informal dividing line — RSI consistently above 50 tends to describe an uptrend, consistently below 50 a downtrend. Second, RSI is a lagging measure, calculated from price that already happened, so by the time it flags something, part of the move is usually already behind it. Some traders shift the classic 70/30 thresholds to 80/20 during strong trends, precisely because 70/30 triggers too early and too often in a one-directional market.",
+    dd7:'How traders estimate a price target — a common (rough) technique is the "measured move": take the height of the pattern itself, for example the distance from the head down to the neckline in a head & shoulders, and project that same distance from the breakout point in the direction of the breakout. It\'s a starting estimate, not a promise — real moves regularly fall short of it or run well past it.',
+    footerNote:'Historical examples are for educational illustration only and do not imply future performance. This is not investment advice.'
+  },
+  he:{
+    brandName:'צ׳ארט לאב',
+    aiFabLabel:'עוזר AI', aiBackLabel:'חזרה לאתר', navStock:'חיפוש מניה', navCompare:'השוואה', navCalculators:'מחשבונים', navQuiz:'בוחן',
+    aiTitle:'עוזר שוק ההון', aiSubtitle:'שאלו כל דבר על האתר או על השווקים',
+    aiEmptyTitle:'שאלו אותי כל דבר על השווקים',
+    aiEmptyBody:'מניות, מדדים, קרנות סל, אג״ח, מושגים פיננסיים, או כל דבר שלא ברור באתר — כולל הגרפים והשיעורים עצמם.',
+    aiPlaceholder:'שאלו שאלה...', aiSendLabel:'שלח',
+    aiDisclaimer:'מידע חינוכי בלבד, לא ייעוץ השקעות — העוזר עלול לטעות.',
+    aiError:'מצטערים, הייתה בעיה בחיבור לעוזר. נסו שוב.',
+    aiRateLimited:'אתם שולחים הודעות מהר מדי — המתינו רגע ונסו שוב.',
+    aiEx1:'מה זה P/E?', aiEx2:'איך מנתחים מניה?', aiEx3:'מה ההבדל בין S&P 500 לנאסד״ק?', aiEx4:'תסביר לי את הגרף הזה',
+    heroTitle:'ללמוד לקרוא את הגרף, לא רק את התיאוריה',
+    heroBody:'כל רעיון כאן מוצג קודם על התנהגות מחיר אמיתית, ומוסבר אחר כך. נסו לזהות את התבנית בעצמכם לפני שנחשוף את התשובה.',
+    pathStep1:'לראות על גרף אמיתי', pathStep2:'לנסות לזהות', pathStep3:'לחשוף את התשובה', pathStep4:'להבין למה',
+    l0tag:'התחילו כאן — יסודות השוק',
+    l0title:'לפני הגרפים: איך השוק באמת עובד',
+    l0meta:'מושגים כלליים — הבסיס שעליו נשען כל השאר',
+    l0intro:'כל שיעור אחרי הדף הזה מניח שאתם כבר יודעים מה זו מניה, מה באמת מזיז את המחיר שלה, ולמה בכלל מסתכלים על גרפים מלכתחילה. הדף הזה מכסה את הבסיס הזה בשפה פשוטה, פעם אחת, כדי שכל שאר האתר יוכל להתמקד בגרפים.',
+    dd0:'כל מה שבאתר הזה מלמד באמצעות מניות, אבל ניתוח טכני הוא לא רק למניות. אותם הכלים — תמיכה, התנגדות, מגמות, נרות, RSI — משמשים כמעט באופן זהה בקריפטו, מט"ח, סחורות ומדדים, כי כולם בסופו של דבר אותו דבר: גרף של קונים ומוכרים שמסכימים על מחיר לאורך זמן.',
+    c1H:'מה זו מניה?', c1B:'מניה היא פיסת בעלות קטנה בחברה. כשקונים מניה אחת, בעצם מחזיקים בשבריר זעיר מהעסק עצמו — מהרווחים העתידיים שלו, וגם מהסיכונים העתידיים שלו. חברות רושמות את המניות שלהן בבורסה (כמו NYSE או Nasdaq) כדי שהבעלות תוכל להימכר ולהיקנות בחופשיות, וזה בדיוק מה שיוצר מחיר שנע כל הזמן.',
+    c2H:'מה באמת מזיז את המחיר?', c2B:'בכל רגע נתון, מחיר המניה הוא פשוט המחיר האחרון שקונה ומוכר הסכימו עליו. הוא עולה כשיותר אנשים רוצים לקנות מאשר מוכנים למכור באותו מחיר, ויורד כשההפך נכון. חדשות ודוחות רווח חשובים רק כי הם משנים איך קונים ומוכרים מרגישים לגבי העתיד — התחושה היא מה שמזיז את המחיר, לא החדשה עצמה.',
+    c3H:'ניתוח טכני מול ניתוח פונדמנטלי', c3B:'ניתוח פונדמנטלי שואל: "האם זו חברה טובה, והאם היא מתומחרת בהגינות?" — הוא בוחן דוחות כספיים ותנאי ענף כדי לשפוט ערך ארוך טווח. ניתוח טכני שואל שאלה שונה: "מה המחיר בפועל עושה, ומה הוא נטה לעשות אחר כך?" כל האתר הזה מלמד את השנייה, אבל הרבה משקיעים מצליחים משתמשים בשתיהן יחד.',
+    c4H:'קריאת גרף, בקצרה', c4B:'גרף מחיר הוא ציר זמן של עסקאות, וכל נר מסכם פרק זמן אחד: איפה המחיר נפתח, כמה גבוה וכמה נמוך הוא הגיע, ואיפה הוא נסגר. ירוק בדרך כלל אומר שהוא נסגר גבוה יותר משנפתח; אדום אומר נמוך יותר. זה רוב מה שצריך לדעת לפני ששיעור 04 צולל לעומק לגבי מה שצורות נר ספציפיות נוטות לרמז.',
+    c5H:'טווחי זמן משנים את הסיפור', c5B:'אותה מניה בדיוק יכולה להיראות כמו שהיא קורסת בגרף של 5 דקות ומטפסת ברוגע בגרף שבועי — שניהם "נכונים" באותו הזמן, הם פשוט עונים על שאלות שונות. טווחי זמן קצרים מתאימים למסחר לטווח קצר; ארוכים יותר מתאימים להחלטות ארוכות טווח. תמיד דעו על איזה טווח זמן אתם בכלל מסתכלים לפני שאתם מסיקים מסקנה ממנו.',
+    c6H:'נפח: הדופק של השוק', c6B:'נפח הוא פשוט כמה מניות עברו יד בפרק זמן נתון. תנועת מחיר בנפח כבד אומרת שהרבה משתתפים הסכימו איתה — שכנוע אמיתי. אותה תנועה בנפח קל קל יותר לפטור, וקל יותר להפוך. תראו את הרעיון הזה עולה כל הזמן בשיעורים הבאים.',
+    trendH:'מגמה: כנראה המושג השימושי ביותר בניתוח טכני',
+    trendB:'מגמת עלייה היא סדרה של שיאים גבוהים יותר ושפלים גבוהים יותר — כל עלייה מגיעה קצת יותר רחוק מהקודמת, וכל ירידה נעצרת קצת יותר גבוה מהקודמת. מגמת ירידה היא התמונה ההפוכה: שיאים נמוכים יותר ושפלים נמוכים יותר. כמעט כל מה שבשאר האתר — תמיכה, התנגדות, פריצות, ממוצעים נעים — הוא בעצם רק דרך מפורטת יותר לתאר את הרעיון האחד הזה.',
+    illustrationTag:'המחשה פשוטה', uptrendLabel:'מגמת עלייה', downtrendLabel:'מגמת ירידה',
+    lblHH:'שיא גבוה יותר', lblHL:'שפל גבוה יותר', lblLH:'שיא נמוך יותר', lblLL:'שפל נמוך יותר',
+    riskLabel:'לפני שממשיכים הלאה',
+    riskBody:'כל שיעור באתר הזה מתאר מה שהמחיר נטה לעשות — לעולם לא מה שהוא יעשה. ההרגל היחיד שמגן על סוחרים יותר מכל תבנית או אינדיקטור הוא לסכן רק פרוסה קטנה וקבועה מההון בכל רעיון בודד — הרבה אנשי מקצוע מגבילים את זה לסביבות 1% מהחשבון לעסקה — כי המתמטיקה של הפסדים אכזרית: הפסד של 20% דורש רווח של 25% רק כדי לחזור לאיזון, והפסד של 50% דורש רווח של 100%. גודל פוזיציה וסטופ-לוס שמוחלטים לפני הכניסה הם מה שמאפשר לכם לטעות שוב ושוב ועדיין להישאר במשחק מספיק זמן כדי לצדוק.',
+    l1tag:'שיעור 01 — תמיכה והתנגדות',
+    l1title:'איפה המחיר ממשיך להיתקל?',
+    l1meta:'תבנית היסטורית — AAPL, ינואר–יוני 2024 (יומי)',
+    l1intro:'תמיכה היא אזור מחיר שבו לחץ קנייה גבר שוב ושוב על לחץ מכירה בעבר — לא רצפה קשיחה, אלא אזור ששווה לעקוב אחריו. הסתכלו על הגרף למטה לפני קריאת הפאנל מימין.',
+    toggleVolume:'נפח מסחר', toggleAnnotations:'הצג הערות',
+    tryTitle:'נסו בעצמכם', l1prompt:'לחצו על הגרף במקום שבו לדעתכם נמצא אזור התמיכה.',
+    revealBtn:'חשוף הערות', hideBtn:'הסתר הערות',
+    l1guessGood:'קרוב — זה מתיישב עם המקום שבו המחיר באמת קפץ.',
+    l1guessOff:"לא בדיוק באזור הזה. לחצו על 'חשוף הערות' כדי לראות איפה זה החזיק.",
+    legendSupportH:'אזור תמיכה (כ-165$)', legendSupportB:'המחיר הגיב מהאזור הזה שלוש פעמים נפרדות באפריל ובמאי, ובכל פעם מצא קונים לפני עלייה חדשה.',
+    legendResistH:'אזור התנגדות (כ-194$)', legendResistB:'מוכרים נכנסו כאן במרץ ושוב ביוני — אותו אזור מחיר שדוחה מחיר פעמיים הוא מה שהופך אותו להתנגדות.',
+    legendWhyH:'למה זו לא ערובה', legendWhyB:'התמיכה החזיקה כאן שלוש פעמים, אבל שום דבר לא מחייב אותה להחזיק בפעם הרביעית. זהו אזור הסתברותי שנבנה מהיסטוריה, לא חוק.',
+    zoneSupportLabel:'תמיכה', zoneResistLabel:'התנגדות',
+    l2tag:'שיעור 02 — פריצה ובדיקה חוזרת',
+    l2title:'ההתנגדות נפרצת. ואז המחיר חוזר לבדוק אותה.',
+    l2meta:'תבנית היסטורית — NVDA, 2023 (יומי)',
+    l2intro:'פריצה היא כאשר המחיר נסגר בבירור מעל אזור התנגדות. ריטסט (בדיקה חוזרת) הוא כאשר המחיר חוזר לאותו אזור לאחר מכן — ולעיתים קרובות הופך התנגדות ישנה לתמיכה חדשה — לפני שהוא ממשיך. שימו לב איך הנפח מתנהג בנר הפריצה.',
+    legendBreakH:'פריצה', legendBreakB:'המחיר נסגר מעל אזור ה-140$ עם קפיצת נפח — סימן שיותר משתתפים מהרגיל הסכימו שהרמה צריכה להישבר.',
+    legendRetestH:'בדיקה חוזרת (ריטסט)', legendRetestB:'כמה מפגשים לאחר מכן, המחיר יורד חזרה לאזור ה-140$, מוצא קונים, וממשיך את התנועה — התקרה הישנה משמשת כעת כרצפה.',
+    pointBreakout:'פריצה', pointRetest:'ריטסט',
+    quizQ:'מה בדרך כלל קורה ברגע שהמחיר מגיע לראשונה לאזור התנגדות?',
+    quizA:'הוא תמיד נופל מיד', quizB:'הוא עשוי להגיב, אך יכול בסופו של דבר לפרוץ דרך', quizC:'שום דבר לא קורה, אף פעם',
+    quizExplain:'תשובה נכונה: B. התנגדות מסמנת אזור של לחץ מכירה פוטנציאלי, לא תקרה בלתי חדירה — כפי שהגרף הזה עצמו מראה.',
+    compareRealH:'פריצה אמיתית — החזיקה', compareFalseH:'פריצה כוזבת — נכשלה',
+    compareNote:'לא כל פריצה ממשיכה. מימין, המחיר מציץ מעל ההתנגדות ליום או יומיים בנפח חלש, ואז נופל בחזרה לתוך הטווח — תזכורת לכך שפריצות מתארות הסתברות, לא ודאות.',
+    l3tag:'שיעור 03 — ממוצעים נעים',
+    l3title:'החלקת הרעש כדי לראות את המגמה',
+    l3meta:'תבנית היסטורית — MSFT, 2023 (יומי)',
+    l3intro:'ממוצע נע הוא מחיר הסגירה הממוצע לאורך מספר קבוע של מפגשים קודמים, המחושב מחדש בכל יום. ממוצעים קצרים מגיבים מהר יותר; ממוצעים ארוכים מתארים את המגמה הרחבה יותר. הפעילו וכבו אותם כדי לראות מה כל אחד מהם באמת מראה.',
+    toggleEma20:'ממוצע נע 20 (EMA)', toggleSma50:'ממוצע נע 50 (SMA)', toggleSma150:'ממוצע נע 150 (SMA)',
+    legendEma20H:'ממוצע נע 20 — הדופק לטווח הקצר', legendEma20B:'מכסה בערך חודש של מסחר. הוא מהיר מספיק כדי להיצמד למחיר האחרון, ולכן סוחרי סווינג לרוב מחפשים ירידה לכיוון ה-20 — וקפיצה ממנו — כאזור כניסה גס בתוך מגמת עלייה, במקום שבירה מתחתיו. אותה מהירות גם גורמת לו להתנדנד יותר קדימה ואחורה בתקופות תנודתיות וחסרות כיוון.',
+    legendSma50H:'ממוצע נע 50 — המגמה הבינונית', legendSma50B:'חלק יותר מה-20. הוא מאשר האם המגמה הבינונית באמת מסכימה עם הקצרה — סוחרי מגמה בדרך כלל רוצים לראות את המחיר מחזיק מעל ממוצע 50 עולה לפני שהם סומכים על עלייה.',
+    legendSma150H:'ממוצע נע 150 — הקו שהמוסדות עוקבים אחריו', legendSma150B:'פחות מדובר עליו בגרפים פרטיים, אבל הוא אבן יסוד במערכות סינון מגמה מקצועיות — ה"תבנית המגמה" (Trend Template) המפורסמת של מארק מינרוויני דורשת שהמחיר יחזיק מעל ממוצע 150 עולה לפני שמניה בכלל נחשבת מועמדת בריאה למגמת עלייה ארוכת טווח. בהיותו יושב בין ה-50 ל-200, הוא נוטה לאשר אחיזה אמיתית במגמה מוקדם יותר מהממוצע האיטי יותר של 200.',
+    l4tag:'שיעור 04 — תבניות נרות',
+    l4title:'מה נר בודד מספר לך',
+    l4meta:'המחשות פשוטות — נבנו כדי לבודד כל צורה בבירור',
+    l4intro:'תבנית נרות משמעותית רק בהקשר — היכן היא נמצאת ביחס למגמה, ומה קורה למחיר מיד אחריה. התיבה המנוקדת מסמנת את הנר שעליו להתמקד בכל גרף למטה.',
+    hammerH:'פטיש (Hammer)', hammerB:'גוף קטן בקרבת חלק המחיר העליון, פתיל תחתון ארוך, המופיע לאחר מגמת ירידה. הוא מראה שהמוכרים דחפו את המחיר למטה במהלך המפגש, אך הקונים החזירו אותו למעלה לפני הסגירה — לעיתים קרובות סימן שהלחץ המוכר נחלש.',
+    starH:'כוכב נופל (Shooting Star)', starB:'התמונה ההפוכה של פטיש: גוף קטן בקרבת חלק המחיר התחתון, פתיל עליון ארוך, המופיע לאחר מגמת עלייה. הקונים דחפו את המחיר למעלה במהלך המפגש, אך המוכרים החזירו אותו למטה לפני הסגירה — לעיתים קרובות סימן שהלחץ הקונה נחלש.',
+    dojiH:'דוג׳י (Doji)', dojiB:'פתיחה וסגירה כמעט זהות, כך שהגוף כמעט נעלם. בפני עצמו זה רק מסמן חוסר החלטיות; כאשר הוא מופיע לאחר עלייה חזקה, הוא יכול לרמז שהתנועה נגמרת מקונים.',
+    bullEH:'בליעה שורית (Bullish Engulfing)', bullEB:'נר יורד ואחריו מיד נר עולה שהגוף שלו מכסה אותו לחלוטין — הקונים לא רק הופיעו, הם התגברו על כל הטווח של המפגש הקודם במהלך אחד.',
+    bearEH:'בליעה דובית (Bearish Engulfing)', bearEB:'התמונה ההפוכה: נר עולה נבלע על ידי נר יורד מיד אחריו. אותו רעיון, פועל נגד המגמה במקום איתה.',
+    labelHammer:'פטיש', labelDoji:'דוג׳י', labelBullE:'בליעה', labelBearE:'בליעה', labelStar:'כוכב נופל',
+    quiz2Q:'לאיזו תבנית יש גוף קטן בקרבת חלק המחיר העליון ופתיל תחתון ארוך, לאחר מגמת ירידה?',
+    quiz2A:'פטיש', quiz2B:'דוג׳י', quiz2C:'בליעה שורית', quiz2D:'בליעה דובית', quiz2E:'כוכב נופל',
+    quiz2Explain:'תשובה נכונה: פטיש. הפתיל התחתון הארוך לאחר ירידה מראה שהקונים דחו את המחירים הנמוכים יותר במהלך אותו מפגש עצמו.',
+    nav0:'יסודות', nav1:'תמיכה / התנגדות', nav2:'פריצה וריטסט', nav3:'ממוצעים נעים', nav4:'נרות יפניים', nav5:'פיבונאצ׳י', nav6:'RSI', nav7:'תבניות גרף',
+    l5tag:'שיעור 05 — רמות פיבונאצ׳י (Fibonacci Retracement)',
+    l5title:'עד כמה בדרך כלל חוזר תיקון מחיר?',
+    l5meta:'תבנית היסטורית — TSLA, 2023 (יומי)',
+    l5intro:'אחרי תנועה חזקה, המחיר לרוב מתקן לפני שהוא ממשיך. תיקון פיבונאצ׳י מסמן את התיקון כאחוז מאותה תנועה — 23.6%, 38.2%, 50%, 61.8%, 78.6% — כך שלסוחרים יש רמות ייחוס לעקוב אחריהן. הרמות האלה לא מנבאות שום דבר בעצמן; הן רק מסמנות איפה הרבה משתתפים בשוק צופים.',
+    legendSwingH:'שפל תנועה ← שיא תנועה', legendSwingB:'התנועה הנמדדת. כל רמת תיקון למטה מחושבת כאחוז מהטווח המדויק הזה.',
+    legendFibH:'התיקון הזה נעצר בקרבת 61.8%', legendFibB:'המחיר תיקן כלפי מטה דרך הרמות הרדודות יותר ומצא קונים בקרבת קו ה-61.8%, ואז חידש את מגמת העלייה המקורית. זו תוצאה נפוצה — לא כלל שהשוק חייב לציית לו.',
+    legendFibWhyH:'אל תקראו את זה הפוך', legendFibWhyB:'פיבונאצ׳י לא גרם לקפיצה, והוא גם לא מנבא את הבאה. זו דרך לתאר איפה קרתה תגובה בדיעבד, ורמה ששווה לעקוב אחריה בפעם הבאה.',
+    swingLowLabel:'שפל תנועה', swingHighLabel:'שיא תנועה',
+    l6tag:'שיעור 06 — RSI (מדד העוצמה היחסית)',
+    l6title:'מדידת מומנטום, לא רק מחיר',
+    l6meta:'תבניות היסטוריות, 2023 (יומי)',
+    l6intro:'RSI נע בין 0 ל-100 בהתאם לגודל הרווחים לעומת ההפסדים האחרונים. מעל 70 נקרא בדרך כלל "קניית יתר", מתחת ל-30 "מכירת יתר" — אך אף אחד מהם אינו איתות מסחר אוטומטי, כפי שהדוגמה הראשונה למטה מראה בבירור.',
+    rsiOBTitle:'קניית יתר ≠ מכירה אוטומטית', rsiOBNote:'ה-RSI עלה מעל 70 מוקדם בעלייה הזו ונשאר שם במשך חודשים בזמן שהמחיר כמעט הכפיל את עצמו. מכירה ברגע שה-RSI חצה 70 כאן הייתה גורמת להחמיץ את רוב התנועה.',
+    rsiOSTitle:'התאוששות ממכירת יתר', rsiOSNote:'ירידה ממושכת דחפה את ה-RSI לספרה בודדת. זמן קצר אחר כך קונים חזרו לשוק והמחיר פנה כלפי מעלה — בדיוק סוג התרחיש שהמושג "מכירת יתר" נועד לתאר.',
+    rsiDivTitle:'דיברגנץ שלילי (דובי)', rsiDivNote:'המחיר עלה לשיא גבוה יותר מימין — אך ה-RSI יצר שיא נמוך יותר באותו זמן. המומנטום נחלש בשקט גם כשהמחיר עדיין נראה חזק. המחיר התהפך זמן קצר אחר כך.',
+    divHigherHigh:'שיא גבוה יותר', divLowerHigh:'שיא נמוך יותר',
+    quiz3Q:'בגרף הדיברגנץ למעלה, המחיר יצר שיא גבוה יותר. מה בדרך כלל מרמז שיא נמוך יותר ב-RSI באותו זמן?',
+    quiz3A:'שום דבר — RSI ומחיר תמיד זזים יחד', quiz3B:'המומנטום מאחורי התנועה עשוי להיחלש, גם אם המחיר עדיין עולה', quiz3C:'זה מבטיח היפוך מיידי',
+    quiz3Explain:'תשובה נכונה: B. דיברגנץ הוא סימן אזהרה לכך שהמומנטום נחלש, לא איתות תזמון מדויק — המחיר יכול להמשיך לעלות זמן מה לפני שזה משנה.',
+    l7tag:'שיעור 07 — תבניות גרף',
+    l7title:'צורות שנוטות לחזור על עצמן',
+    l7meta:'המחשות פשוטות — נבנו כדי לבודד כל צורה בבירור',
+    l7intro:'אלו צורות חוזרות בתנועת המחיר, לכל אחת תוצאה טיפוסית (לא מובטחת) לאחר שהיא מושלמת. הקווים המקווקווים מסמנים את המבנה שמגדיר כל תבנית.',
+    dbH:'תחתית כפולה (Double Bottom)', dbB:'המחיר יורד לשפל, מתאושש, יורד בחזרה לאותו שפל בערך, ואז פורץ מעל השיא שבין שני השפלים ("קו הצוואר"). שני ניסיונות כושלים לרדת נמוך יותר נקראים כאובדן דחף מצד המוכרים.',
+    dtH:'שיא כפול (Double Top)', dtB:'התמונה ההפוכה של תחתית כפולה — שני ניסיונות להגיע לשיא דומה, ואז פריצה מתחת לשפל שביניהם. שני ניסיונות כושלים לעלות גבוה יותר נקראים כאובדן דחף מצד הקונים.',
+    hsH:'ראש וכתפיים (Head & Shoulders)', hsB:'שלושה שיאים — כתף, ראש גבוה יותר, ואז כתף שנייה בגובה דומה לראשונה. פריצה מתחת ל"קו הצוואר" המחבר בין שני השפלים היא האיתות הקלאסי שסוחרים מחפשים.',
+    flagH:'דגל שורי (Bull Flag)', flagB:'עלייה חדה ("המוט") ואחריה הפוגה צרה, נוטה מעט כלפי מטה ("הדגל"), כאשר השוק לוקח נשימה — ואז פריצה שמחדשת את המגמה המקורית.',
+    triH:'משולש עולה (Ascending Triangle)', triB:'קו התנגדות שטוח נבדק שוב ושוב בזמן שהשפלים ממשיכים לעלות מתחתיו — הקונים נעשים להוטים יותר בעוד המוכרים מחזיקים באותו קו — עד שהטווח סוף סוף נפרץ, בדרך כלל כלפי מעלה.',
+    necklineLabel:'קו הצוואר', risingLowsLabel:'שפלים עולים', poleLabel:'המוט', flagChannelLabel:'הדגל', shoulderLabel:'כתף', headLabel:'ראש',
+    ddLabel:'כדאי לדעת',
+    dd1:'בכל פעם שרמה מחזיקה, יותר סוחרים שמים לב אליה ומציבים סביבה פקודות — וזה חלק ממה שגורם לה להחזיק שוב בפעם הבאה. אבל אותה צפיפות היא גם הסיבה שרמות בסופו של דבר נשברות: ברגע שהמחיר סוף סוף פורץ דרך, כל אותם סטופ-לוס שהצטברו ממש מעבר לרמה מופעלים בבת אחת — מה שלעיתים קרובות בדיוק מזין את עוצמת הפריצה.',
+    dd2:'לא כל ירידה אחרי פריצה היא ריטסט — לפעמים זה היפוך מלא. ההבחנה שסוחרים מחפשים: ריטסט אמיתי בדרך כלל נעצר בקרבת ההתנגדות הישנה ולא נשאר יותר מנר אחד או שניים מתחתיה. סגירה שנשארת מתחת לרמה הישנה לזמן ארוך יותר היא אזהרה שהפריצה עלולה להיכשל.',
+    dd3:'למה דווקא 20 ו-150? הממוצע ל-20 יום מכסה בערך חודש של מסחר — קצר מספיק כדי לעקוב אחרי התנודה הנוכחית, ולכן סוחרים לטווח קצר מחפשים ירידות לכיוונו במקום שבירה מתחתיו. הממוצע ל-150 יום פחות מדובר בפומבי, אבל הוא אבן יסוד במערכות סינון מגמה מקצועיות — ה"תבנית המגמה" (Trend Template) המפורסמת של מארק מינרוויני דורשת שהמחיר יחזיק מעל ממוצע 150 עולה לפני שמניה בכלל נחשבת מועמדת למגמת עלייה ארוכת טווח — בדיוק כי הוא מגיב מהר יותר מהממוצע ל-200, ותופס עוצמת מגמה אמיתית מוקדם יותר בלי להיות רועש כמו הממוצעים הקצרים יותר.',
+    dd4:'נר אחד הוא רמז, לא הוכחה. פטיש או בליעה מתארים מה שקרה במהלך מפגש אחד או שניים — זו לא ערובה לגבי מחר. רוב הסוחרים המנוסים מתייחסים לתבנית נר בודדת כמשהו לחכות לאישור עליו בנר הבא או השניים הבאים, לא כמשהו לפעול לפיו בפני עצמו.',
+    dd5:'למה דווקא האחוזים האלה חשובים? בכנות, לא בגלל שום דבר מיסטי במספרים עצמם. כל כך הרבה סוחרים, אלגוריתמים ומוסדות מציירים בדיוק את אותם קווי תיקון שהם בסוף מציבים פקודות קנייה ומכירה דומות בקרבת אותם מחירים — מה שיוצר היצע וביקוש אמיתיים בדיוק במקום שכולם כבר מסתכלים עליו. זו במידה מסוימת נבואה שמגשימה את עצמה. עובדה מעניינת: 50% הוא בכלל לא יחס פיבונאצ׳י אמיתי — הוא נוסף כי שווקים לרוב מתקנים בערך חצי מתנועה, תצפית ישנה יותר מתורת דאו שנשארה.',
+    dd6:'עוד שני דברים ששווה לדעת: ראשית, 50 משמש כקו מפריד לא רשמי — RSI שנמצא באופן עקבי מעל 50 נוטה לתאר מגמת עלייה, ומתחת ל-50 מגמת ירידה. שנית, RSI הוא מדד מפגר, מחושב ממחיר שכבר קרה, כך שעד שהוא מציג איתות, חלק מהתנועה כבר בדרך כלל מאחוריו. חלק מהסוחרים מזיזים את הרמות הקלאסיות 70/30 ל-80/20 בזמן מגמות חזקות, בדיוק כי 70/30 מפעיל איתות מוקדם מדי ותכוף מדי בשוק חד-כיווני.',
+    dd7:'איך סוחרים מעריכים יעד מחיר — טכניקה נפוצה (וגסה) היא "התנועה הנמדדת": לוקחים את הגובה של התבנית עצמה, למשל המרחק מהראש למטה עד קו הצוואר בראש וכתפיים, ומקרינים את אותו מרחק מנקודת הפריצה בכיוון הפריצה. זו הערכת פתיחה, לא הבטחה — תנועות אמיתיות לעיתים קרובות נופלות מתחת ליעד או חורגות ממנו בהרבה.',
+    footerNote:'הדוגמאות ההיסטוריות מיועדות להמחשה חינוכית בלבד ואינן מרמזות על ביצועים עתידיים. אין לראות בכך ייעוץ השקעות.'
+  }
+};
+
+let lang='en';
+function setLang(l){
+  lang=l;
+  document.documentElement.lang = l;
+  document.documentElement.dir = l==='he' ? 'rtl' : 'ltr';
+  setLanguagePreference(l);
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  document.getElementById('btn-he').classList.toggle('active', l==='he');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    if(t[l][key]!==undefined) el.textContent = t[l][key];
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el=>{
+    const key = el.getAttribute('data-i18n-aria');
+    if(t[l][key]!==undefined){ el.setAttribute('aria-label', t[l][key]); el.setAttribute('title', t[l][key]); }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+    const key = el.getAttribute('data-i18n-placeholder');
+    if(t[l][key]!==undefined) el.setAttribute('placeholder', t[l][key]);
+  });
+  renderAiExamples();
+  (function(){
+    const annotCb = document.getElementById('l1-annot');
+    const btn = document.getElementById('l1-reveal-btn');
+    if(annotCb && btn) btn.textContent = t[l][annotCb.checked ? 'hideBtn' : 'revealBtn'];
+  })();
+  document.getElementById('quiz-explain').classList.remove('show');
+  document.getElementById('quiz2-explain').classList.remove('show');
+  document.getElementById('quiz3-explain').classList.remove('show');
+  document.querySelectorAll('.quiz-opt').forEach(b=>{b.disabled=false; b.classList.remove('right','wrong');});
+  document.getElementById('l1-result').textContent='';
+  renderAll();
+}
+
+function renderAll(){
+  renderL1(); renderL2(); renderCompare(); renderL3(); renderCandlePatterns();
+  renderL5(); renderL6(); renderChartPatterns();
+}
+window.addEventListener('resize', renderAll);
+renderAll();
+
+/* ---------- lesson nav: scroll-spy highlight ---------- */
+(function(){
+  const navLinks = Array.from(document.querySelectorAll('.lesson-nav a'));
+  const sections = navLinks.map(a => document.querySelector(a.getAttribute('href')));
+  function updateActive(){
+    let current = sections[0];
+    const triggerY = window.innerHeight * 0.35;
+    sections.forEach(sec=>{
+      if(sec && sec.getBoundingClientRect().top - triggerY <= 0) current = sec;
+    });
+    navLinks.forEach((a,i)=>{
+      a.classList.toggle('active', sections[i]===current);
+    });
+  }
+  window.addEventListener('scroll', updateActive, {passive:true});
+  updateActive();
+})();
+
+/* ---------- app nav menu ---------- */
+function toggleAppNavMenu(){
+  document.getElementById('app-nav-menu').classList.toggle('open');
+}
+function closeAppNavMenu(){
+  document.getElementById('app-nav-menu').classList.remove('open');
+}
+document.addEventListener('click', function(e){
+  const wrap = document.querySelector('.app-nav-wrap');
+  if(wrap && !wrap.contains(e.target)) closeAppNavMenu();
+});
+
+/* ---------- theme toggle ---------- */
+function toggleTheme(){
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const next = isLight ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  setThemePreference(next);
+  requestAnimationFrame(renderAll);
+}
+(function(){
+  // An explicit earlier choice wins over the OS preference; without this the
+  // theme silently reverted to the system setting on every reload.
+  //
+  // One-time migration: earlier versions stored this under the raw key
+  // 'chartlab-theme' (no namespace). Falling back to the OS preference for
+  // everyone who'd already picked light mode would be a real regression —
+  // this migrates that one value across, once, then never touches the old
+  // key again.
+  if(getThemePreference() === null){
+    try{
+      const legacy = localStorage.getItem('chartlab-theme');
+      if(legacy === 'light' || legacy === 'dark') setThemePreference(legacy);
+    }catch(e){}
+  }
+  const saved = getThemePreference();
+  if(saved === 'light' || saved === 'dark'){
+    document.documentElement.setAttribute('data-theme', saved);
+  } else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches){
+    document.documentElement.setAttribute('data-theme','light');
+  }
+})();
+
+/* ---------- dynamic header/nav height (fixes sticky bar clipping across fonts/languages) ---------- */
+(function(){
+  const headerEl = document.querySelector('header');
+  const navEl = document.querySelector('.lesson-nav');
+  function measure(){
+    if(headerEl) document.documentElement.style.setProperty('--header-h', headerEl.offsetHeight + 'px');
+    if(navEl) document.documentElement.style.setProperty('--nav-h', navEl.offsetHeight + 'px');
+  }
+  measure();
+  window.addEventListener('load', measure);
+  window.addEventListener('resize', measure);
+  if(window.ResizeObserver){
+    const ro = new ResizeObserver(measure);
+    if(headerEl) ro.observe(headerEl);
+    if(navEl) ro.observe(navEl);
+  }
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+  window._measureHeaderNav = measure;
+})();
+
+/* ---------- header shadow + reading progress bar + back-to-top ---------- */
+(function(){
+  const headerEl = document.querySelector('header');
+  const bar = document.getElementById('progress-bar');
+  const toTop = document.getElementById('to-top');
+  function onScroll(){
+    const y = window.scrollY || document.documentElement.scrollTop;
+    if(headerEl) headerEl.classList.toggle('is-scrolled', y > 4);
+    if(toTop) toTop.classList.toggle('show', y > 600);
+    if(bar){
+      const doc = document.documentElement;
+      const max = (doc.scrollHeight - doc.clientHeight) || 1;
+      bar.style.width = Math.min(100, (y/max)*100) + '%';
+    }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll);
+  onScroll();
+})();
+
+/* ---------- scroll-reveal for lesson sections ---------- */
+(function(){
+  const targets = document.querySelectorAll('section.lesson, .hero');
+  targets.forEach(el=>el.classList.add('reveal'));
+  if(!('IntersectionObserver' in window)){
+    targets.forEach(el=>el.classList.add('in-view'));
+    return;
+  }
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('in-view');
+        io.unobserve(entry.target);
+      }
+    });
+  }, {threshold:0.08, rootMargin:'0px 0px -8% 0px'});
+  targets.forEach(el=>io.observe(el));
+})();
+
+/* ---------- chart zoom + pan ---------- */
+(function(){
+  const LEVELS = [1, 1.4, 1.8, 2.2];
+  function setupZoom(surface){
+    if(surface.closest('.chart-zoom-wrap')) return; // already wrapped
+    const canvas = surface.querySelector('canvas');
+    if(!canvas) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'chart-zoom-wrap';
+    surface.parentNode.insertBefore(wrap, surface);
+    wrap.appendChild(surface);
+
+    const controls = document.createElement('div');
+    controls.className = 'zoom-controls';
+    controls.innerHTML =
+      '<button type="button" data-act="out" aria-label="Zoom out">\u2212</button>'+
+      '<span class="zoom-level">100%</span>'+
+      '<button type="button" data-act="in" aria-label="Zoom in">+</button>'+
+      '<button type="button" data-act="reset" aria-label="Reset zoom" title="Reset zoom">⤾</button>';
+    surface.appendChild(controls);
+
+    let levelIdx = 0;
+    const levelLabel = controls.querySelector('.zoom-level');
+    const btnOut = controls.querySelector('[data-act="out"]');
+    const btnIn = controls.querySelector('[data-act="in"]');
+
+    function apply(){
+      const scale = LEVELS[levelIdx];
+      canvas.style.width = (scale*100) + '%';
+      levelLabel.textContent = Math.round(scale*100) + '%';
+      btnOut.disabled = levelIdx===0;
+      btnIn.disabled = levelIdx===LEVELS.length-1;
+      wrap.classList.toggle('zoomed', scale>1);
+      controls.classList.toggle('active', scale>1);
+      if(scale===1) wrap.scrollLeft = 0;
+      requestAnimationFrame(()=>{ if(window._renderOne) window._renderOne(canvas); else renderAll(); });
+    }
+    controls.addEventListener('click', (ev)=>{
+      const btn = ev.target.closest('button');
+      if(!btn) return;
+      ev.stopPropagation();
+      if(btn.dataset.act==='in' && levelIdx<LEVELS.length-1) levelIdx++;
+      else if(btn.dataset.act==='out' && levelIdx>0) levelIdx--;
+      else if(btn.dataset.act==='reset') levelIdx=0;
+      apply();
+    });
+
+    // drag-to-pan on desktop when zoomed
+    let dragging=false, startX=0, startScroll=0, moved=false;
+    wrap.addEventListener('mousedown', (ev)=>{
+      if(LEVELS[levelIdx]<=1) return;
+      if(ev.target.closest('.zoom-controls')) return;
+      dragging=true; moved=false; startX=ev.clientX; startScroll=wrap.scrollLeft;
+      wrap.classList.add('dragging');
+    });
+    window.addEventListener('mousemove', (ev)=>{
+      if(!dragging) return;
+      const dx = ev.clientX-startX;
+      if(Math.abs(dx)>4) moved=true;
+      wrap.scrollLeft = startScroll - dx;
+    });
+    window.addEventListener('mouseup', ()=>{ dragging=false; wrap.classList.remove('dragging'); });
+    wrap.addEventListener('click', (ev)=>{
+      if(moved){ ev.stopPropagation(); moved=false; }
+    }, true);
+
+    apply();
+  }
+  function initAll(){
+    document.querySelectorAll('.chart-surface').forEach(setupZoom);
+  }
+  window._initChartZoom = initAll;
+  document.addEventListener('DOMContentLoaded', initAll);
+  if(document.readyState!=='loading') initAll();
+})();
+
+__AI_SCRIPT_INJECTION_POINT__
+
+// Initial language: an explicit earlier choice (saved via setLang, which
+// persists it) wins; otherwise a Hebrew-speaking browser gets Hebrew by
+// default rather than always starting in English regardless of audience —
+// this product's primary audience is Hebrew-speaking. Runs setLang() (not
+// just the html lang/dir attributes) so attributes and on-screen text stay
+// in sync. Placed here, after the AI section, because setLang() calls
+// renderAiExamples() — an AI-script function that doesn't exist yet
+// earlier in this same script tag; calling it too early throws on
+// AI_EXAMPLE_KEYS being read before its own initialization runs.
+(function(){
+  const saved = getLanguagePreference();
+  if(saved === 'he' || saved === 'en'){
+    setLang(saved);
+  } else if(navigator.language && navigator.language.toLowerCase().indexOf('he') === 0){
+    setLang('he');
+  }
+  // else: leave the default 'en' already reflected in the static markup —
+  // no need to re-run setLang('en') redundantly.
+})();
+
+// Initialized last, after every module (including chat-ui.js, which
+// registers the 'ai' route) has had a chance to call registerRoute() —
+// this is what makes a page load with #ai already in the URL open the
+// assistant immediately instead of needing a click first.
+routerInit();
+</script>
+</body>
+</html>
