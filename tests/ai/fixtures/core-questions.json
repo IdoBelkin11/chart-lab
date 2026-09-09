@@ -1,0 +1,730 @@
+[
+  [
+    "מה זה שוק ההון?",
+    "he"
+  ],
+  [
+    "מה זה מניה?",
+    "he"
+  ],
+  [
+    "מה זה נייר ערך?",
+    "he"
+  ],
+  [
+    "מה זה אג\"ח?",
+    "he"
+  ],
+  [
+    "מה זה ETF?",
+    "he"
+  ],
+  [
+    "מה זה מדד?",
+    "he"
+  ],
+  [
+    "מה זה בורסה?",
+    "he"
+  ],
+  [
+    "מה זה וול סטריט?",
+    "he"
+  ],
+  [
+    "מה זה נאסד\"ק?",
+    "he"
+  ],
+  [
+    "מה זה S&P 500?",
+    "he"
+  ],
+  [
+    "מה זה דיבידנד?",
+    "he"
+  ],
+  [
+    "מה זה IPO?",
+    "he"
+  ],
+  [
+    "מה זה ברוקר?",
+    "he"
+  ],
+  [
+    "מה זה תיק השקעות?",
+    "he"
+  ],
+  [
+    "מה זה פקודת Market?",
+    "he"
+  ],
+  [
+    "מה זה Limit?",
+    "he"
+  ],
+  [
+    "מה זה Stop Loss?",
+    "he"
+  ],
+  [
+    "מה זה החלפת ידיים במניה?",
+    "he"
+  ],
+  [
+    "למה אומרים שמניה עברה ידיים?",
+    "he"
+  ],
+  [
+    "מה קורה בפועל כשאני קונה מניה?",
+    "he"
+  ],
+  [
+    "ממי אני קונה את המניה?",
+    "he"
+  ],
+  [
+    "למה מחיר מניה עולה ויורד?",
+    "he"
+  ],
+  [
+    "איך קנייה ומכירה של מניה עובדות?",
+    "he"
+  ],
+  [
+    "מה ההבדל בין Bid ל-Ask?",
+    "he"
+  ],
+  [
+    "מה זה Spread?",
+    "he"
+  ],
+  [
+    "מה זה נפח מסחר?",
+    "he"
+  ],
+  [
+    "מה זה Liquidity?",
+    "he"
+  ],
+  [
+    "למה לפעמים יש הרבה קונים אבל המניה יורדת?",
+    "he"
+  ],
+  [
+    "מה זה Short?",
+    "he"
+  ],
+  [
+    "מה זה Margin?",
+    "he"
+  ],
+  [
+    "מה זה Pre-market ו-After-hours?",
+    "he"
+  ],
+  [
+    "מה זה Gap?",
+    "he"
+  ],
+  [
+    "מה זה Market Cap?",
+    "he"
+  ],
+  [
+    "מה עדיף S&P 500 או Nasdaq 100?",
+    "he"
+  ],
+  [
+    "האם פיזור רחב יותר תמיד טוב יותר?",
+    "he"
+  ],
+  [
+    "מה ההבדל בין השקעה במדד לבין בחירת מניות?",
+    "he"
+  ],
+  [
+    "What is Revenue?",
+    "en"
+  ],
+  [
+    "What is Gross Profit?",
+    "en"
+  ],
+  [
+    "What is Operating Income?",
+    "en"
+  ],
+  [
+    "What is Net Income?",
+    "en"
+  ],
+  [
+    "What is EPS?",
+    "en"
+  ],
+  [
+    "What is EBITDA?",
+    "en"
+  ],
+  [
+    "What is Free Cash Flow?",
+    "en"
+  ],
+  [
+    "What is Operating Cash Flow?",
+    "en"
+  ],
+  [
+    "What is Gross Margin?",
+    "en"
+  ],
+  [
+    "What is Operating Margin?",
+    "en"
+  ],
+  [
+    "What is Net Margin?",
+    "en"
+  ],
+  [
+    "What is ROE?",
+    "en"
+  ],
+  [
+    "What is ROA?",
+    "en"
+  ],
+  [
+    "What is ROIC?",
+    "en"
+  ],
+  [
+    "What is P/E?",
+    "en"
+  ],
+  [
+    "What is PEG?",
+    "en"
+  ],
+  [
+    "What is P/S?",
+    "en"
+  ],
+  [
+    "What is P/B?",
+    "en"
+  ],
+  [
+    "What is EV/EBITDA?",
+    "en"
+  ],
+  [
+    "What is Debt/Equity?",
+    "en"
+  ],
+  [
+    "What is Current Ratio?",
+    "en"
+  ],
+  [
+    "What is Interest Coverage?",
+    "en"
+  ],
+  [
+    "What is Dividend Yield?",
+    "en"
+  ],
+  [
+    "What is Payout Ratio?",
+    "en"
+  ],
+  [
+    "What is Growth?",
+    "en"
+  ],
+  [
+    "What is Guidance?",
+    "en"
+  ],
+  [
+    "What is Moat?",
+    "en"
+  ],
+  [
+    "What is Valuation?",
+    "en"
+  ],
+  [
+    "What is Intrinsic Value?",
+    "en"
+  ],
+  [
+    "What is DCF?",
+    "en"
+  ],
+  [
+    "What is Discount Rate?",
+    "en"
+  ],
+  [
+    "What is Terminal Value?",
+    "en"
+  ],
+  [
+    "What is Trend?",
+    "en"
+  ],
+  [
+    "What is Support?",
+    "en"
+  ],
+  [
+    "What is Resistance?",
+    "en"
+  ],
+  [
+    "What is Breakout?",
+    "en"
+  ],
+  [
+    "What is Breakdown?",
+    "en"
+  ],
+  [
+    "What is Pullback?",
+    "en"
+  ],
+  [
+    "What is Retest?",
+    "en"
+  ],
+  [
+    "What is Volume?",
+    "en"
+  ],
+  [
+    "What is Moving Averages?",
+    "en"
+  ],
+  [
+    "What is SMA?",
+    "en"
+  ],
+  [
+    "What is EMA?",
+    "en"
+  ],
+  [
+    "What is Golden Cross?",
+    "en"
+  ],
+  [
+    "What is Death Cross?",
+    "en"
+  ],
+  [
+    "What is RSI?",
+    "en"
+  ],
+  [
+    "What is MACD?",
+    "en"
+  ],
+  [
+    "What is Fibonacci?",
+    "en"
+  ],
+  [
+    "What is Candlesticks?",
+    "en"
+  ],
+  [
+    "What is Doji?",
+    "en"
+  ],
+  [
+    "What is Hammer?",
+    "en"
+  ],
+  [
+    "What is Shooting Star?",
+    "en"
+  ],
+  [
+    "What is Engulfing?",
+    "en"
+  ],
+  [
+    "What is Head and Shoulders?",
+    "en"
+  ],
+  [
+    "What is Double Top?",
+    "en"
+  ],
+  [
+    "What is Double Bottom?",
+    "en"
+  ],
+  [
+    "What is Triangle?",
+    "en"
+  ],
+  [
+    "What is Wedge?",
+    "en"
+  ],
+  [
+    "What is Flag?",
+    "en"
+  ],
+  [
+    "What is Pennant?",
+    "en"
+  ],
+  [
+    "What is Channel?",
+    "en"
+  ],
+  [
+    "What is Divergence?",
+    "en"
+  ],
+  [
+    "What is Momentum?",
+    "en"
+  ],
+  [
+    "What is Volatility?",
+    "en"
+  ],
+  [
+    "What is Diversification?",
+    "en"
+  ],
+  [
+    "What is Risk?",
+    "en"
+  ],
+  [
+    "What is Beta?",
+    "en"
+  ],
+  [
+    "What is Correlation?",
+    "en"
+  ],
+  [
+    "What is Drawdown?",
+    "en"
+  ],
+  [
+    "What is Position Sizing?",
+    "en"
+  ],
+  [
+    "What is Asset Allocation?",
+    "en"
+  ],
+  [
+    "What is Portfolio?",
+    "en"
+  ],
+  [
+    "What is Rebalancing?",
+    "en"
+  ],
+  [
+    "What is Time Horizon?",
+    "en"
+  ],
+  [
+    "What is Compound Interest?",
+    "en"
+  ],
+  [
+    "What is Dollar Cost Averaging?",
+    "en"
+  ],
+  [
+    "What is Lump Sum?",
+    "en"
+  ],
+  [
+    "What is inflation?",
+    "en"
+  ],
+  [
+    "What is the fed rate?",
+    "en"
+  ],
+  [
+    "What is unemployment?",
+    "en"
+  ],
+  [
+    "What is GDP?",
+    "en"
+  ],
+  [
+    "What is a recession?",
+    "en"
+  ],
+  [
+    "What is monetary policy?",
+    "en"
+  ],
+  [
+    "What is fiscal policy?",
+    "en"
+  ],
+  [
+    "What is the yield curve?",
+    "en"
+  ],
+  [
+    "What is the dollar index?",
+    "en"
+  ],
+  [
+    "What are commodities?",
+    "en"
+  ],
+  [
+    "What is oil price?",
+    "en"
+  ],
+  [
+    "What is gold?",
+    "en"
+  ],
+  [
+    "What is a coupon?",
+    "en"
+  ],
+  [
+    "What is yield to maturity?",
+    "en"
+  ],
+  [
+    "Why do bond prices fall when rates rise?",
+    "en"
+  ],
+  [
+    "What is duration?",
+    "en"
+  ],
+  [
+    "What are junk bonds?",
+    "en"
+  ],
+  [
+    "What are options?",
+    "en"
+  ],
+  [
+    "What is a call option?",
+    "en"
+  ],
+  [
+    "What is a put option?",
+    "en"
+  ],
+  [
+    "What is strike price?",
+    "en"
+  ],
+  [
+    "What is implied volatility?",
+    "en"
+  ],
+  [
+    "What are the greeks?",
+    "en"
+  ],
+  [
+    "What are futures?",
+    "en"
+  ],
+  [
+    "What is leverage?",
+    "en"
+  ],
+  [
+    "What is a short squeeze?",
+    "en"
+  ],
+  [
+    "What is options flow?",
+    "en"
+  ],
+  [
+    "What is an earnings call?",
+    "en"
+  ],
+  [
+    "What are stock buybacks?",
+    "en"
+  ],
+  [
+    "What is insider trading?",
+    "en"
+  ],
+  [
+    "Who are institutional investors?",
+    "en"
+  ],
+  [
+    "What are market makers?",
+    "en"
+  ],
+  [
+    "What is arbitrage?",
+    "en"
+  ],
+  [
+    "If interest rates rise why do growth stocks fall?",
+    "en"
+  ],
+  [
+    "אם לחברה יש P/E גבוה אבל Revenue Growth גבוה מאוד, מה זה יכול לומר?",
+    "he"
+  ],
+  [
+    "אם המניה פרצה התנגדות עם Volume גבוה אבל RSI כבר מעל 70, מה צריך לקחת בחשבון?",
+    "he"
+  ],
+  [
+    "מה עדיף למשקיע לטווח ארוך S&P 500 או Nasdaq 100, ומה הסיכונים בכל אחד?",
+    "he"
+  ],
+  [
+    "What's the difference between trailing P/E and forward P/E?",
+    "en"
+  ],
+  [
+    "למה ה-P/E של חברה מסוימת גבוה?",
+    "he"
+  ],
+  [
+    "מה דעתך על NVIDIA?",
+    "he"
+  ],
+  [
+    "Should I buy Apple?",
+    "en"
+  ],
+  [
+    "מה ה-P/E הנוכחי של Tesla?",
+    "he"
+  ],
+  [
+    "Apple P/E 32, Revenue Growth 15%, ROIC 28% - what do you think?",
+    "en"
+  ],
+  [
+    "המניה שלי עם Debt/Equity 3.5 ותשואת דיבידנד 7%, מה דעתך?",
+    "he"
+  ],
+  [
+    "מה השעה עכשיו?",
+    "he"
+  ],
+  [
+    "write me a python script to sort a list",
+    "en"
+  ],
+  [
+    "ספר לי בדיחה",
+    "he"
+  ],
+  [
+    "what is your favorite movie",
+    "en"
+  ],
+  [
+    "תכין לי מתכון לעוגה",
+    "he"
+  ],
+  [
+    "שלום",
+    "he"
+  ],
+  [
+    "hello",
+    "en"
+  ],
+  [
+    "תודה רבה",
+    "he"
+  ],
+  [
+    "thanks a lot",
+    "en"
+  ],
+  [
+    "Explain this chart to me",
+    "en"
+  ],
+  [
+    "תסביר לי את הגרף הזה",
+    "he"
+  ],
+  [
+    "what is divdend yield",
+    "en"
+  ],
+  [
+    "what is resistence in trading",
+    "en"
+  ],
+  [
+    "explain flucutation in price",
+    "en"
+  ],
+  [
+    "what is compond interest",
+    "en"
+  ],
+  [
+    "list of topics",
+    "en"
+  ],
+  [
+    "רשימת נושאים",
+    "he"
+  ],
+  [
+    "what topics do you cover",
+    "en"
+  ],
+  [
+    "If price is 100 and eps is 5, what is the pe ratio?",
+    "en"
+  ],
+  [
+    "מחיר 50 ורווח למניה 2.5, מה המכפיל?",
+    "he"
+  ],
+  [
+    "price 40 dividend 2 what is the yield",
+    "en"
+  ],
+  [
+    "אם אני משקיע 10000 בריבית דריבית של 7% למשך 20 שנה, כמה יהיה לי?",
+    "he"
+  ],
+  [
+    "invest 10000 at 7% for 20 years compound",
+    "en"
+  ],
+  [
+    "My stock has P/S 8, P/B 12, current ratio 0.8, beta 1.6",
+    "en"
+  ],
+  [
+    "gross margin 65%, operating margin 22%, payout ratio 90%",
+    "en"
+  ]
+]

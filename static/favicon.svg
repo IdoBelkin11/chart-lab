@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="15" fill="#1A2025"/>
+  <rect x="3" y="3" width="58" height="58" rx="13" fill="none" stroke="#2C343B" stroke-width="1.5"/>
+  <!-- up triangle (bull) -->
+  <path d="M20 38 L26 24 L32 38 Z" fill="#5FC28C"/>
+  <!-- down triangle (bear) -->
+  <path d="M32 26 L38 40 L44 26 Z" fill="#6FA8DC"/>
+</svg>

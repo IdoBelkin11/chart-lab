@@ -1,0 +1,17 @@
+{
+  "name": "chart-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hebrew-first financial education platform with an embedded AI assistant. Single static-file deployable output; no framework, no bundler, no runtime dependencies.",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node tests/run-all.js",
+    "pretest": "node scripts/build.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "jsdom": "^30.0.1"
+  }
+}
