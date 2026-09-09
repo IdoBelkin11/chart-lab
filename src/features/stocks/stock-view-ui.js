@@ -47,7 +47,7 @@ function renderStockSearchShell(overlay){
     </div>
     <div class="app-overlay-content">
       <div class="stock-search-box">
-        <input type="text" id="stock-search-input" class="calc-input" placeholder="${stockT('חברה או טיקר, למשל Apple או AAPL', 'Company or ticker, e.g. Apple or AAPL')}">
+        <input type="text" id="stock-search-input" class="calc-input" aria-label="${stockT('חיפוש חברה או טיקר', 'Search company or ticker')}" placeholder="${stockT('חברה או טיקר, למשל Apple או AAPL', 'Company or ticker, e.g. Apple or AAPL')}">
         <button class="quiz-next-btn" id="stock-search-btn">${stockT('חפש', 'Search')}</button>
       </div>
       <div id="stock-search-results"></div>

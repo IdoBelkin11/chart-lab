@@ -53,8 +53,9 @@ function renderQuizQuestion(overlay){
   }
   const l = (typeof lang !== 'undefined') ? lang : 'en';
   const total = quizSession.questions.length;
+  const fillPct = Math.round((quizSession.currentIndex / total) * 100);
   body.innerHTML = `
-    <div class="quiz-progress">${quizSession.currentIndex + 1} / ${total}</div>
+    <div class="quiz-progress" style="--quiz-fill:${fillPct}%">${quizSession.currentIndex + 1} / ${total}</div>
     <p class="q">${q.question[l]}</p>
     <div class="quiz" id="quiz-options"></div>
     <p class="quiz-view-explain" id="quiz-feedback"></p>
@@ -87,10 +88,12 @@ function handleQuizAnswer(overlay, chosenKey){
 
   const feedback = overlay.querySelector('#quiz-feedback');
   feedback.classList.add('show');
+  feedback.classList.toggle('is-correct', result.correct);
+  feedback.classList.toggle('is-wrong', !result.correct);
   feedback.innerHTML = `
-    <strong>${result.correct ? quizT('נכון! ✓', 'Correct! ✓') : quizT('לא מדויק', 'Not quite')}</strong><br>
-    ${result.explanation[l]}<br>
-    <button class="quiz-next-btn" onclick="advanceQuiz()">${quizSession.finished ? quizT('לתוצאות', 'See results') : quizT('הבא ←', 'Next →')}</button>
+    <strong>${result.correct ? quizT('נכון!', 'Correct!') : quizT('לא מדויק', 'Not quite')}</strong><br>
+    ${result.explanation[l]}
+    <button class="quiz-next-btn" onclick="advanceQuiz()">${quizSession.finished ? quizT('לתוצאות', 'See results') : quizT('הבא', 'Next')}</button>
   `;
 }
 
@@ -102,11 +105,21 @@ function advanceQuiz(){
 function renderQuizResults(overlay){
   const score = getQuizScore(quizSession);
   recordQuizAttempt(score);
+  const l = (typeof lang !== 'undefined') ? lang : 'en';
+  // A conic-gradient ring visualizes the score proportion — the result
+  // reads at a glance before you even parse the number.
+  const pct = score.percent;
+  const ringColor = pct >= 70 ? 'var(--bull)' : (pct >= 40 ? 'var(--accent)' : 'var(--bear)');
+  const verdict = pct >= 70 ? quizT('כל הכבוד!', 'Well done!') : (pct >= 40 ? quizT('לא רע', 'Not bad') : quizT('כדאי לחזור על החומר', 'Worth another review'));
   const body = overlay.querySelector('#quiz-body');
   body.innerHTML = `
     <div class="quiz-results">
-      <div class="quiz-results-score">${score.correct} / ${score.total}</div>
-      <div class="quiz-results-percent">${score.percent}%</div>
+      <div class="quiz-results-ring" style="background:conic-gradient(${ringColor} ${pct}%, var(--bg-inset) 0);">
+        <div class="quiz-results-ring-inner">
+          <div class="quiz-results-score">${score.correct}<span class="quiz-results-slash">/${score.total}</span></div>
+        </div>
+      </div>
+      <div class="quiz-results-percent">${pct}% · ${verdict}</div>
       <button class="quiz-next-btn" onclick="restartQuizView()">${quizT('נסה שוב', 'Try again')}</button>
     </div>
   `;

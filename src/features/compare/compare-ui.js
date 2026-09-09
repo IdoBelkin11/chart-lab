@@ -30,9 +30,9 @@ function renderCompareShell(overlay){
     </div>
     <div class="app-overlay-content">
       <div class="cmpview-inputs">
-        <input type="text" id="compare-input-a" class="calc-input" placeholder="${cmpT('חברה A, למשל NVIDIA', 'Company A, e.g. NVIDIA')}">
+        <input type="text" id="compare-input-a" class="calc-input" aria-label="${cmpT('חברה ראשונה להשוואה', 'First company to compare')}" placeholder="${cmpT('חברה A, למשל NVIDIA', 'Company A, e.g. NVIDIA')}">
         <span class="cmpview-vs">${cmpT('מול', 'vs')}</span>
-        <input type="text" id="compare-input-b" class="calc-input" placeholder="${cmpT('חברה B, למשל AMD', 'Company B, e.g. AMD')}">
+        <input type="text" id="compare-input-b" class="calc-input" aria-label="${cmpT('חברה שנייה להשוואה', 'Second company to compare')}" placeholder="${cmpT('חברה B, למשל AMD', 'Company B, e.g. AMD')}">
         <button class="quiz-next-btn" id="compare-btn">${cmpT('השווה', 'Compare')}</button>
       </div>
       <div id="compare-results"></div>

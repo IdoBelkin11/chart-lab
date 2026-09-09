@@ -5,6 +5,12 @@
 // ---------------------------------------------------------------------------
 function calcT(he, en){ return (typeof lang !== 'undefined' && lang === 'he') ? he : en; }
 function calcFmt(n){ return n.toLocaleString(undefined, { maximumFractionDigits: 2 }); }
+// Renders a result row as a label/value pair so the CSS can space them to
+// opposite edges (a cleaner, more scannable "spec sheet" look than a single
+// "label: value" string).
+function calcLine(label, value){
+  return `<div class="calc-result-line"><span class="calc-line-label">${label}</span><span class="calc-line-value">${value}</span></div>`;
+}
 
 const CALCULATOR_TABS = [
   { id:'compound', label:{he:'ריבית דריבית', en:'Compound Interest'}, build:buildCompoundInterestCalc },
@@ -84,8 +90,8 @@ function buildCompoundInterestCalc(body){
     const r = compoundInterest(+principal.value||0, +rate.value||0, Math.max(0,Math.min(100,+years.value||0)), +yearly.value||0);
     result.innerHTML = `
       <div class="calc-result-big">$${calcFmt(r.futureValue)}</div>
-      <div class="calc-result-line">${calcT('סה"כ הופקד', 'Total contributed')}: $${calcFmt(r.totalContributed)}</div>
-      <div class="calc-result-line">${calcT('סה"כ צמיחה', 'Total growth')}: $${calcFmt(r.totalGrowth)}</div>
+      ${calcLine(calcT('סה"כ הופקד', 'Total contributed'), '$'+calcFmt(r.totalContributed))}
+      ${calcLine(calcT('סה"כ צמיחה', 'Total growth'), '$'+calcFmt(r.totalGrowth))}
       <div class="calc-note">${calcT('זוהי הדגמה חינוכית עם תשואה קבועה מדומה — לא תחזית אמיתית לשוק.', 'This is an educational illustration with an assumed constant return — not a real market forecast.')}</div>
     `;
   }
@@ -105,8 +111,8 @@ function buildDcaCalc(body){
     const r = dollarCostAverage(+amount.value||0, Math.max(0,+periods.value||0), +rate.value||0, 12);
     result.innerHTML = `
       <div class="calc-result-big">$${calcFmt(r.futureValue)}</div>
-      <div class="calc-result-line">${calcT('סה"כ הופקד', 'Total contributed')}: $${calcFmt(r.totalContributed)}</div>
-      <div class="calc-result-line">${calcT('סה"כ צמיחה', 'Total growth')}: $${calcFmt(r.totalGrowth)}</div>
+      ${calcLine(calcT('סה"כ הופקד', 'Total contributed'), '$'+calcFmt(r.totalContributed))}
+      ${calcLine(calcT('סה"כ צמיחה', 'Total growth'), '$'+calcFmt(r.totalGrowth))}
       <div class="calc-note">${calcT('מודל הדגמה עם תשואה חודשית קבועה מדומה — לא מדמה תנודתיות אמיתית של השוק.', 'An illustrative model with a constant assumed monthly return — it does not simulate real market volatility.')}</div>
     `;
   }
@@ -130,7 +136,7 @@ function buildReturnCalc(body){
     const cls = r.percentChange >= 0 ? 'up' : 'down';
     result.innerHTML = `
       <div class="calc-result-big stock-card-change ${cls}">${r.percentChange>=0?'+':''}${r.percentChange.toFixed(2)}%</div>
-      <div class="calc-result-line">${calcT('שינוי מוחלט', 'Absolute change')}: ${calcFmt(r.absoluteChange)}</div>
+      ${calcLine(calcT('שינוי מוחלט', 'Absolute change'), calcFmt(r.absoluteChange))}
     `;
   }
   [initial,final].forEach(el => el.addEventListener('input', update));
@@ -151,9 +157,9 @@ function buildPnlCalc(body){
     const cls = r.netProfitLoss >= 0 ? 'up' : 'down';
     result.innerHTML = `
       <div class="calc-result-big stock-card-change ${cls}">${r.netProfitLoss>=0?'+':''}$${calcFmt(r.netProfitLoss)}</div>
-      <div class="calc-result-line">${calcT('עלות כוללת', 'Total cost')}: $${calcFmt(r.totalCost)}</div>
-      <div class="calc-result-line">${calcT('תמורה כוללת', 'Total proceeds')}: $${calcFmt(r.totalProceeds)}</div>
-      ${r.percentReturn != null ? `<div class="calc-result-line">${calcT('תשואה', 'Return')}: ${r.percentReturn.toFixed(2)}%</div>` : ''}
+      ${calcLine(calcT('עלות כוללת', 'Total cost'), '$'+calcFmt(r.totalCost))}
+      ${calcLine(calcT('תמורה כוללת', 'Total proceeds'), '$'+calcFmt(r.totalProceeds))}
+      ${r.percentReturn != null ? calcLine(calcT('תשואה', 'Return'), r.percentReturn.toFixed(2)+'%') : ''}
     `;
   }
   [buy,sell,shares,fees].forEach(el => el.addEventListener('input', update));

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Full-bleed background for maskable safe-zone compliance -->
+  <rect width="512" height="512" fill="#12171B"/>
+  <rect width="512" height="512" fill="#1A2025"/>
+  <!-- Centered brand mark within the ~80% safe zone -->
+  <g transform="translate(146 176)">
+    <path d="M40 160 L100 20 L160 160 Z" fill="#5FC28C"/>
+    <path d="M160 40 L220 180 L280 40 Z" fill="#6FA8DC"/>
+  </g>
+</svg>

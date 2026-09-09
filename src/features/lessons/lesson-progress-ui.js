@@ -25,8 +25,8 @@ function initLessonProgressUI(){
     footer.innerHTML = `
       <button class="lesson-complete-btn" id="complete-${id}"></button>
       <div class="lesson-progress-nav">
-        ${i > 0 ? `<a href="#${LESSON_IDS[i-1]}" class="lesson-nav-arrow">${lessonT('← קודם', '← Previous')}</a>` : '<span></span>'}
-        ${i < LESSON_IDS.length-1 ? `<a href="#${LESSON_IDS[i+1]}" class="lesson-nav-arrow">${lessonT('הבא →', 'Next →')}</a>` : '<span></span>'}
+        ${i > 0 ? `<a href="#${LESSON_IDS[i-1]}" class="lesson-nav-arrow">${lessonT('קודם →', '← Previous')}</a>` : '<span></span>'}
+        ${i < LESSON_IDS.length-1 ? `<a href="#${LESSON_IDS[i+1]}" class="lesson-nav-arrow">${lessonT('← הבא', 'Next →')}</a>` : '<span></span>'}
       </div>
     `;
     section.appendChild(footer);
