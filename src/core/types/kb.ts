@@ -156,5 +156,9 @@ export interface AiReply {
   relatedIds?: string[];
   /** True when the reply is the topic browser rather than an answer. */
   browse?: boolean;
-  entityContext?: unknown;
+  /** Set only when a live-data stock answer resolved a company — the
+   *  ticker and which facet was just answered, so the UI can offer a
+   *  same-company follow-up (e.g. "technical analysis of NVDA") instead
+   *  of an unrelated KB-topic chip. */
+  entityContext?: { ticker: string; facet: string };
 }

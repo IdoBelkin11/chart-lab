@@ -105,7 +105,7 @@ export const GENERIC_ENTITY_PRONOUN_KW = [
 // false-positive inside unrelated words ("profit", "credit", "quit" all
 // contain "it"; "היא" and "הוא" are common syllables inside longer Hebrew
 // words too).
-export const SUBJECT_PRONOUN_KW = ['היא','הוא','it'];
+export const SUBJECT_PRONOUN_KW = ['היא','הוא','it','עליה','עליו'];
 export function containsWholeWord(norm, word){
   // Split on whitespace only (norm is already lowercased/diacritic-free
   // via normalizeText) and compare each token exactly — avoids both the

@@ -19,6 +19,13 @@ export const STOCK_FACET_PATTERNS = [
   { facet:'pe', kw:['p/e','pe ratio','price to earnings','מכפיל רווח','מכפיל הרווח'] },
   { facet:'change', kw:['last month','past month','last week','over the past','how has it changed','how did it change','חודש האחרון','שבוע האחרון','השתנתה ב','השתנה ב','שינוי ב'] },
   { facet:'trend', kw:['trend','uptrend','downtrend','in an uptrend','מגמה','מגמת עלייה','מגמת ירידה','במגמת עלייה','במגמת ירידה'] },
+  { facet:'considerations', kw:[
+    'pros and cons','advantages and disadvantages','should i buy','should i sell','should i invest',
+    'is it worth buying','is it worth investing','worth investing in','good investment','bad investment',
+    'investment case','bull case','bear case','your opinion on','what do you think of','recommend buying',
+    'יתרונות וחסרונות','כדאי להשקיע','האם כדאי להשקיע','שווה להשקיע','כדאי לקנות','כדאי למכור',
+    'מה דעתך על','המלצה','המלצות','השקעה טובה','השקעה כדאית','כדאי לי להשקיע'
+  ] },
   { facet:'risks', kw:['risk','risks','main risks','key risks','drawback','drawbacks','disadvantage','disadvantages','downside','downsides','סיכון','סיכונים','הסיכונים','חיסרון','חסרונות','החסרונות'] },
   { facet:'technical', kw:['technical','technical analysis','technical status','טכני','המצב הטכני','ניתוח טכני'] },
   { facet:'fundamental', kw:['fundamental','fundamental analysis','fundamentals','פונדמנטלי','פונדומנטלי','המצב הפונדמנטלי','ניתוח פונדמנטלי','ניתוח פונדומנטלי'] },
@@ -146,6 +153,76 @@ export function formatRisks(data, name, he){
   return [volNote, generic, dateLine].filter(Boolean).join(' ');
 }
 
+export function formatConsiderations(data, name, he){
+  // Two short factual lists, not a verdict. Every line here traces to a
+  // specific computed number already in `data` — nothing is inferred or
+  // guessed, and nothing here is phrased as "buy" or "sell". The bar for
+  // each line: would a reasonable analyst call this specific number
+  // bullish-leaning or caution-leaning on its own? RSI in a plain healthy
+  // range, or a P/E with no peer comparison to judge it against, don't
+  // meet that bar either way, so they're left out rather than forced into
+  // a side.
+  const bullish = [];
+  const cautious = [];
+
+  if(data.sma50 != null){
+    if(data.price > data.sma50) bullish.push(he
+      ? 'המחיר מעל הממוצע הנע ל-50 יום — מגמה קצרה-בינונית חיובית.'
+      : "Price is above its 50-day average — a short/medium-term uptrend.");
+    else cautious.push(he
+      ? 'המחיר מתחת לממוצע הנע ל-50 יום — מגמה קצרה-בינונית שלילית.'
+      : "Price is below its 50-day average — a short/medium-term downtrend.");
+  }
+  if(data.sma200 != null){
+    if(data.price > data.sma200) bullish.push(he
+      ? 'המחיר מעל הממוצע הנע ל-200 יום — המגמה הארוכה יותר חיובית.'
+      : "Price is above its 200-day average — the longer-term trend is positive.");
+    else cautious.push(he
+      ? 'המחיר מתחת לממוצע הנע ל-200 יום — המגמה הארוכה יותר שלילית.'
+      : "Price is below its 200-day average — the longer-term trend is negative.");
+  }
+  if(data.rsi14 != null){
+    if(data.rsi14 >= 70) cautious.push(he
+      ? `RSI בסביבות ${fmtNum(data.rsi14,0)} — נחשב "קניית יתר" טכנית, מה שלעיתים מקדים האטה או תיקון (לא תמיד).`
+      : `RSI around ${fmtNum(data.rsi14,0)} — technically "overbought", which sometimes (not always) precedes a slowdown or pullback.`);
+    else if(data.rsi14 <= 30) cautious.push(he
+      ? `RSI בסביבות ${fmtNum(data.rsi14,0)} — נחשב "מכירת יתר"; יכול לשקף חולשה אמיתית, או להקדים ריבאונד — קשה להבדיל בלי הקשר נוסף.`
+      : `RSI around ${fmtNum(data.rsi14,0)} — technically "oversold"; can reflect real weakness, or set up a bounce — hard to tell apart without more context.`);
+  }
+  if(data.monthChangePct != null){
+    if(data.monthChangePct > 0) bullish.push(he
+      ? `מומנטום חיובי בחודש האחרון (${fmtPct(data.monthChangePct)}).`
+      : `Positive momentum over the last month (${fmtPct(data.monthChangePct)}).`);
+    else if(data.monthChangePct < 0) cautious.push(he
+      ? `מומנטום שלילי בחודש האחרון (${fmtPct(data.monthChangePct)}).`
+      : `Negative momentum over the last month (${fmtPct(data.monthChangePct)}).`);
+  }
+  if(data.macd && data.macd.histogram != null){
+    if(data.macd.histogram > 0) bullish.push(he
+      ? 'היסטוגרמת MACD חיובית — מומנטום קצר טווח נוטה כלפי מעלה.'
+      : 'MACD histogram is positive — short-term momentum leans upward.');
+    else cautious.push(he
+      ? 'היסטוגרמת MACD שלילית — מומנטום קצר טווח נוטה כלפי מטה.'
+      : 'MACD histogram is negative — short-term momentum leans downward.');
+  }
+  if(data.volatility20 != null && data.volatility20 > 40) cautious.push(he
+    ? `תנודתיות שנתית גבוהה יחסית (כ-${fmtNum(data.volatility20,0)}%) — טווח תנועות מחיר רחב יותר לשני הכיוונים.`
+    : `Relatively high annualized volatility (~${fmtNum(data.volatility20,0)}%) — a wider range of price swings in both directions.`);
+
+  const bullishLine = bullish.length
+    ? (he ? 'לכיוון החיובי: ' : 'Leaning positive: ') + bullish.join(' ')
+    : (he ? 'לכיוון החיובי: שום סימן טכני בולט כרגע.' : "Leaning positive: no standout technical signal right now.");
+  const cautiousLine = cautious.length
+    ? (he ? 'לכיוון הזהירות: ' : 'Leaning cautious: ') + cautious.join(' ')
+    : (he ? 'לכיוון הזהירות: שום סימן טכני בולט כרגע.' : "Leaning cautious: no standout technical signal right now.");
+
+  const disclaimer = he
+    ? `חשוב: זו קריאה של התמונה הטכנית הנוכחית בלבד — לא המלצה לקנות או למכור, והיא לא לוקחת בחשבון שווי מול חברות דומות בענף, מצב פיננסי מלא של החברה, או את מטרות וסיכון הסיכון האישיים שלך. ${name.he} היא לא "השקעה טובה" או "רעה" באופן מוחלט — זה תלוי בשאלות האלה, שרק אתה יכול לענות עליהן (או ליועץ שמכיר את מצבך).`
+    : `Important: this is a read of the current technical picture only — not a recommendation to buy or sell, and it doesn't account for valuation against peers, the company's full financial position, or your own goals and risk tolerance. ${name.en} isn't objectively a "good" or "bad" investment — that depends on those questions, which only you (or an advisor who knows your situation) can answer.`;
+
+  return [bullishLine, cautiousLine, disclaimer].join('\n\n') + '\n\n' + asOfLine(data, he);
+}
+
 export function formatSnapshot(data, name, he){
   const dir = data.change >= 0 ? (he?'עלייה':'up') : (he?'ירידה':'down');
   const trendShort = data.sma50 != null ? (data.price > data.sma50 ? (he?'מעל ממוצע 50 יום':'above its 50-day average') : (he?'מתחת לממוצע 50 יום':'below its 50-day average')) : '';
@@ -158,14 +235,15 @@ export function formatFull(data, name, he){
   return [
     formatSnapshot(data, name, he),
     formatTechnical(data, name, he),
-    formatFundamental(data, name, he)
+    formatFundamental(data, name, he),
+    formatConsiderations(data, name, he)
   ].join('\n\n');
 }
 
 export const STOCK_FACET_FORMATTERS = {
   price: formatPrice, rsi: formatRSI, pe: formatPE, fundamental: formatFundamental,
   technical: formatTechnical, trend: formatTrend, change: formatChange,
-  risks: formatRisks, full: formatFull, snapshot: formatSnapshot
+  risks: formatRisks, considerations: formatConsiderations, full: formatFull, snapshot: formatSnapshot
 };
 
 // ---------------------------------------------------------------------------
@@ -187,11 +265,17 @@ export async function tryStockDataAnswerStatic(norm, langCode, conversationConte
 }
 
 // Full path including the dynamic symbol_search fallback (costs an extra
-// network call), used only as a last resort after normal topic matching and
-// every other fallback has already failed to find anything — see the call
-// site in generateAiReply for why.
-export async function tryStockDataAnswerDynamic(norm, langCode, rawText, conversationContext){
-  const company = await resolveTickerDynamic(rawText);
+// network call). `triggerOnly` decides which confidence tier of candidate
+// extraction runs (see extractHebrewCandidate's triggerOnly comment) —
+// true for the EARLY pipeline call (step 7 in generateAiReply, a real
+// signal like "מניית X" or "price of X" that must win before KB scoring
+// picks off a generic entry instead, e.g. Zillow's price losing to the
+// generic "what is a stock" entry). false/omitted is the actual last
+// resort this function's name promises: only reachable after normal topic
+// matching and every other fallback has already failed to find anything —
+// see the second call site in generateAiReply.
+export async function tryStockDataAnswerDynamic(norm, langCode, rawText, conversationContext, triggerOnly){
+  const company = await resolveTickerDynamic(rawText, triggerOnly);
   if(!company) return null;
   if(company.ambiguous) return answerAmbiguousCompany(company.candidates, langCode);
   return answerForCompany(company, norm, langCode, conversationContext);

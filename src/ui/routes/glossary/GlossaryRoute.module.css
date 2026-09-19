@@ -6,8 +6,14 @@
 .head::before {
   content: '';
   position: absolute;
-  inset: -40px -8% auto -8%;
-  height: 260px;
+  /* Bottom pinned to .head's own bottom edge (0), not a fixed height like
+     the home/lesson version use — those don't have anything sitting close
+     beneath their glow, but here the sticky, opaque search bar starts
+     right after .head and was slicing through the still-visible glow with
+     a hard flat edge, reading as a boxed rectangle instead of a soft light
+     fading away. Ending exactly at .head's edge means there is nothing
+     left to cut off, at any content height or screen width. */
+  inset: -40px -8% 0 -8%;
   background: var(--spotlight);
   pointer-events: none;
   z-index: 0;

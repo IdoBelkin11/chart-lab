@@ -758,14 +758,18 @@ export async function generateAiReply(userText, langCode, lastTopicId, conversat
     return { text: numericAnalysis.text, relatedIds: [], topicId: numericAnalysis.topicId };
   }
 
-  // 4) "Explain this chart" — dynamic, based on the active lesson.
+  // 4) "Explain this chart" — dynamic, based on the active lesson. Off a
+  //     lesson page (home, a tool page) there is no specific chart on
+  //     screen to explain, so a short, direct line saying so is the
+  //     answer — not a generic technical-analysis explainer standing in
+  //     for a chart that isn't there.
   if(isChartQuery(norm)){
     const topicId = currentLessonTopicId();
     if(topicId) return { text: kbTextFor(topicId, langCode), relatedIds: [] };
     return {
       text: langCode === 'he'
-        ? 'גלול לאחד השיעורים באתר (מגמה, תמיכה/התנגדות, ממוצעים נעים, נרות, פיבונאצ\'י, RSI או תבניות גרף) ואז תשאל אותי שוב "תסביר לי את הגרף" — אסביר בדיוק את הנושא של אותו שיעור.'
-        : 'Scroll to one of the lessons on this site (trend, support/resistance, moving averages, candlesticks, Fibonacci, RSI, or chart patterns) and ask me again — I\'ll explain exactly the topic that lesson covers.',
+        ? 'כדי שאענה על זה, צריך להיות בעמוד עם גרף ספציפי — גלול לאחד השיעורים ותשאל שוב.'
+        : "To answer that, you need to be on a page with a specific chart — scroll to one of the lessons and ask again.",
       relatedIds: []
     };
   }
@@ -799,7 +803,7 @@ export async function generateAiReply(userText, langCode, lastTopicId, conversat
   //     noun-shaped token — an ordinary conceptual question like "מה זה
   //     מניה" or "what is a stock" matches neither and never reaches the
   //     network call.
-  const dynamicStockAnswer = await tryStockDataAnswerDynamic(norm, langCode, userText, conversationContext);
+  const dynamicStockAnswer = await tryStockDataAnswerDynamic(norm, langCode, userText, conversationContext, true);
   if(dynamicStockAnswer) return dynamicStockAnswer;
 
   // 7b) Entity comparison ("who is more profitable, A or B") and pronoun
@@ -968,7 +972,18 @@ export async function generateAiReply(userText, langCode, lastTopicId, conversat
     }
   }
 
-  // 13) Off-topic fallback.
+  // 13) Last resort: a low-confidence company-name guess, now that every
+  //     KB topic, scenario, facet and follow-up path above has already had
+  //     its chance. This is deliberately the LAST thing tried before
+  //     giving up — see tryStockDataAnswerDynamic's own comment — so an
+  //     obscure or lowercase company mention with no explicit trigger
+  //     phrase (the small-cap case that the early, trigger-only check at
+  //     step 7 is intentionally too cautious to catch) still gets a real
+  //     shot before the honest off-topic fallback.
+  const lastResortStockAnswer = await tryStockDataAnswerDynamic(norm, langCode, userText, conversationContext);
+  if(lastResortStockAnswer) return lastResortStockAnswer;
+
+  // 14) Off-topic fallback.
   const fallback = langCode === 'he'
     ? 'אני מתמקד בנושאי שוק ההון והשיעורים באתר הזה, ואין לי תשובה טובה לשאלה הזו. נסה לשאול למשל על מניות, מדדים, P/E, ROIC, סיכון, ניתוח טכני או פונדמנטלי, מאקרו-כלכלה, אג"ח, או אפילו אופציות — או בקש ממני "רשימת נושאים" כדי לעיין בכל מה שאני מכסה.'
     : "I'm focused on stock-market topics and the lessons on this site, and I don't have a good answer for that. Try asking about things like stocks, indices, P/E, ROIC, risk, technical or fundamental analysis, macroeconomics, bonds, or even options — or ask me for a \"list of topics\" to browse everything I cover.";

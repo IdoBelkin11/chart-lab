@@ -1,11 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { App } from '@ui/app/App';
+import { __resetChatSessionForTests } from '@ui/routes/ai/AiRoute';
 
 beforeEach(() => {
   localStorage.clear();
   localStorage.setItem('chartlab.lang', 'he');
   location.hash = '#/ai';
+  __resetChatSessionForTests();
 });
 
 /**
@@ -208,6 +210,27 @@ describe('Back returns to where the tutor was opened from', () => {
     await renderTutor();
     fireEvent.click(screen.getByRole('button', { name: /חזרה/ }));
     expect(location.hash).not.toBe('#/ai');
+  });
+});
+
+describe('the conversation survives leaving the AI page and coming back', () => {
+  it('keeps the transcript after navigating away and back, and only New chat clears it', async () => {
+    await renderTutor();
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'מה זה צלב זהב?' } });
+    fireEvent.submit(screen.getByRole('textbox').closest('form')!);
+    await waitFor(() => expect(screen.getAllByText(/צלב זהב/).length).toBeGreaterThan(0), { timeout: 3000 });
+
+    // Leave the AI route entirely (a real route change unmounts AiRoute —
+    // it is lazy-loaded, not just hidden) and come back.
+    location.hash = '#/';
+    cleanup();
+    location.hash = '#/ai';
+    const log = await renderTutor();
+    expect(log.textContent).toMatch(/צלב זהב/);
+
+    // New chat is the one thing that is still allowed to clear it.
+    fireEvent.click(screen.getByRole('button', { name: /התחל שיחה חדשה/ }));
+    expect(screen.queryByText(/צלב זהב/)).toBeNull();
   });
 });
 

@@ -3,10 +3,12 @@ import {
   createConversationContext,
   generateAiReply,
   followupChipsFor,
+  kbById,
   CATEGORY_LABELS,
   CATEGORY_ORDER,
   topicsInCategory
 } from '@core/ai/index';
+import { takePendingTutorAction } from '@core/ai/pendingTutorAction';
 import type { AiReply } from '@core/types/kb';
 import { useLang } from '@ui/hooks/useLang';
 import { useRoute } from '@ui/hooks/useRoute';
@@ -25,6 +27,33 @@ interface Turn {
   browse?: boolean;
   /** Reveal progressively only for the turn that just arrived. */
   fresh?: boolean;
+}
+
+// Module-level, not component state: this is what makes the conversation
+// survive leaving the AI page and coming back. A route component unmounts
+// on navigation (this one is even lazy-loaded — see the bundle-split note
+// above), so anything kept only in useState/useRef inside AiRoute is gone
+// the moment the visitor leaves, no matter how they got here. Living here
+// instead means the transcript, entity memory and last topic all persist
+// for the lifetime of the page load, and only the explicit "New chat"
+// button (reset(), below) clears it — exactly the one exception asked for.
+const chatSession: {
+  turns: Turn[];
+  context: ReturnType<typeof createConversationContext>;
+  lastTopic: string | null;
+} = {
+  turns: [],
+  context: createConversationContext(),
+  lastTopic: null
+};
+
+/** Test-only: the module stays loaded across test cases (unlike a real
+ *  page load, which starts fresh every time), so tests restore that
+ *  isolation explicitly by calling this in beforeEach. */
+export function __resetChatSessionForTests(){
+  chatSession.turns = [];
+  chatSession.context = createConversationContext();
+  chatSession.lastTopic = null;
 }
 
 /**
@@ -50,15 +79,22 @@ interface Turn {
 export function AiRoute() {
   const { t, lang } = useLang();
   const { go } = useRoute();
-  const [turns, setTurns] = useState<Turn[]>([]);
+  const [turns, setTurnsState] = useState<Turn[]>(chatSession.turns);
   const [pending, setPending] = useState(false);
   const [draft, setDraft] = useState('');
   const [openCategory, setOpenCategory] = useState<{ index: number; cat: string } | null>(null);
 
-  // Conversation memory persists across turns but not across a reset, which
-  // is what makes follow-ups like "give me another example" resolve.
-  const context = useRef(createConversationContext());
-  const lastTopic = useRef<string | null>(null);
+  // Every update also writes through to the module-level store, so the
+  // next mount (after navigating away and back) picks up exactly where
+  // this one left off.
+  const setTurns = useCallback((updater: Turn[] | ((prev: Turn[]) => Turn[])) => {
+    setTurnsState((prev) => {
+      const next = typeof updater === 'function' ? (updater as (prev: Turn[]) => Turn[])(prev) : updater;
+      chatSession.turns = next;
+      return next;
+    });
+  }, []);
+
   const transcriptRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -80,8 +116,8 @@ export function AiRoute() {
       setTurns((prev) => [...prev.map((tn) => ({ ...tn, fresh: false })), { role: 'user', text: q }]);
       setPending(true);
       try {
-        const reply: AiReply = await generateAiReply(q, lang, lastTopic.current, context.current);
-        lastTopic.current = reply.topicId ?? lastTopic.current;
+        const reply: AiReply = await generateAiReply(q, lang, chatSession.lastTopic, chatSession.context);
+        chatSession.lastTopic = reply.topicId ?? chatSession.lastTopic;
 
         const chips = (reply.relatedIds ?? [])
           .map((id) => {
@@ -89,6 +125,34 @@ export function AiRoute() {
             return label ? { id, label } : null;
           })
           .filter((c): c is { id: string; label: string } => c !== null);
+
+        // A live-data stock answer has no KB relatedIds (there's no KB
+        // entry for "NVDA"), so the loop above always produces zero chips
+        // for it — the reader got a price/technical/fundamental snapshot
+        // and then saw no suggested next question at all. Named by ticker
+        // rather than a pronoun ("its technical analysis"): resolveTicker
+        // matches the ticker directly, so the chip works even if pronoun
+        // resolution ever has a gap. Skip whichever facet was just
+        // answered — offering "technical analysis" again right after
+        // showing it is a chip nobody taps.
+        if (reply.topicId === 'stock-data' && reply.entityContext) {
+          const { ticker, facet } = reply.entityContext;
+          const he = lang === 'he';
+          const stockChips: Array<{ id: string; label: string }> = [];
+          if (facet !== 'technical') {
+            stockChips.push({
+              id: `stock-technical-${ticker}`,
+              label: he ? `ניתוח טכני של ${ticker}` : `Technical analysis of ${ticker}`
+            });
+          }
+          if (facet !== 'fundamental') {
+            stockChips.push({
+              id: `stock-fundamental-${ticker}`,
+              label: he ? `ניתוח פונדמנטלי של ${ticker}` : `Fundamental analysis of ${ticker}`
+            });
+          }
+          chips.push(...stockChips);
+        }
 
         setTurns((prev) => [
           ...prev,
@@ -105,10 +169,44 @@ export function AiRoute() {
   );
 
   const reset = useCallback(() => {
-    context.current = createConversationContext();
-    lastTopic.current = null;
+    chatSession.context = createConversationContext();
+    chatSession.lastTopic = null;
+    chatSession.turns = [];
     setOpenCategory(null);
     setTurns([]);
+  }, [setTurns]);
+
+  // One-shot: a lesson's "Explain this concept" / "Another example" button
+  // set this right before navigating here (see pendingTutorAction.js).
+  // Runs once per mount, which is exactly the point — arriving this way
+  // should immediately show the answer instead of landing on the empty
+  // composer and making the reader ask it themselves.
+  useEffect(() => {
+    const pending = takePendingTutorAction();
+    if (!pending) return;
+    chatSession.lastTopic = pending.topicId;
+    if (pending.action === 'explain') {
+      const entry = kbById(pending.topicId);
+      if (!entry) return;
+      const chips = (entry.related ?? [])
+        .slice(0, 2)
+        .map((id) => {
+          const label = followupChipsFor(id, lang) as string | null;
+          return label ? { id, label } : null;
+        })
+        .filter((c): c is { id: string; label: string } => c !== null);
+      setTurns((prev) => [
+        ...prev.map((tn) => ({ ...tn, fresh: false })),
+        { role: 'user', text: pending.questionLabel },
+        { role: 'assistant', text: entry[lang], chips, fresh: true }
+      ]);
+    } else if (pending.action === 'example') {
+      void send(pending.questionLabel);
+    }
+    // Deliberately once per mount: this is a one-shot handoff consumed by
+    // takePendingTutorAction(), not a value that should re-fire on every
+    // lang/send identity change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Six, so the grid fills two clean rows of three.

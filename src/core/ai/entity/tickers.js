@@ -177,12 +177,44 @@ export const TICKER_MAP = [
 // question and must never be mistaken for a company name candidate.
 export const LATIN_CANDIDATE_STOPWORDS = new Set(['pe','p e','roe','roa','roic','rsi','macd','sma','ema','etf','ipo','eps','peg','ma','dca','gdp','cpi','fed','tp','sl','ytm','ohlc']);
 
-export function extractLatinCandidate(rawText){
+// English mirror of HEBREW_COMPANY_TRIGGERS: an explicit signal that a
+// company is being named, checked ahead of the general extraction below.
+export const ENGLISH_COMPANY_TRIGGERS = [
+  'price of','stock price of','share price of','shares of','stock of',
+  'analyze the stock','analyze stock','technical analysis of','fundamental analysis of',
+  'p/e of','p/e ratio of','trend of','risks of','fundamentals of','information on','info on'
+];
+
+// A real company typed in English is almost always capitalized ("Nvidia",
+// "Zillow") or written as a bare ticker (2-5 capital letters) — ordinary
+// finance vocabulary in a concept question ("dividend", "support and
+// resistance") is virtually always lowercase. This is the proper-noun
+// signal extractLatinCandidate's own comment already claimed to rely on
+// ("an ordinary conceptual question... matches neither and never reaches
+// the network call") but never actually checked — see the long comment on
+// extractHebrewCandidate's triggerOnly for why that gap matters now.
+function looksProperNounShaped(candidate){
+  return /^[A-Z]/.test(candidate) || /^[A-Z]{2,5}$/.test(candidate);
+}
+
+export function extractLatinCandidate(rawText, triggerOnly){
+  const lower = rawText.toLowerCase();
+  for(const trigger of ENGLISH_COMPANY_TRIGGERS){
+    const idx = lower.indexOf(trigger);
+    if(idx === -1) continue;
+    const tail = rawText.slice(idx + trigger.length).trim().replace(/^(the|a|an)\s+/i, '');
+    const tailMatch = tail.match(/^[A-Za-z][A-Za-z&.'-]*(?:\s+[A-Za-z][A-Za-z&.'-]*){0,3}/);
+    if(tailMatch && tailMatch[0].trim().length >= 2) return tailMatch[0].trim();
+  }
   const matches = rawText.match(/[A-Za-z][A-Za-z&.'-]*(?:\s+[A-Za-z][A-Za-z&.'-]*){0,3}/g);
   if(!matches) return null;
-  const candidates = matches
+  let candidates = matches
     .map(m => m.trim())
     .filter(m => m.length >= 2 && !LATIN_CANDIDATE_STOPWORDS.has(m.toLowerCase()));
+  // Without a trigger phrase, only a capitalized/ticker-shaped candidate is
+  // high-confidence enough to try before KB scoring; anything else is
+  // deferred to the last-resort pass (triggerOnly is false there).
+  if(triggerOnly) candidates = candidates.filter(looksProperNounShaped);
   if(!candidates.length) return null;
   // Prefer the longest candidate — more likely to be a real company name
   // than a short incidental English word sitting in the sentence.
@@ -205,16 +237,70 @@ export const HEBREW_FILLER_WORDS = new Set([
   'תן','תני','תנו','לי','לו','לה','להם','לנו','אתה','את','אני','אנחנו','מה','זה','זו','אלו','של','על','עם','גם','או','אם',
   'כדאי','אפשר','בבקשה','נא','מידע','פרטים','נתונים','סקירה','ניתוח','מצב','ספר','תספר','ספרי',
   'מניה','מניית','חברה','חברת','המניה','החברה','כמה','עולה','עולה','קורה','נראה','נראית','איך',
-  'מחיר','מחירה','שווה','לגבי','בקשר','בנוגע','בו','בה','הוא','היא','יש','אין'
+  'מחיר','מחירה','שווה','לגבי','בקשר','בנוגע','בו','בה','הוא','היא','יש','אין',
+  // Comparison connectors ("Nvidia MOL Gauzy" — "מול" = versus/against).
+  // Without stripping these, a comparison-phrased message keeps the
+  // connector glued to the actual company name as one candidate string
+  // (\"מול גאוזי\" instead of \"גאוזי\"), which then gets transliterated and
+  // searched as one mangled two-word query that never matches the real
+  // company — confirmed as the reported case for a small-cap name typed
+  // in Hebrew alongside a comparison word.
+  'מול','לעומת','נגד','ביחס','השווה','תשווה','השוואה',
+  // Same category, a different family of instruction words: "give me an
+  // EXAMPLE" / "a DIFFERENT / ANOTHER example" (see EXAMPLE_REQUEST_KW /
+  // ANOTHER_EXAMPLE_KW in matching-engine.js). Only exposed once dynamic
+  // resolution actually ran (see the getMarketData fix above) — before
+  // that, every lookup silently failed regardless of the candidate text,
+  // so a stray leftover word here was harmless by accident.
+  'דוגמה','דוגמא','אחרת','אחר','נוספת','נוסף','עוד','שנייה'
 ]);
-export function extractHebrewCandidate(rawText){
+// "מניית X" / "חברת X" is genuinely ambiguous in Hebrew: it can name a
+// company ("מניית Zillow") or it can be ordinary stock-category vocabulary
+// ("מניית ערך" = a value stock, "חברת ענק" = a giant company) with no
+// company named at all. A tail built entirely from this bounded, common
+// set of category/descriptor words is the second case — real company
+// names aren't drawn from a small closed vocabulary, so this stays narrow
+// rather than trying to enumerate every non-company phrase in general.
+const HEBREW_STOCK_DESCRIPTOR_WORDS = new Set([
+  'ערך','צמיחה','הכנסה','יציבה','יציב','בטוחה','בטוח','קטנה','קטן','גדולה','גדול',
+  'בינונית','בינוני','ספקולטיבית','ספקולטיבי','מגנה','מגן','מחזורית','מחזורי',
+  'בלו',"צ'יפ",'איכות','חדשה','חדש','ותיקה','ותיק','מבוססת','מבוסס',
+  'מובילה','מוביל','ענק','ענקית','יסוד','סולידית','סולידי','אגרסיבית','אגרסיבי'
+]);
+function isStockDescriptorPhrase(tail){
+  const words = tail.split(/\s+/).filter(Boolean);
+  return words.length > 0 && words.every(w => HEBREW_STOCK_DESCRIPTOR_WORDS.has(w));
+}
+
+// extractHebrewCandidate(rawText, triggerOnly) — two very different
+// confidence levels bundled behind one function on purpose, but callers
+// must not treat them the same way:
+//
+//   - The TRIGGER-PHRASE match ("מניית X", "מה המחיר של X", ...) is a real
+//     signal that a company is being named. Safe to try before KB scoring.
+//   - The GENERAL FALLBACK (whatever's left after stripping filler words,
+//     with no trigger phrase at all) is NOT a proper-noun detector — Hebrew
+//     has no capitalization to lean on the way extractLatinCandidate does.
+//     It will just as happily return "צלב זהב" (golden cross) as it will a
+//     real company name, because both are "a couple of non-filler Hebrew
+//     words". That was harmless only while the dynamic lookup this fed was
+//     itself broken (see the getMarketData fix above) — once dynamic
+//     resolution actually works, letting the fallback run before normal KB
+//     scoring hijacks ordinary concept questions into a fabricated stock
+//     answer. It must only run as a LAST RESORT, after every other match
+//     (including plain KB topic scoring) has already failed — never before.
+//     `triggerOnly: true` skips the fallback entirely for exactly this
+//     reason; the caller passes it for the early, pre-KB-scoring check.
+export function extractHebrewCandidate(rawText, triggerOnly){
   for(const trigger of HEBREW_COMPANY_TRIGGERS){
     const idx = rawText.indexOf(trigger);
     if(idx === -1) continue;
     let tail = rawText.slice(idx + trigger.length).trim();
     tail = tail.replace(/^(מניית|מניה של|חברת)\s+/,'').replace(/[?？!.,]+$/,'').trim();
+    if(isStockDescriptorPhrase(tail)) continue;
     if(tail.length >= 2 && /[\u0590-\u05FF]/.test(tail)) return tail;
   }
+  if(triggerOnly) return null;
   // General fallback: no specific trigger phrase matched, so strip common
   // filler words (and a single attached ה/ב/ל/מ/ו/כ/ש prefix from what's
   // left) and use whatever Hebrew content remains.
@@ -305,7 +391,7 @@ export async function searchAndRankSymbol(queryText){
   // data-source concern — it stays here and just asks whichever provider
   // is currently active (Twelve Data, Demo, ...) for raw candidates via
   // the shared provider contract (see market/provider-interface.js).
-  const matches = await getActiveMarketDataProvider().searchSymbol(queryText);
+  const matches = await getMarketData().searchSymbol(queryText);
   if(!matches.length) return null;
   const majorExchange = m => ['NASDAQ','NYSE','AMEX'].includes(m.exchange) || m.exchange === 'DEMO';
   // Leveraged/inverse/derivative products (e.g. "Leverage Shares 3x Long
@@ -349,9 +435,9 @@ export async function searchAndRankSymbol(queryText){
   return best || null;
 }
 
-export async function resolveTickerDynamic(rawText){
-  const latin = extractLatinCandidate(rawText);
-  const hebrew = !latin ? extractHebrewCandidate(rawText) : null;
+export async function resolveTickerDynamic(rawText, triggerOnly){
+  const latin = extractLatinCandidate(rawText, triggerOnly);
+  const hebrew = !latin ? extractHebrewCandidate(rawText, triggerOnly) : null;
   const candidate = latin || hebrew;
   if(!candidate) return null;
   // A message that reads as a comparison ("who is more profitable?") or a
@@ -449,8 +535,22 @@ function hasCompanySignal(norm) {
 // alias firing inside an unrelated longer word.
 export function resolveTicker(norm){
   const padded = ' ' + norm + ' ';
+  const tokens = norm.split(/\s+/);
+  // A Hebrew preposition/conjunction prefix (ב-/ל-/מ-/ו-/כ-/ש-) attaches
+  // directly to the next word with no space — "באנבידיה" ("in Nvidia"),
+  // "לטבע" ("for Teva") — so the padded whole-word check below never
+  // fires for a company mentioned this way, which is a very ordinary way
+  // to actually phrase a question ("כדאי להשקיע באנבידיה?"). Only tried
+  // for single-word aliases, and only once the direct check has already
+  // failed: stripping a prefix from a multi-word phrase isn't meaningful
+  // the same way, and a real alias match always wins outright.
+  const stripPrefix = t => t.replace(/^[הבלמוכש](?=.{2,})/, '');
   for(const { alias, entry } of tickerAliasesSorted()){
-    if(!padded.includes(' ' + alias + ' ')) continue;
+    let matched = padded.includes(' ' + alias + ' ');
+    if(!matched && !alias.includes(' ')){
+      matched = tokens.some(t => t !== alias && stripPrefix(t) === alias);
+    }
+    if(!matched) continue;
     if(AMBIGUOUS_ALIASES.has(alias)){
       // Still honoured when the alias IS the whole message ("cost" alone,
       // or "cost?") — someone who typed nothing else plainly meant the

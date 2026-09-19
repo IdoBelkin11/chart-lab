@@ -14,6 +14,8 @@ import { ChartCard } from '@ui/components/charts';
 import { CourseComplete } from '@ui/components/feedback/CourseComplete';
 import { hasLessonQuiz } from '@core/quiz/topicScoping';
 import { getQuizQuestions } from '@core/quiz/questions.js';
+import { setAmbientLessonTopic } from '@core/ai/ambientTopic';
+import { setPendingTutorAction } from '@core/ai/pendingTutorAction';
 import styles from './LessonRoute.module.css';
 
 /**
@@ -222,10 +224,34 @@ export function LessonRoute({ lessonId }: { lessonId: string }) {
       <section className={styles.tutor}>
         <span className={styles.tutorLead}>{lang === 'he' ? 'לא ברור משהו?' : 'Something unclear?'}</span>
         <div className={styles.tutorActions}>
-          <button type="button" className={styles.tutorBtn} onClick={() => go('ai')}>
+          <button
+            type="button"
+            className={styles.tutorBtn}
+            onClick={() => {
+              setAmbientLessonTopic(lesson.kbTopicId);
+              setPendingTutorAction(
+                'explain',
+                lesson.kbTopicId,
+                lang === 'he' ? `הסבר לי על ${lesson.navLabel.he}` : `Explain ${lesson.navLabel.en}`
+              );
+              go('ai');
+            }}
+          >
             {lang === 'he' ? 'הסבר לי את הנושא' : 'Explain this concept'}
           </button>
-          <button type="button" className={styles.tutorBtn} onClick={() => go('ai')}>
+          <button
+            type="button"
+            className={styles.tutorBtn}
+            onClick={() => {
+              setAmbientLessonTopic(lesson.kbTopicId);
+              setPendingTutorAction(
+                'example',
+                lesson.kbTopicId,
+                lang === 'he' ? `תן לי דוגמה נוספת על ${lesson.navLabel.he}` : `Give me another example of ${lesson.navLabel.en}`
+              );
+              go('ai');
+            }}
+          >
             {lang === 'he' ? 'דוגמה נוספת' : 'Another example'}
           </button>
           {practiceAvailable && (
