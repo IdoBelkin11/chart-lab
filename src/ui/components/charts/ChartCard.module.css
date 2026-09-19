@@ -1,0 +1,189 @@
+/* ===========================================================================
+   Lesson chart card.
+
+   The chart stays RECESSED (--well) inside a raised card: the card is the
+   piece of furniture, the chart is the instrument set into it. That keeps the
+   project's existing rule — charts are never raised on a surface of their own
+   — while still giving a stack of five charts the visual separation it needs.
+
+   The header carries a tone tint. It is a gradient rather than a flat fill so
+   the colour fades out across the band instead of reading as a coloured bar,
+   which at this size would compete with the candles for attention.
+   =========================================================================== */
+
+.card {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-lg);
+  /* A very slight vertical lift in the surface itself, brightest at the top
+     edge. It reads as light falling on the card rather than as a flat panel,
+     and costs nothing — the alternative, a heavier drop shadow, would fight
+     the recessed chart well sitting inside it. */
+  background: linear-gradient(to bottom, var(--surface-2) 0%, var(--surface) 34%);
+  box-shadow: inset 0 0 0 1px var(--line-soft), var(--e-1);
+  overflow: hidden;
+  position: relative;
+  /* min-width:0 on a grid item is what actually lets it shrink: without it
+     the canvas's intrinsic width wins and every card is forced to the widest
+     one, which is how a "grid" silently collapses back to one column. */
+  min-width: 0;
+  transition: box-shadow var(--t-med) var(--ease), transform var(--t-med) var(--ease);
+}
+.card:hover {
+  box-shadow: inset 0 0 0 1px var(--line), var(--e-2);
+  transform: translateY(-2px);
+}
+
+/* A hairline highlight along the very top edge, in the tone colour. It is
+   the detail that stops a stack of cards reading as identical grey boxes,
+   and it stays visible when the header gradient has faded out. */
+.card::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 1px;
+  background: linear-gradient(to inline-end, var(--accent), transparent 55%);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.card[data-tone='bull']::before { background: linear-gradient(to inline-end, var(--success), transparent 55%); }
+.card[data-tone='bear']::before { background: linear-gradient(to inline-end, var(--danger), transparent 55%); }
+.card[data-tone='advanced']::before { background: linear-gradient(to inline-end, var(--advanced), transparent 55%); }
+@media (prefers-reduced-motion: reduce) {
+  .card:hover { transform: none; }
+}
+
+/* A card that carries the exercise/notes panel spans the full row: it is a
+   different kind of object from a plain example, and squeezing a chart plus
+   its practice panel into one grid column leaves neither enough room. */
+.spanFull { grid-column: 1 / -1; }
+
+/* The lone card left over by an odd total, with no aside to justify using
+   the extra width. Spans the row for the same reason .spanFull does —
+   otherwise it sits in one column beside an empty other — but centred at
+   a normal card's width instead of stretched, so the chart keeps the same
+   proportions as every other example in the lesson. */
+.spanFullCentered {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: 100%;
+  max-width: 640px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-4) var(--s-5);
+  /* Two lines of subcaption plus the caption. Reserved rather than natural,
+     so a one-line card and a two-line card in the same row start their
+     charts at the same y — otherwise the charts stagger even when the cards
+     themselves are equal height. */
+  min-height: 86px;
+  border-bottom: 1px solid var(--line-soft);
+  /* Default (neutral) tint — the accent, informational. */
+  background: linear-gradient(
+    to inline-end,
+    var(--accent-dim) 0%,
+    transparent 62%
+  );
+}
+.headerText { min-width: 0; flex: 1 1 auto; }
+
+/* A solid dot in the tone colour, sitting before the title. The gradient
+   behind it fades out across the band by design, so at the right-hand end of
+   a wide card there would otherwise be no tone signal left at all. */
+.dot {
+  flex: 0 0 auto;
+  width: 8px; height: 8px;
+  border-radius: var(--r-full);
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.card[data-tone='bull'] .dot { background: var(--success); box-shadow: 0 0 0 3px var(--success-dim); }
+.card[data-tone='bear'] .dot { background: var(--danger); box-shadow: 0 0 0 3px var(--danger-dim); }
+.card[data-tone='advanced'] .dot { background: var(--advanced); box-shadow: 0 0 0 3px var(--advanced-dim); }
+
+/* Tone tints. A rising example and a falling one are told apart at a glance,
+   using exactly the tokens the rest of the app already means by green/red. */
+.card[data-tone='bull'] .header {
+  background: linear-gradient(to inline-end, var(--success-dim) 0%, transparent 62%);
+}
+.card[data-tone='bear'] .header {
+  background: linear-gradient(to inline-end, var(--danger-dim) 0%, transparent 62%);
+}
+.card[data-tone='advanced'] .header {
+  background: linear-gradient(to inline-end, var(--advanced-dim) 0%, transparent 62%);
+}
+
+/* A 3px rule in the tone colour on the card's leading edge. Cheap, and it
+   survives the gradient fading out — so the tone is still readable on the
+   card even when scrolled so only its edge is visible. */
+.card { border-inline-start: 3px solid var(--accent); }
+.card[data-tone='bull'] { border-inline-start-color: var(--success); }
+.card[data-tone='bear'] { border-inline-start-color: var(--danger); }
+.card[data-tone='advanced'] { border-inline-start-color: var(--advanced); }
+
+.caption {
+  font-size: var(--fs-base);
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  line-height: 1.25;
+}
+.subcaption {
+  margin-top: 3px;
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.counter {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  background: var(--canvas);
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.counterTotal { color: var(--text-faint); font-weight: 500; }
+
+.body { padding: var(--s-4); flex: 1 1 auto; display: flex; flex-direction: column; }
+.bodySplit { padding: var(--s-4); display: grid; gap: var(--s-4); flex: 1 1 auto; }
+@media (min-width: 941px) {
+  .bodySplit {
+    grid-template-columns: minmax(0, 1.9fr) minmax(250px, 0.7fr);
+    align-items: start;
+  }
+}
+
+/* The recessed instrument surface the canvas draws onto. */
+.well {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: var(--r-md);
+  padding: var(--s-2);
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 100% 44px,
+    var(--well);
+  /* Inset shadow at the top lip as well as the hairline: the chart should
+     look set INTO the card, and a plain 1px border alone reads as a box
+     drawn on top of it. */
+  box-shadow: inset 0 0 0 1px var(--line-soft), inset 0 2px 10px -6px rgba(0, 0, 0, 0.9);
+  /* The canvas is sized from its parent's clientWidth, so this must not be
+     allowed to stretch: min-width:0 is what stops a wide chart from forcing
+     the grid column open and overflowing the card on narrow screens. */
+  min-width: 0;
+  overflow: hidden;
+}

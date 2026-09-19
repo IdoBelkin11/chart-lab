@@ -1,0 +1,4 @@
+{
+  "private": true,
+  "description": "Overrides the repo root's \"type\": \"module\" back to CommonJS for this subtree — market.js uses require()/module.exports, matching functions/src/normalize.js which it imports."
+}

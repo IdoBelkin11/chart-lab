@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+# The frontend (src/core/ai/market/backendProvider.js) calls
+# {marketApiBase}/quote|history|search. Point marketApiBase at "/api/market"
+# and this rewrite sends it to the function — same contract as the Firebase
+# version, nothing to change on the frontend beyond the base URL.
+[[redirects]]
+  from = "/api/market/*"
+  to = "/.netlify/functions/market/:splat"
+  status = 200

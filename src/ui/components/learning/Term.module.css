@@ -1,0 +1,97 @@
+/* A dotted underline in the informational blue — the same colour family as
+   support/resistance chart labels, so "this is something to learn more
+   about" reads consistently across the whole app. Never look like a link:
+   this opens an explanation in place, it doesn't navigate anywhere. */
+.term {
+  padding: 0 1px;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  border-bottom: 1.5px dotted var(--accent);
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+.term:hover,
+.term:focus-visible {
+  color: var(--accent-strong);
+  border-color: var(--accent-strong);
+  background: var(--accent-dim);
+  border-radius: 3px;
+}
+
+/* Positioned entirely in pixels by Term.tsx (computePlacement) and portalled
+   to document.body — never CSS-centred on the word. A centred popover is
+   clipped by ANY scrolling/overflow ancestor between it and the page (a
+   chart card, a narrow side panel) and by the viewport edge on anything
+   narrower than the popover itself; both happen on real lesson pages. This
+   is the one mechanism for every screen size — there is no separate mobile
+   layout to keep in sync with this one. */
+.popover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  width: max-content;
+  max-width: min(300px, calc(100vw - 20px));
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  box-shadow: var(--e-2);
+  color: var(--text);
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  line-height: 1.55;
+  text-align: start;
+  white-space: normal;
+  animation: pop var(--t-fast) var(--ease-out) both;
+}
+
+/* The arrow's horizontal position is set per-instance (--arrow-left, from
+   the same measurement that placed the popover), because the popover is
+   often nudged sideways to stay on screen — a fixed centred arrow would
+   then visibly miss the word it is supposed to point at. */
+.popover::after,
+.popover::before {
+  content: '';
+  position: absolute;
+  left: var(--arrow-left, 50%);
+  transform: translateX(-50%);
+}
+.popover[data-side='above']::after {
+  top: 100%;
+  border: 6px solid transparent;
+  border-top-color: var(--line);
+}
+.popover[data-side='above']::before {
+  top: 100%;
+  transform: translateX(-50%) translateY(-1px);
+  border: 5px solid transparent;
+  border-top-color: var(--surface-2);
+}
+.popover[data-side='below']::after {
+  bottom: 100%;
+  border: 6px solid transparent;
+  border-bottom-color: var(--line);
+}
+.popover[data-side='below']::before {
+  bottom: 100%;
+  transform: translateX(-50%) translateY(1px);
+  border: 5px solid transparent;
+  border-bottom-color: var(--surface-2);
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.popover[data-side='below'] { animation-name: popBelow; }
+@keyframes popBelow {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover { animation: none; }
+}

@@ -1,0 +1,306 @@
+.panel { position: relative; display: flex; flex-direction: column; height: 100%; min-height: 0; }
+
+.transcript {
+  flex: 1; min-height: 0; overflow-y: auto;
+  /* Top padding is NOT the uniform var(--s-6) the other sides use. .back and
+     .reset (below) are position:absolute floating buttons that start at
+     16px from the top and stand 46px tall — outside this element's normal
+     flow, so nothing here makes room for them automatically. Without an
+     explicit, larger top value, the transcript's first line renders
+     directly behind them. */
+  padding: 84px clamp(var(--s-4), 4vw, var(--s-7)) var(--s-6);
+  display: flex; flex-direction: column; gap: var(--s-5);
+}
+
+.user {
+  align-self: flex-end;
+  max-width: 48ch;
+  padding: 10px 16px;
+  border-radius: var(--r-lg);
+  border-end-end-radius: var(--r-xs);
+  background: var(--surface-2);
+  font-size: var(--fs-sm);
+}
+/* Assistant turns are speech on the page, not boxed cards — long teaching
+   text reads better without a container around it. */
+.assistant { border-inline-start: 2px solid var(--line); padding-inline-start: 16px; }
+
+.composer {
+  display: flex; gap: 10px;
+  padding: var(--s-4) clamp(var(--s-4), 4vw, var(--s-7));
+  border-top: 1px solid var(--line-soft); background: var(--surface);
+  transition: border-color var(--t-fast);
+}
+/* The whole bar acknowledges focus, not just the input's own outline — this
+   is the one control the entire route exists for. */
+.composer:focus-within { border-top-color: var(--accent); }
+.input {
+  flex: 1; min-width: 0;
+  padding: 12px 16px; border-radius: var(--r-full);
+  border: 1px solid var(--line); background: var(--well); color: var(--text);
+  font: inherit;
+}
+.input:focus { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
+.send {
+  flex: none; width: 44px; height: 44px; border-radius: var(--r-full);
+  border: none; background: var(--accent); color: var(--accent-ink);
+  font-size: var(--fs-lg); cursor: pointer;
+  transition: filter var(--t-fast), box-shadow var(--t-fast);
+}
+.send:hover:not(:disabled) {
+  filter: brightness(1.08); box-shadow: 0 0 0 4px var(--accent-dim);
+}
+.send:disabled { opacity: 0.4; cursor: default; }
+:global([dir='rtl']) .send { transform: scaleX(-1); }
+
+.disclaimer {
+  padding: 0 clamp(var(--s-4), 4vw, var(--s-7)) var(--s-4);
+  font-size: var(--fs-2xs); color: var(--text-faint); text-align: center;
+  background: var(--surface);
+}
+
+/* --- live reveal -------------------------------------------------------- */
+/* The whole revealing block is clickable to finish immediately. */
+.revealing { cursor: pointer; }
+.caret {
+  display: inline-block;
+  width: 2px; height: 1em;
+  margin-inline-start: 2px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: blink 900ms steps(2, start) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Three dots that actually animate, instead of a static ellipsis. */
+.thinking { display: flex; gap: 5px; padding: var(--s-3) 0; }
+.thinking span {
+  width: 6px; height: 6px;
+  border-radius: var(--r-full);
+  background: var(--text-faint);
+  animation: bounce 1.2s var(--ease) infinite;
+}
+.thinking span:nth-child(2) { animation-delay: 0.15s; }
+.thinking span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+  30%           { transform: translateY(-5px); opacity: 1; }
+}
+
+/* --- follow-ups and the topic browser ----------------------------------- */
+.followups { margin-top: var(--s-4); }
+.followupLabel {
+  display: block;
+  margin-bottom: var(--s-2);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.chipRow { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+
+.chip {
+  padding: 7px 14px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--t-fast), color var(--t-fast),
+              background var(--t-fast), transform var(--t-fast);
+}
+.chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+  transform: translateY(-1px);
+}
+.chipOpen {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.browser { margin-top: var(--s-4); }
+.topicList {
+  display: flex; flex-wrap: wrap; gap: var(--s-2);
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px dashed var(--line-soft);
+}
+.topic {
+  padding: 6px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line-soft);
+  background: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  text-align: start;
+  cursor: pointer;
+  transition: border-color var(--t-fast), color var(--t-fast);
+}
+.topic:hover { border-color: var(--accent); color: var(--text); }
+
+@media (prefers-reduced-motion: reduce) {
+  .caret, .thinking span { animation: none; }
+}
+
+/* --- exit --------------------------------------------------------------- */
+/* Floats over the panel rather than sitting in a title strip. The stroke is
+   heavy (2.75) and the button is raised with a shadow, because a hairline
+   chevron on a dark panel is exactly the kind of control people fail to see.
+   It returns to the page the tutor was opened FROM — see shell/returnTo. */
+.back {
+  position: absolute;
+  inset-block-start: var(--s-4);
+  inset-inline-start: var(--s-4);
+  z-index: 5;
+
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: var(--e-2);
+  transition: border-color var(--t-fast), color var(--t-fast),
+              background var(--t-fast), transform var(--t-fast);
+}
+.back svg { width: 21px; height: 21px; display: block; }
+.back:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+  transform: translateY(-1px);
+}
+.back:focus-visible { outline: none; box-shadow: var(--ring), var(--e-2); }
+
+/* Restart floats opposite Back, on the same line. */
+.reset {
+  position: absolute;
+  inset-block-start: var(--s-4);
+  inset-inline-end: var(--s-4);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--e-1);
+  transition: border-color var(--t-fast), color var(--t-fast);
+}
+.reset:hover { border-color: var(--accent); color: var(--accent); }
+
+/* --- centred empty state ------------------------------------------------ */
+/* The tutor opens on an invitation, not on an empty transcript: a blank
+   log with a text box under it tells a first-time visitor nothing about
+   what this thing knows or how to ask it. */
+/* flex: 0 0 auto is the fix for the squashed mark: inside a column flex
+   container the default flex-shrink let the height collapse, so a 74px
+   square rendered as a wide, short rectangle. aspect-ratio keeps it square
+   regardless of what the container does. */
+.mark {
+  flex: 0 0 auto;
+  width: 74px;
+  height: 74px;
+  aspect-ratio: 1;
+  margin: 0 auto var(--s-5);
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-lg);
+  background: linear-gradient(140deg, var(--accent), var(--advanced));
+  color: var(--accent-ink);
+  font-size: 30px;
+  line-height: 1;
+  box-shadow: 0 0 40px -10px var(--accent-glow);
+}
+.emptyTitle {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  color: var(--text);
+  margin-bottom: var(--s-3);
+}
+.exampleBrowse {
+  border-style: dashed;
+  color: var(--text);
+}
+
+
+/* The empty state is vertically centred in the transcript area and its
+   example prompts wrap as a centred cluster, so the invitation reads as one
+   composed block rather than a left-aligned list of leftovers. */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100%;
+  padding: var(--s-6) var(--s-4);
+}
+.emptyLead {
+  max-width: 52ch;
+  margin: 0 auto var(--s-6);
+  font-size: var(--fs-base);
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+/* Six prompts as two rows of three, not a single stacked column. A column
+   of full-width buttons reads as a menu to work through; a grid reads as a
+   set of choices to pick from, which is what these are.
+   Collapses to two columns, then one, without a media query. */
+.examples {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+  gap: var(--s-3);
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.example {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 62px;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: border-color var(--t-fast), color var(--t-fast),
+              background var(--t-fast), transform var(--t-fast);
+}
+.example:hover {
+  border-color: var(--accent);
+  color: var(--text);
+  background: var(--accent-dim);
+  transform: translateY(-2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .example:hover, .back:hover { transform: none; }
+  .chip:hover { transform: none; }
+}

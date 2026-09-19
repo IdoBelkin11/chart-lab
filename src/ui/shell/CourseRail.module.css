@@ -1,0 +1,143 @@
+/* The rail is a permanent full-height column with the brand at its top.
+   No toggle, no drawer, no scrim — the roadmap is context, not a menu. */
+.rail {
+  width: 272px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--s-4) var(--s-6);
+  background: var(--surface);
+  border-inline-end: 1px solid var(--line);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+/* Sticky so the way home is always one click away while the list scrolls. */
+.brand {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 62px;
+  padding: 0 var(--s-2);
+  margin-bottom: var(--s-5);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line-soft);
+  text-decoration: none;
+  color: inherit;
+}
+.mark {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 9px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(150deg, var(--accent-strong), var(--accent));
+  color: var(--accent-ink);
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  transition: filter var(--t-fast), box-shadow var(--t-fast);
+}
+.brandName { font-size: var(--fs-lg); font-weight: 650; letter-spacing: -0.025em; }
+.brand:hover .mark { filter: brightness(1.08); box-shadow: 0 0 0 4px var(--accent-dim); }
+
+.head { padding: 0 var(--s-2) var(--s-5); border-bottom: 1px solid var(--line-soft); margin-bottom: var(--s-4); }
+.kicker {
+  font-family: var(--mono);
+  font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-faint);
+  margin-bottom: 6px;
+}
+.courseName { font-size: var(--fs-xl); font-weight: 650; margin-bottom: var(--s-4); }
+
+.progress { display: flex; align-items: center; gap: 10px; }
+.meter { flex: 1; height: 6px; border-radius: var(--r-full); background: var(--well); overflow: hidden; }
+.meter > span {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--success));
+  transition: width var(--t-slow) var(--ease-out);
+}
+.count { font-family: var(--mono); font-size: var(--fs-2xs); font-weight: 700; color: var(--text-muted); }
+
+.list { display: flex; flex-direction: column; gap: 2px; }
+
+.item {
+  position: relative;
+  display: flex; align-items: center; gap: 13px;
+  width: 100%; padding: 11px 10px;
+  border: none; background: none; border-radius: var(--r-sm);
+  text-align: start; cursor: pointer; color: var(--text-muted);
+  transition: background var(--t-fast), color var(--t-fast), transform var(--t-fast);
+}
+.item:hover { background: var(--surface-2); color: var(--text); transform: translateX(2px); }
+[dir='rtl'] .item:hover { transform: translateX(-2px); }
+
+.marker {
+  flex: none;
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border-radius: var(--r-full);
+  background: var(--canvas);
+  box-shadow: inset 0 0 0 2px var(--line);
+  color: var(--text-faint);
+  font-family: var(--mono); font-size: var(--fs-2xs); font-weight: 700;
+  transition: background var(--t-med), box-shadow var(--t-med), color var(--t-med);
+}
+.title { font-size: var(--fs-base); font-weight: 600; line-height: 1.35; }
+
+/* State is carried by the marker, not by a border drawn around each row. */
+.learning .marker { box-shadow: inset 0 0 0 2px var(--accent); color: var(--accent); }
+.learning .title { color: var(--text); }
+
+.completed .marker {
+  background: var(--success);
+  box-shadow: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: center; background-size: 14px 14px;
+}
+
+.current { background: var(--accent-dim); }
+.current .title { color: var(--text); font-weight: 700; }
+.current .marker { background: var(--accent); color: var(--accent-ink); box-shadow: none; }
+.current::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -1px;
+  top: 14%;
+  bottom: 14%;
+  width: 3px;
+  border-radius: var(--r-full);
+  background: var(--accent);
+}
+
+/* Narrow screens: the rail becomes a horizontal strip above the workspace —
+   still always visible, never hidden behind a control. */
+@media (max-width: 900px) {
+  .rail {
+    width: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--s-3);
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: var(--s-2) var(--s-3);
+    border-inline-end: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { position: static; min-height: 0; margin: 0; padding: 0; border: none; }
+  .brandName { display: none; }
+  .head { display: none; }
+  .list { flex-direction: row; gap: 4px; }
+  .item { padding: 6px 8px; }
+  .title { display: none; }
+}
+
+/* base.css zeroes transition duration, not displacement — a hover transform
+   would still jump into place without this. */
+@media (prefers-reduced-motion: reduce) {
+  .item:hover { transform: none; }
+  [dir='rtl'] .item:hover { transform: none; }
+}

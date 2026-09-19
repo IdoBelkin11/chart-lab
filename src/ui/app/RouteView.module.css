@@ -1,0 +1,29 @@
+/* Shown only while the AI route's chunk is in flight. Deliberately quiet —
+   a skeleton of a chat panel would promise a specific layout before we know
+   the chunk even arrived, and on a fast connection this is visible for a
+   frame or two. */
+.loading {
+  display: grid;
+  place-items: center;
+  min-height: 55vh;
+}
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-full);
+  border: 2.5px solid var(--line);
+  border-top-color: var(--accent);
+  animation: spin 720ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* base.css zeroes animation-duration under reduced motion, which would
+   freeze the spinner mid-rotation rather than remove it. A static ring
+   still reads as "working" without any movement. */
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; border-top-color: var(--accent); }
+}

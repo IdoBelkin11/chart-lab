@@ -1,0 +1,17 @@
+# Dependencies & build output
+node_modules/
+dist/
+
+# Secrets — never commit a real key
+.env
+.env.*
+functions/.env
+!functions/.env.example
+
+# Platform-local state (site IDs, cached tokens) — not secrets, just local
+.netlify/
+.firebase/
+firebase-debug.log
+
+# Editor / OS noise
+.DS_Store

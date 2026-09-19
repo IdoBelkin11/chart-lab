@@ -1,0 +1,28 @@
+/* Charts are RECESSED below the page — an embedded instrument, not another
+   raised card. The faint grid reinforces that reading. */
+.wrap {
+  position: relative;
+  border-radius: var(--r-lg);
+  padding: var(--s-4);
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 100% 44px,
+    var(--well);
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+  overflow: hidden;
+}
+.canvas { display: block; width: 100%; }
+
+.tip {
+  position: absolute;
+  pointer-events: none;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--e-2);
+  font-family: var(--mono);
+  font-size: var(--fs-2xs);
+  color: var(--text);
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}

@@ -1,0 +1,91 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  min-height: 72px;
+  padding: 0 var(--s-5);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+/* The row still scrolls when it must, but the feature entry never shrinks
+   and never gets scrolled out of reach: it is pinned outside the scrolling
+   area. Being first in an overflow-x row is exactly how it ended up clipped
+   at the viewport edge. */
+.tools { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.toolsScroll {
+  display: flex; gap: 2px; min-width: 0;
+  overflow-x: auto; scrollbar-width: none;
+}
+.toolsScroll::-webkit-scrollbar { display: none; }
+.tools::-webkit-scrollbar { display: none; }
+
+.tool {
+  padding: 11px 20px;
+  border: none;
+  background: none;
+  border-radius: var(--r-full);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--t-fast), background var(--t-fast);
+}
+.tool:hover { color: var(--text); background: var(--surface-2); }
+.toolActive { color: var(--accent); background: var(--accent-dim); }
+
+
+
+.controls { display: flex; align-items: center; gap: var(--s-2); flex: none; }
+
+.theme {
+  width: 42px; height: 42px;
+  display: grid; place-items: center;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: var(--r-full);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color var(--t-fast), color var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
+}
+.theme:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); box-shadow: var(--e-1); }
+.theme { font-size: var(--fs-md); }
+
+.langGroup {
+  display: flex;
+  padding: 2px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+}
+.lang {
+  padding: 8px 15px;
+  border: none;
+  background: none;
+  border-radius: var(--r-full);
+  color: var(--text-faint);
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.langActive { background: var(--accent); color: var(--accent-ink); }
+
+@media (max-width: 600px) {
+  .header { min-height: 60px; padding: 0 var(--s-3); }
+  .tool { padding: 9px 13px; font-size: var(--fs-xs); }
+  .theme { width: 38px; height: 38px; }
+  .lang { padding: 7px 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme:hover { transform: none; }
+}

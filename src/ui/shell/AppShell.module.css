@@ -1,0 +1,42 @@
+/* The frame. The page itself never scrolls — only .workspace does.
+   100dvh so collapsing mobile browser chrome cannot clip the shell. */
+.shell {
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.main {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* The single scroll region in the product. */
+.workspace {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.workspace::-webkit-scrollbar { width: 9px; }
+.workspace::-webkit-scrollbar-track { background: transparent; }
+.workspace::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: var(--r-full);
+  border: 2px solid var(--canvas);
+}
+.workspace::-webkit-scrollbar-thumb:hover { background: var(--line-strong); }
+
+/* Below the desktop breakpoint the rail collapses to a single column layout.
+   It stays VISIBLE rather than hiding behind a toggle — per the product
+   decision that the course roadmap is permanent context, not a menu. On
+   narrow screens it becomes a horizontal strip above the workspace. */
+@media (max-width: 900px) {
+  .shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+}

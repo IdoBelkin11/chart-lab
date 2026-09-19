@@ -1,0 +1,69 @@
+.page { padding: var(--s-7) clamp(var(--s-4), 4vw, var(--s-7)) var(--s-8); max-width: 760px; }
+.head { margin-bottom: var(--s-5); }
+.title { font-size: clamp(22px, 3vw, 30px); font-weight: 650; letter-spacing: -0.025em; }
+
+/* Underlined section switches, not filled pills — the tools should read as
+   part of the same product as the lessons, not as a separate widget. */
+.tabs { display: flex; gap: 22px; border-bottom: 1px solid var(--line-soft); margin-bottom: var(--s-6); overflow-x: auto; }
+.tab {
+  position: relative; padding: 10px 2px;
+  border: none; background: none; cursor: pointer; white-space: nowrap;
+  color: var(--text-faint); font-size: var(--fs-xs); font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.tab::after {
+  content: ''; position: absolute; inset-inline: 0; bottom: -1px; height: 2px;
+  background: var(--accent); transform: scaleX(0); transition: transform var(--t-med);
+}
+.tab:hover { color: var(--text); }
+.tabActive { color: var(--text); font-weight: 700; }
+.tabActive::after { transform: scaleX(1); }
+
+.body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 0.7fr); gap: var(--s-6); align-items: start; }
+
+/* Inputs are ruled rows, not boxed fields. */
+.fields { display: flex; flex-direction: column; }
+.field {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-5);
+  padding: 15px 12px; margin-inline: -12px;
+  border-bottom: 1px solid var(--line-soft);
+  border-radius: var(--r-xs);
+  transition: background var(--t-fast);
+}
+/* The row, not just the input, responds — the label and its value are one
+   thing to the reader, so highlighting half of it reads as a glitch. */
+.field:hover,
+.field:focus-within { background: var(--surface); }
+.fieldLabel { flex: 1; font-size: var(--fs-sm); color: var(--text-muted); }
+.input {
+  width: auto; max-width: 180px; text-align: end;
+  padding: 2px 0; border: none; border-bottom: 1px solid transparent;
+  background: none; color: var(--text);
+  font-family: var(--mono); font-size: var(--fs-md); font-weight: 600;
+}
+.input:focus { outline: none; border-bottom-color: var(--accent); }
+
+/* The result is an editorial figure under a rule, not a gradient card. */
+.result {
+  display: block;
+  padding: var(--s-5);
+  border-radius: var(--r-lg);
+  background: var(--accent-dim);
+  border-top: 2px solid var(--accent);
+}
+.headline {
+  font-family: var(--mono); font-size: clamp(30px, 5vw, 46px);
+  font-weight: 700; letter-spacing: -0.04em; line-height: 1; margin-bottom: var(--s-4);
+  color: var(--text);
+}
+.line {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-4);
+  padding: 8px 0; font-size: var(--fs-sm); color: var(--text-muted);
+}
+.line b { font-family: var(--mono); color: var(--text); font-weight: 600; }
+.note { margin-top: var(--s-6); font-size: var(--fs-2xs); color: var(--text-faint); }
+
+@media (max-width: 760px) {
+  .body { grid-template-columns: 1fr; }
+  .page { padding: var(--s-5) var(--s-3) var(--s-7); }
+}

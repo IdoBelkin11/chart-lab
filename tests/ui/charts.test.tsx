@@ -1,0 +1,175 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { App } from '@ui/app/App';
+import * as series from '@core/charts/series.js';
+import { chartsForLesson, LESSON_CHARTS } from '@core/charts/lessonCharts';
+import { chartColors } from '@ui/components/charts/drawChart.js';
+
+beforeEach(() => {
+  localStorage.clear();
+  localStorage.setItem('chartlab.lang', 'he');
+});
+
+describe('chart data ported to core', () => {
+  it('all series survived the port', () => {
+    const arrays = Object.keys(series).filter((k) => Array.isArray((series as never)[k]));
+    expect(arrays.length).toBe(19);
+  });
+
+  it('series are deterministic — a lesson referring to a level stays true', () => {
+    // Generated from a seeded PRNG, not Math.random: if these shifted between
+    // loads, lesson text like "notice support near 165" would become wrong.
+    const a = series.L1.map((c: { c: number }) => c.c).join(',');
+    const b = series.L1.map((c: { c: number }) => c.c).join(',');
+    expect(a).toBe(b);
+    expect(series.L1.length).toBeGreaterThan(50);
+  });
+
+  it('candles have a complete OHLC shape', () => {
+    // `t` is a Date, o/h/l/c/v are numbers — the shape the drawing
+    // primitives expect.
+    interface Candle { t: Date; o: number; h: number; l: number; c: number; v: number }
+    for (const candle of series.L1.slice(0, 5) as Candle[]) {
+      expect(candle.t instanceof Date).toBe(true);
+      expect(typeof candle.o).toBe('number');
+      expect(typeof candle.c).toBe('number');
+      // A high below its low would mean the generator is broken.
+      expect(candle.h).toBeGreaterThanOrEqual(candle.l);
+    }
+  });
+});
+
+describe('lesson chart mapping', () => {
+  it('maps a lesson to one or more series and a drawing variant', () => {
+    // l6 (RSI) shows three examples: overbought, oversold, divergence — all
+    // sharing the price-rsi variant.
+    const specs = chartsForLesson('l6');
+    expect(specs.length).toBeGreaterThanOrEqual(3);
+    for (const spec of specs) {
+      expect(spec.variant).toBe('price-rsi');
+      expect(spec.candles.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('every mapped chart has a bilingual accessible label', () => {
+    for (const [id, specs] of Object.entries(LESSON_CHARTS)) {
+      for (const spec of specs) {
+        expect(spec.label.he, `${id} he label`).toBeTruthy();
+        expect(spec.label.en, `${id} en label`).toBeTruthy();
+        // A label must describe what the chart SHOWS, not just say "chart".
+        expect(spec.label.he.length).toBeGreaterThan(20);
+      }
+    }
+  });
+
+  it('a lesson with more than one chart captions each one', () => {
+    const specs = chartsForLesson('l7');
+    expect(specs.length).toBeGreaterThan(1);
+    for (const spec of specs) {
+      expect(spec.caption?.he).toBeTruthy();
+      expect(spec.caption?.en).toBeTruthy();
+    }
+  });
+
+  it('returns no charts for a lesson that intentionally has none (l0)', () => {
+    expect(chartsForLesson('l0')).toEqual([]);
+  });
+
+  it('every one of the 19 ported series is wired to some lesson', () => {
+    const wiredCandles = new Set(Object.values(LESSON_CHARTS).flat().map((s) => s.candles));
+    const arrays = Object.keys(series).filter((k) => Array.isArray((series as never)[k]));
+    for (const key of arrays) {
+      expect(wiredCandles.has((series as never)[key]), key).toBe(true);
+    }
+  });
+});
+
+describe('chart rendering', () => {
+  it('renders a labelled canvas, not an opaque one', () => {
+    location.hash = '#/lesson/l1';
+    render(<App />);
+    const img = screen.getByRole('img');
+    expect(img.tagName).toBe('CANVAS');
+    expect(img.getAttribute('aria-label')).toMatch(/תמיכה|התנגדות/);
+  });
+
+  it('a lesson with no chart (l0) simply has no analysis workspace section', () => {
+    location.hash = '#/lesson/l0';
+    render(<App />);
+    expect(screen.queryByRole('img')).toBeNull();
+    expect(screen.queryByText('סביבת ניתוח')).toBeNull();
+  });
+
+  it('a lesson with several charts renders one canvas per chart', () => {
+    location.hash = '#/lesson/l4';
+    render(<App />);
+    // 5 candlestick patterns: hammer, shooting star, doji, bullish and
+    // bearish engulfing.
+    expect(screen.getAllByRole('img').length).toBe(5);
+  });
+});
+
+describe('annotation tones resolve to real colours', () => {
+  // This is the failure mode that shipped: a tone with a *Dim fill but no
+  // matching line colour resolved its fill correctly and then fell through
+  // to the informational blue for its border and label — so a resistance
+  // zone drew a red box with a blue label sitting on it. Nothing threw, so
+  // only looking at the rendered chart would have caught it.
+  const CANVAS_TONES = ['bull', 'bear', 'support', 'resistance', 'gold', 'text', 'ema20', 'sma150'];
+
+  it('every tone used in drawing options has a line colour', () => {
+    const colors = chartColors();
+    for (const tone of CANVAS_TONES) {
+      expect(colors[tone], `${tone} line colour`).toBeTruthy();
+    }
+  });
+
+  it('support and resistance are not the same colour as the neutral accent', () => {
+    const colors = chartColors();
+    expect(colors.support).not.toBe(colors.gold);
+    expect(colors.resistance).not.toBe(colors.gold);
+    expect(colors.support).not.toBe(colors.resistance);
+  });
+
+  it('no lesson chart uses a tone the canvas cannot resolve', () => {
+    const optionTones = new Set<string>();
+    const collect = (list: unknown) => {
+      if (!Array.isArray(list)) return;
+      for (const item of list as Array<Record<string, unknown>>) {
+        if (typeof item.tone === 'string') optionTones.add(item.tone);
+      }
+    };
+    for (const spec of Object.values(LESSON_CHARTS).flat()) {
+      const o = (spec.options ?? {}) as Record<string, unknown>;
+      collect(o.zones); collect(o.points); collect(o.dots);
+      collect(o.segments); collect(o.highlights); collect(o.extraLines);
+    }
+    const colors = chartColors();
+    for (const tone of optionTones) {
+      expect(colors[tone], `tone "${tone}" used in chart options`).toBeTruthy();
+    }
+  });
+});
+
+describe('cards in a row are uniform', () => {
+  it('every chart within a lesson shares one height', () => {
+    // Cards in a grid row stretch to the tallest, but the CANVASES inside
+    // them only line up if the charts themselves agree. Mixed heights in one
+    // lesson produce a ragged row of differently-sized charts.
+    for (const [id, specs] of Object.entries(LESSON_CHARTS)) {
+      // The first card carries the exercise/notes panel and spans its own
+      // row, so it is exempt — it never shares a row with another card.
+      const inGrid = specs.length > 1 ? specs.slice(1) : specs;
+      const heights = new Set(inGrid.map((s) => s.height));
+      expect(heights.size, `${id} heights: ${[...heights].join(', ')}`).toBe(1);
+    }
+  });
+
+  it('charts are large enough to read the pattern they show', () => {
+    for (const [id, specs] of Object.entries(LESSON_CHARTS)) {
+      for (const spec of specs) {
+        expect(spec.height!, `${id} height`).toBeGreaterThanOrEqual(330);
+      }
+    }
+  });
+});

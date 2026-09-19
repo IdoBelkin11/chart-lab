@@ -1,0 +1,261 @@
+.page { padding: var(--s-7) clamp(var(--s-4), 4vw, var(--s-7)) var(--s-8); }
+
+.head { position: relative; max-width: 74ch; margin-bottom: var(--s-6); }
+/* The same single soft light source used on the home masthead, so a lesson
+   opens with the same visual gesture the course overview does. */
+.head::before {
+  content: '';
+  position: absolute;
+  inset: -40px -8% auto -8%;
+  height: 300px;
+  background: var(--spotlight);
+  pointer-events: none;
+  z-index: 0;
+}
+.tag, .title, .position, .intro { position: relative; z-index: 1; }
+.tag {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: var(--s-4);
+}
+.tag::before { content: ''; width: 22px; height: 2px; border-radius: var(--r-full); background: var(--accent); }
+.title { font-size: clamp(27px, 3.6vw, 38px); font-weight: 650; letter-spacing: -0.03em; line-height: 1.08; margin-bottom: var(--s-4); }
+.position { font-family: var(--mono); font-size: var(--fs-2xs); text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-faint); }
+
+.workspaceBand { margin-top: var(--s-6); }
+.bandLabel {
+  font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-faint); margin-bottom: var(--s-3);
+}
+/* Charts are RECESSED below the page, not raised on a card — they read as
+   embedded instruments rather than another content box. */
+.chartWell {
+  min-height: clamp(240px, 38vh, 420px);
+  display: grid; place-items: center;
+  padding: var(--s-5);
+  border-radius: var(--r-lg);
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 100% 44px,
+    var(--well);
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+}
+.chartPending { color: var(--text-muted); font-size: var(--fs-sm); max-width: 40ch; text-align: center; }
+
+.tutor {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
+  margin-top: var(--s-6); padding-top: var(--s-5);
+  border-top: 1px solid var(--line-soft); max-width: 74ch;
+}
+.tutorLead {
+  flex: 0 0 auto;
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+}
+.tutorActions { display: flex; flex-wrap: wrap; gap: 8px; flex: 1 1 auto; }
+/* A visible fill plus a real border, not a near-invisible outline on a dark
+   background: --line sits only one shade off --surface (#2b3542 vs
+   #151c24), which read as "barely there" in practice. --line-strong is
+   the border token built for exactly this — a control that needs to read
+   as interactive on its own, not just on hover. */
+.tutorBtn, .tutorBtnGhost {
+  padding: 9px 16px; border-radius: var(--r-full);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  background: var(--surface-2); border: 1.5px solid var(--line-strong); color: var(--text);
+  transition: border-color var(--t-fast), color var(--t-fast),
+              background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
+}
+.tutorBtn:hover, .tutorBtnGhost:hover {
+  border-color: var(--accent); color: var(--accent);
+  background: var(--accent-dim); transform: translateY(-1px); box-shadow: var(--e-1);
+}
+
+.footer {
+  display: flex; flex-direction: column; align-items: center; gap: var(--s-4);
+  margin-top: var(--s-7); padding-top: var(--s-6);
+  border-top: 1px solid var(--line-soft);
+}
+.pager { display: flex; align-items: center; justify-content: center; gap: var(--s-4); }
+.arrow {
+  width: 48px; height: 48px;
+  display: grid; place-items: center;
+  border-radius: var(--r-full);
+  border: 1.5px solid var(--line); background: var(--surface); color: var(--text);
+  font-size: 20px; cursor: pointer;
+  transition: border-color var(--t-fast), background var(--t-fast),
+              color var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
+}
+.arrow:hover:not(:disabled) {
+  border-color: var(--accent); background: var(--accent); color: var(--accent-ink);
+  transform: translateY(-2px); box-shadow: var(--e-2);
+}
+.arrow:disabled { opacity: 0.3; cursor: default; }
+.pagerCount { font-family: var(--mono); font-size: var(--fs-sm); font-weight: 600; white-space: nowrap; }
+
+.complete {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 9px 18px; border-radius: var(--r-full);
+  border: 1px solid var(--line); background: var(--surface);
+  color: var(--text-muted); font-size: var(--fs-sm); font-weight: 600; cursor: pointer;
+  transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+}
+.complete:hover { border-color: var(--success); color: var(--text); }
+.completeDone { background: var(--success-dim); border-color: transparent; color: var(--success); font-weight: 700; }
+
+@media (max-width: 600px) {
+  .page { padding: var(--s-5) var(--s-3) var(--s-7); }
+  .tutorLead { flex: 1 1 100%; }
+  .tutorBtn, .tutorBtnGhost { flex: 1 1 auto; text-align: center; }
+}
+
+.intro {
+  margin-top: var(--s-4);
+  max-width: 68ch;
+  font-size: var(--fs-md);
+  line-height: 1.72;
+  color: var(--text-muted);
+}
+
+/* "Worth knowing": a tinted aside in the informational blue, never hidden
+   behind a toggle. Tinted rather than rule-only because on a long lesson it
+   was reading as just another paragraph — this is nuance ON TOP of the
+   lesson, and should be skimmable as such. */
+/* Side by side by default: two independent notes stacked in one column
+   read as one long thing to scroll past, not two separate ideas. Falls
+   back to a single column when only one of the two exists (the lone child
+   simply fills the row — no extra rule needed for that) or on a narrow
+   viewport, where two half-width notes would be too cramped to read. */
+.notesRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+  margin-top: var(--s-6);
+  max-width: 1100px;
+}
+.deeper, .extra {
+  flex: 1 1 380px;
+}
+
+.deeper {
+  padding: var(--s-5);
+  border-radius: var(--r-lg);
+  background: var(--accent-dim);
+  border-inline-start: 3px solid var(--accent);
+}
+.deeperLabel {
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 8px;
+}
+.deeperBody { font-size: var(--fs-base); line-height: 1.7; color: var(--text); }
+
+/* The purple "advanced concepts" family, not the blue "worth knowing" one —
+   this block teaches a term the lesson skipped, not a nuance on something
+   already taught, and deserves its own visual identity rather than reading
+   as a second, oddly-placed "worth knowing" panel. */
+.extra {
+  padding: var(--s-5);
+  border-radius: var(--r-lg);
+  background: var(--advanced-dim);
+  border-inline-start: 3px solid var(--advanced);
+}
+.extraLabel {
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--advanced); margin-bottom: 8px;
+}
+.extraBody { font-size: var(--fs-base); line-height: 1.7; color: var(--text); }
+
+/* The band header: label on one side, how many examples on the other, so a
+   five-chart lesson announces its length instead of surprising the reader
+   with it four charts in. */
+.bandHead {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--s-4); margin-bottom: var(--s-3);
+}
+.bandCount {
+  font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint);
+}
+
+/* Charts lay out as a responsive card grid rather than a single stacked
+   column. One card per full screen width meant five candlestick examples
+   became five screens of scrolling, and each chart was stretched far wider
+   than the single candle it was pointing at — the chart grew, the subject
+   did not.
+   
+   auto-fit + minmax is what makes this adapt without breakpoints: cards flow
+   into as many columns as fit, and collapse to one on a narrow screen with
+   no media query to keep in sync. 340px is deliberately below the width at
+   which a 20-candle chart stops being readable. */
+.cardStack {
+  display: grid;
+  /* 460px, not 340: at 340 a wide screen fits three or four columns and each
+     chart ends up narrower than the pattern it is meant to show. Fewer,
+     larger columns is the right trade — the chart is the content here, and
+     the card exists to frame it, not to compete for its width. */
+  grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr));
+  /* auto-fit alone only makes 3+ columns LESS likely on a wide screen, not
+     impossible — a monitor wide enough for three 460px+ columns still gets
+     three. This caps it at exactly two: 460px * 2 + one gap. A hard cap,
+     not just a bias, is also what makes the odd-card-spans-the-row rule
+     below correct everywhere — it assumes exactly two columns, which
+     auto-fit alone does not guarantee. */
+  max-width: calc(460px * 2 + var(--s-4));
+  gap: var(--s-4);
+  /* stretch (the default), NOT start: `align-items: start` sizes each card
+     to its own content, so a card whose subcaption wraps to two lines grew
+     taller than its neighbours and the row came out ragged. Stretching makes
+     every card in a row exactly as tall as the tallest. */
+  align-items: stretch;
+}
+/* A lesson with ONE chart gets the full width — there is nothing to sit
+   beside it, and a lone half-width card floating in a wide workspace looks
+   like a layout bug rather than a choice. */
+.cardStackSingle { grid-template-columns: 1fr; max-width: none; }
+
+/* --- Finish the course ---------------------------------------------------
+   Replaces the forward arrow on the last chapter. Wider than an arrow
+   because it is a different KIND of action: paging is incidental, finishing
+   is the end of the course. Locked until every chapter is complete, and the
+   locked state says how many remain rather than just going grey. */
+/* Finish sits on its own centred row below the pager, not in the pager's
+   trailing slot: it ends the course rather than paging on, so it should not
+   appear where the reader's eye has learned to find "one more page".
+   `.arrowSpacer` keeps that slot occupied so the page count stays centred. */
+.arrowSpacer { width: 40px; height: 40px; }
+
+.finish, .finishLocked {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 2px;
+  min-height: 48px; padding: 10px 24px;
+  border-radius: var(--r-full);
+  font-family: inherit; font-size: var(--fs-sm); font-weight: 700;
+  cursor: pointer;
+  transition: filter var(--t-fast), transform var(--t-fast), box-shadow var(--t-med);
+}
+.finish {
+  border: none;
+  background: linear-gradient(120deg, var(--action), var(--accent-strong));
+  color: var(--action-ink);
+  box-shadow: 0 0 0 1px var(--action-dim), 0 8px 26px -10px var(--action);
+  justify-content: center;
+}
+.finish:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.finishLocked {
+  border: 1px dashed var(--line-strong);
+  background: none;
+  color: var(--text-faint);
+  cursor: not-allowed;
+}
+.finishText { line-height: 1.2; }
+.finishHint {
+  font-family: var(--mono); font-size: var(--fs-2xs); font-weight: 500;
+  letter-spacing: 0.02em; opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .finish:hover { transform: none; }
+  .arrow:hover:not(:disabled) { transform: none; }
+  .tutorBtn:hover, .tutorBtnGhost:hover { transform: none; }
+}

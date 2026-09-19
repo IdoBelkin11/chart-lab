@@ -1,0 +1,27 @@
+.answer { max-width: 72ch; }
+.p { margin: 0 0 14px; line-height: 1.72; color: var(--text); font-size: var(--fs-base); }
+.p:last-child { margin-bottom: 0; }
+
+.list { margin: 0 0 14px; padding-inline-start: 18px; display: flex; flex-direction: column; gap: 7px; }
+.list li { line-height: 1.68; color: var(--text); }
+.list li::marker { color: var(--accent); }
+
+.text { }
+
+/* Each kind gets a distinct treatment so the eye can find the example or the
+   takeaway without re-reading the whole answer. Colours follow the semantic
+   hierarchy: blue informs, amber cautions, green concludes. */
+.example {
+  padding: 13px 16px; border-radius: var(--r-md);
+  background: var(--surface); border-inline-start: 2px solid var(--accent);
+  color: var(--text-muted);
+}
+.note {
+  padding: 13px 16px; border-radius: var(--r-md);
+  background: var(--action-dim); border-inline-start: 2px solid var(--action);
+}
+.takeaway {
+  padding: 13px 16px; border-radius: var(--r-md);
+  background: var(--success-dim); border-inline-start: 2px solid var(--success);
+  font-weight: 600;
+}

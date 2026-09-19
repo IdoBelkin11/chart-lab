@@ -1,0 +1,64 @@
+/* The floating tutor launcher.
+
+   Fixed to the viewport rather than the workspace, so it does not scroll away
+   half-way down a long lesson — the moment a reader most wants to ask
+   something is usually mid-lesson, not at the top of it. */
+.launcher {
+  position: fixed;
+  inset-block-end: var(--s-5);
+  inset-inline-end: var(--s-5);
+  z-index: 40;
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 12px 20px;
+  border: 1px solid transparent;
+  border-radius: var(--r-full);
+
+  /* Gradient fill, matching the header's AI entry so the two read as the
+     same feature rather than as two different buttons that both say AI.
+     Deliberately NOT the yellow action token: yellow marks the one primary
+     learning action on the page, and this is a persistent global shortcut
+     that must never outrank it. */
+  background: linear-gradient(120deg, var(--accent), var(--advanced));
+  color: var(--accent-ink);
+
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+
+  box-shadow: var(--e-3), 0 0 28px -8px var(--accent-glow);
+  transition: transform var(--t-med) var(--ease-out), box-shadow var(--t-med) var(--ease),
+              filter var(--t-fast);
+  animation: launcherIn var(--t-slow) var(--ease-out) both;
+}
+
+.launcher:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: var(--e-3), 0 0 38px -6px var(--accent-glow);
+}
+.launcher:focus-visible { outline: none; box-shadow: var(--ring), var(--e-3); }
+
+.glyph { font-size: 13px; line-height: 1; }
+.text { white-space: nowrap; }
+
+@keyframes launcherIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* On a narrow screen it collapses to the mark alone. The accessible name is
+   on the button itself, so nothing is lost by hiding the visible text. */
+@media (max-width: 620px) {
+  .launcher { padding: 13px; }
+  .text { display: none; }
+  .glyph { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launcher { animation: none; }
+  .launcher:hover { transform: none; }
+}

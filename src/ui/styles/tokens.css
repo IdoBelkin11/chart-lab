@@ -1,0 +1,162 @@
+/* ===========================================================================
+   Design tokens.
+   
+   The neutral ramp is carried over from the previous build, where it was
+   derived from dark-mode research rather than taste and verified with a
+   contrast test:
+     · No pure grey anywhere. Untinted neutrals read dead on screen, so every
+       one is shifted toward the product blue (hue ~212).
+     · Mid greys (#666–#999) are the worst-readability band. Every text tier
+       clears it, and every tier reaches WCAG AA against BOTH the canvas and
+       the raised surface — not just the primary text, which is where dark
+       UIs usually pass while the secondary tiers quietly fail.
+     · Accents are lightened for dark surfaces: a colour tuned for white
+       backgrounds always under-reads on dark.
+
+   ACCENT SEMANTICS — colour carries meaning, it is not decoration:
+     yellow  primary learning action (the one thing to do next)
+     blue    informational / learning context
+     green   success, completion, positive market move
+     red     risk, warning, negative market move
+     purple  advanced concepts
+   =========================================================================== */
+
+:root {
+  /* --- surfaces: elevation by lightness, not shadow --- */
+  --canvas: #0d1218;
+  --surface: #151c24;
+  --surface-2: #1e2732;
+  --well: #070b0f;           /* recessed: chart displays sit BELOW the page */
+
+  --line: #2b3542;
+  --line-soft: #1c242e;
+  --line-strong: #41505f;
+
+  --text: #e9f0f7;           /* off-white, never #fff (halation) */
+  --text-muted: #c6d2de;     /* ~0.80 — readable, still clearly secondary */
+  --text-faint: #9dafc0;     /* clears the dead band entirely */
+
+  /* --- semantic accents --- */
+  --accent: #79b8f3;         /* blue: informational */
+  --accent-strong: #a7d2f8;
+  --accent-ink: #06121d;
+  --accent-dim: rgba(121, 184, 243, 0.16);
+  --accent-glow: rgba(121, 184, 243, 0.36);
+
+  --action: #f5c451;         /* yellow: the primary learning CTA */
+  --action-ink: #1a1405;
+  --action-dim: rgba(245, 196, 81, 0.16);
+
+  --success: #56d39a;
+  --success-dim: rgba(86, 211, 154, 0.16);
+  --danger: #ff7b82;
+  --danger-dim: rgba(255, 123, 130, 0.16);
+  --advanced: #c79bf0;
+  --advanced-dim: rgba(199, 155, 240, 0.16);
+
+  /* market direction — deliberately the same tokens as success/danger, so a
+     green candle and a correct answer never disagree about what green means */
+  --bull: var(--success);
+  --bear: var(--danger);
+  --grid-line: rgba(157, 175, 192, 0.08);
+
+  /* --- type --- */
+  --sans: 'Rubik', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', 'Rubik', ui-monospace, monospace;
+  --serif: 'Rubik', system-ui, sans-serif;
+
+  --fs-2xs: 11px;
+  --fs-xs: 12px;
+  --fs-sm: 13.5px;
+  --fs-base: 14.5px;
+  --fs-md: 16px;
+  --fs-lg: 19px;
+  --fs-xl: clamp(22px, 3vw, 26px);
+  --fs-2xl: clamp(30px, 5vw, 40px);
+  --fs-display: clamp(32px, 5.4vw, 58px);
+
+  /* --- space / radius / motion --- */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
+
+  --r-xs: 6px; --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 24px;
+  --r-full: 999px;
+
+  --t-fast: 120ms; --t-med: 240ms; --t-slow: 420ms;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --e-1: 0 1px 2px rgba(0, 0, 0, 0.28), 0 2px 6px -2px rgba(0, 0, 0, 0.3);
+  --e-2: 0 2px 4px rgba(0, 0, 0, 0.3), 0 10px 24px -8px rgba(0, 0, 0, 0.42);
+  --e-3: 0 4px 10px rgba(0, 0, 0, 0.34), 0 20px 44px -12px rgba(0, 0, 0, 0.5);
+
+  --ring: 0 0 0 3px var(--accent-glow);
+
+  /* --- glass: for chrome that floats above content (header, brand) ---
+     Frosted rather than flat, so the shell reads as a layer above the
+     workspace instead of a hard-edged panel sitting next to it. */
+  --glass-bg: rgba(21, 28, 36, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.06);
+
+  /* --- spotlight: a soft light source behind a hero, never a hard shape.
+     Used once per screen at most — a second one competes with the first
+     instead of adding emphasis.
+     An explicit ellipse SIZE (e.g. "60% 60%") stops the gradient short and
+     reads as a contained blob with a visible edge — reported back as "a
+     square stuck in the middle of the screen". Letting the size default
+     to farthest-corner (the CSS default when no size is given) makes the
+     gradient reach the full box smoothly instead, and centering it above
+     the container's own top edge (-15%) means only the widening lower half
+     of the glow is ever on screen — the natural look for light falling
+     from off-screen above, with no edge of its own to see. */
+  --spotlight: radial-gradient(ellipse at 30% -15%, rgba(121, 184, 243, 0.15), transparent 65%);
+  --e-4: 0 8px 20px rgba(0, 0, 0, 0.36), 0 32px 64px -16px rgba(0, 0, 0, 0.55);
+}
+
+/* Light mode is designed, not inverted: a cool paper canvas, white teaching
+   surfaces lifted off it, and a chart well that is DEEPER than the canvas —
+   so charts read as recessed instruments in both themes. */
+:root[data-theme='light'] {
+  --canvas: #f1f5f9;
+  --surface: #ffffff;
+  --surface-2: #e8eef5;
+  --well: #dfe7f0;
+
+  --line: #d2dde8;
+  --line-soft: #e3eaf2;
+  --line-strong: #a9bacb;
+
+  --text: #0a141d;
+  --text-muted: #3a4a59;
+  --text-faint: #5a6c7d;
+
+  --accent: #175bac;
+  --accent-strong: #0f4488;
+  --accent-ink: #ffffff;
+  --accent-dim: rgba(23, 91, 172, 0.1);
+  --accent-glow: rgba(23, 91, 172, 0.26);
+
+  --action: #b57e0a;
+  --action-ink: #ffffff;
+  --action-dim: rgba(181, 126, 10, 0.12);
+
+  --success: #16794c;
+  --success-dim: rgba(22, 121, 76, 0.1);
+  --danger: #b3363c;
+  --danger-dim: rgba(179, 54, 60, 0.1);
+  --advanced: #6d3fa0;
+  --advanced-dim: rgba(109, 63, 160, 0.1);
+
+  --grid-line: rgba(10, 20, 29, 0.06);
+
+  --e-1: 0 1px 2px rgba(22, 35, 43, 0.05), 0 2px 6px -2px rgba(22, 35, 43, 0.07);
+  --e-2: 0 2px 4px rgba(22, 35, 43, 0.05), 0 10px 24px -8px rgba(22, 35, 43, 0.12);
+  --e-3: 0 4px 10px rgba(22, 35, 43, 0.07), 0 20px 44px -12px rgba(22, 35, 43, 0.18);
+  --e-4: 0 8px 20px rgba(22, 35, 43, 0.08), 0 32px 64px -16px rgba(22, 35, 43, 0.16);
+
+  --glass-bg: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(10, 20, 29, 0.06);
+  --spotlight: radial-gradient(ellipse at 30% -15%, rgba(23, 91, 172, 0.07), transparent 65%);
+
+  color-scheme: light;
+}

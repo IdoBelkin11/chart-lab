@@ -1,0 +1,198 @@
+/* ===========================================================================
+   Course completion overlay.
+
+   One of only two places in the product that uses motion for its own sake
+   (the other is the primary-button hover lift). That is the point: it marks
+   an event that happens exactly once, so it is allowed to be the loudest
+   thing on screen — and it is gated behind actually completing every chapter,
+   which is what keeps it from becoming decoration.
+   =========================================================================== */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: var(--s-5);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--canvas) 76%, transparent);
+  backdrop-filter: blur(6px);
+  animation: fade var(--t-med) var(--ease-out) both;
+}
+
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* --- confetti --- */
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.piece,
+.pieceRound {
+  position: absolute;
+  top: -24px;
+  width: 9px;
+  height: 14px;
+  opacity: 0;
+  background: var(--action);
+  animation-name: fall;
+  animation-timing-function: cubic-bezier(0.3, 0.1, 0.5, 1);
+  animation-iteration-count: infinite;
+}
+.pieceRound { width: 8px; height: 8px; border-radius: var(--r-full); }
+
+.piece[data-tone='accent'],   .pieceRound[data-tone='accent']   { background: var(--accent); }
+.piece[data-tone='success'],  .pieceRound[data-tone='success']  { background: var(--success); }
+.piece[data-tone='advanced'], .pieceRound[data-tone='advanced'] { background: var(--advanced); }
+.piece[data-tone='danger'],   .pieceRound[data-tone='danger']   { background: var(--danger); }
+
+@keyframes fall {
+  0%   { opacity: 0; transform: translate(0, 0) rotate(0deg); }
+  8%   { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--drift, 0), 92vh) rotate(540deg); }
+}
+
+/* --- dialog --- */
+.dialog {
+  position: relative;
+  z-index: 1;
+  max-width: 56ch;
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: var(--s-7) var(--s-6) var(--s-6);
+  text-align: center;
+  border-radius: var(--r-xl);
+  /* A gradient border, drawn as a bright hairline that fades round the card:
+     the completion surface should not look like every other panel. */
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(140deg, var(--action), var(--accent) 45%, var(--advanced)) border-box;
+  border: 1.5px solid transparent;
+  box-shadow: var(--e-3);
+  animation: rise var(--t-slow) var(--ease-out) both;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+.medal {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto var(--s-5);
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-full);
+  background: radial-gradient(circle at 34% 28%, var(--action-dim), transparent 70%), var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line), 0 0 34px -6px var(--action-dim);
+  animation: pop var(--t-slow) var(--ease-out) 120ms both;
+}
+.medalGlyph { font-size: 38px; line-height: 1; }
+
+@keyframes pop {
+  0%   { opacity: 0; transform: scale(0.5) rotate(-18deg); }
+  60%  { transform: scale(1.12) rotate(6deg); }
+  100% { opacity: 1; transform: none; }
+}
+
+.kicker {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--action);
+  margin-bottom: var(--s-3);
+}
+.title {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: var(--s-4);
+  /* Only the celebration headline is a gradient. Used anywhere else it would
+     stop reading as special, which is the whole job of this screen. */
+  background: linear-gradient(100deg, var(--text), var(--action) 70%, var(--accent-strong));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--text);
+}
+.body {
+  font-size: var(--fs-base);
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin-bottom: var(--s-5);
+  text-align: start;
+}
+
+.statRow {
+  display: flex;
+  justify-content: center;
+  gap: var(--s-5);
+  flex-wrap: wrap;
+  padding: var(--s-4) 0;
+  margin-bottom: var(--s-4);
+  border-block: 1px solid var(--line-soft);
+}
+.stat { display: flex; flex-direction: column; gap: 2px; min-width: 72px; }
+.statNum {
+  font-family: var(--mono);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.statLabel {
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+}
+
+.next {
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  color: var(--text-faint);
+  margin-bottom: var(--s-5);
+  text-align: start;
+}
+
+.actions { display: flex; flex-wrap: wrap; gap: var(--s-3); justify-content: center; }
+.primary {
+  padding: 11px 22px;
+  border: none;
+  border-radius: var(--r-full);
+  background: var(--action);
+  color: var(--action-ink);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter var(--t-fast), transform var(--t-fast);
+}
+.primary:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.ghost {
+  padding: 11px 22px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--t-fast), color var(--t-fast);
+}
+.ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Motion here is celebratory, so it is exactly the kind that has to go when
+   the reader has asked for less of it. The dialog still appears — only the
+   movement stops. */
+@media (prefers-reduced-motion: reduce) {
+  .confetti { display: none; }
+  .scrim, .dialog, .medal { animation: none; }
+  .primary:hover { transform: none; }
+}

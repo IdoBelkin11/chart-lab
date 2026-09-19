@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="he" dir="rtl" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Chart Lab</title>
+    <meta name="description" content="Learn to read the chart, not just the theory." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Rubik:wght@300..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <script>
+      // Same-origin proxy: Netlify's redirect in netlify.toml sends
+      // /api/market/* to netlify/functions/market.js, which holds the
+      // Twelve Data key server-side. Without this the frontend has no
+      // marketApiBase and silently stays on Demo Mode.
+      window.CHART_LAB_CONFIG = { marketApiBase: '/api/market' };
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

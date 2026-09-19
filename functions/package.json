@@ -1,0 +1,15 @@
+{
+  "name": "chart-lab-functions",
+  "description": "Chart Lab market-data proxy. Holds provider credentials server-side.",
+  "private": true,
+  "main": "src/index.js",
+  "engines": { "node": "20" },
+  "scripts": {
+    "serve": "firebase emulators:start --only functions,hosting",
+    "deploy": "firebase deploy --only functions",
+    "test": "node test/market.test.js"
+  },
+  "dependencies": {
+    "firebase-functions": "^5.0.1"
+  }
+}
