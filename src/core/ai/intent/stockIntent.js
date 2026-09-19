@@ -9,7 +9,7 @@
 // ---------------------------------------------------------------------------
 import { normalizeText } from '../engine/text.js';
 import { resolveTicker, resolveTickerDynamic } from '../entity/tickers.js';
-import { getMarketData } from '../market/index.js';
+import { getStockAnalysis } from '../market/analysis.js';
 import { touchEntityContext, looksLikeEntityPronounReference } from '../context/conversationContext.js';
 
 import { looksLikeEntityComparison, looksLikeMetricImplicitReference, recordActiveEntity, recordActiveMetric } from '../context/conversationContext.js';
@@ -307,7 +307,7 @@ export async function answerForCompany(company, norm, langCode, conversationCont
 
   let result;
   try{
-    result = await getMarketData(company.ticker);
+    result = await getStockAnalysis(company.ticker);
   }catch(e){
     result = { ok:false, reason:'exception' };
   }
@@ -353,7 +353,7 @@ export async function answerEntityComparison(entityA, entityB, langCode){
   const he = langCode === 'he';
   let dataA, dataB;
   try{
-    [dataA, dataB] = await Promise.all([getMarketData(entityA.ticker), getMarketData(entityB.ticker)]);
+    [dataA, dataB] = await Promise.all([getStockAnalysis(entityA.ticker), getStockAnalysis(entityB.ticker)]);
   }catch(e){
     dataA = { ok:false }; dataB = { ok:false };
   }

@@ -79,6 +79,16 @@
   --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
   --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
 
+  /* Shared width for a page's wider content blocks (a notes row, a card
+     grid, a section header) so they line up with each other instead of
+     each picking its own cap — see LessonRoute, where a text block capped
+     at prose width (74ch) next to a grid capped at 1100px read as
+     "half the page is empty" on anything wider than the narrower of the
+     two. Not applied to `.page` itself: a single full-width chart is a
+     deliberate exception (see .cardStackSingle) that a page-level cap
+     would silently break. */
+  --content-max: 1100px;
+
   --r-xs: 6px; --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 24px;
   --r-full: 999px;
 

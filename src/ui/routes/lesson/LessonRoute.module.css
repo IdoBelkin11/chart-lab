@@ -1,6 +1,13 @@
 .page { padding: var(--s-7) clamp(var(--s-4), 4vw, var(--s-7)) var(--s-8); }
 
-.head { position: relative; max-width: 74ch; margin-bottom: var(--s-6); }
+/* Was capped at 74ch (prose width) — fine for the intro paragraph itself
+   (still capped separately below, at .intro), wrong for the whole header
+   block: on anything wider than ~650px it sat visibly narrower than the
+   notes row and chart grid beneath it, reading as "not full width" against
+   the rest of the page. Matches --content-max, the same width those use,
+   and is centered so it doesn't just hug the start edge when the page is
+   wider than that. */
+.head { position: relative; max-width: var(--content-max); margin-inline: auto; margin-bottom: var(--s-6); }
 /* The same single soft light source used on the home masthead, so a lesson
    opens with the same visual gesture the course overview does. */
 .head::before {
@@ -46,7 +53,7 @@
 .tutor {
   display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
   margin-top: var(--s-6); padding-top: var(--s-5);
-  border-top: 1px solid var(--line-soft); max-width: 74ch;
+  border-top: 1px solid var(--line-soft); max-width: var(--content-max); margin-inline: auto;
 }
 .tutorLead {
   flex: 0 0 auto;
@@ -131,7 +138,8 @@
   flex-wrap: wrap;
   gap: var(--s-4);
   margin-top: var(--s-6);
-  max-width: 1100px;
+  max-width: var(--content-max);
+  margin-inline: auto;
 }
 .deeper, .extra {
   flex: 1 1 380px;
@@ -203,6 +211,14 @@
      below correct everywhere — it assumes exactly two columns, which
      auto-fit alone does not guarantee. */
   max-width: calc(460px * 2 + var(--s-4));
+  /* Without this the grid just hugs the start edge (the right, in RTL) on
+     any page wider than the two-column cap, leaving a lopsided gap on the
+     other side instead of sitting centered under the (now wider,
+     --content-max) band header above it — the "graphs not centered"
+     report. Centering, not widening: the max-width above is deliberately
+     exactly two 460px columns (see the comment on it) and must stay that
+     value for the odd-card-spans-the-row logic below to stay correct. */
+  margin-inline: auto;
   gap: var(--s-4);
   /* stretch (the default), NOT start: `align-items: start` sizes each card
      to its own content, so a card whose subcaption wraps to two lines grew
