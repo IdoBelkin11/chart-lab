@@ -38,14 +38,15 @@ const TWELVE_DATA_API_KEY = defineSecret('TWELVE_DATA_API_KEY');
 
 const {
   TTL_MS, cacheGet, cacheSet, rateLimited, vendorFetch,
-  normalizeQuote, normalizeHistory, normalizeSearch
+  normalizeQuote, normalizeHistory, normalizeSearch, normalizeFundamentals
 } = require('./normalize.js');
 
 // --- Handler ---------------------------------------------------------------
 const ROUTES = {
-  quote:   { vendorPath: 'quote',         ttl: TTL_MS.quote,   normalize: normalizeQuote },
-  history: { vendorPath: 'time_series',   ttl: TTL_MS.history, normalize: normalizeHistory },
-  search:  { vendorPath: 'symbol_search', ttl: TTL_MS.search,  normalize: normalizeSearch }
+  quote:        { vendorPath: 'quote',         ttl: TTL_MS.quote,        normalize: normalizeQuote },
+  history:      { vendorPath: 'time_series',   ttl: TTL_MS.history,      normalize: normalizeHistory },
+  search:       { vendorPath: 'symbol_search', ttl: TTL_MS.search,       normalize: normalizeSearch },
+  fundamentals: { vendorPath: 'statistics',    ttl: TTL_MS.fundamentals, normalize: normalizeFundamentals }
 };
 
 exports.market = onRequest(
@@ -103,4 +104,4 @@ exports.market = onRequest(
 );
 
 // Exported for unit tests without deploying.
-exports._internal = { normalizeQuote, normalizeHistory, normalizeSearch, cacheGet, cacheSet, rateLimited };
+exports._internal = { normalizeQuote, normalizeHistory, normalizeSearch, normalizeFundamentals, cacheGet, cacheSet, rateLimited };

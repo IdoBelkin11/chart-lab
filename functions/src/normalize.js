@@ -14,7 +14,7 @@
 // --- Cache -----------------------------------------------------------------
 // Quotes move constantly; daily history and symbol search barely do. Different
 // TTLs rather than one compromise value.
-const TTL_MS = { quote: 60 * 1000, history: 60 * 60 * 1000, search: 24 * 60 * 60 * 1000 };
+const TTL_MS = { quote: 60 * 1000, history: 60 * 60 * 1000, search: 24 * 60 * 60 * 1000, fundamentals: 24 * 60 * 60 * 1000 };
 const CACHE_MAX_ENTRIES = 500;
 const cache = new Map();
 
@@ -71,12 +71,21 @@ async function vendorFetch(path, params, apiKey){
 // what lets the provider change without a frontend release.
 function normalizeQuote(raw){
   if(!raw || raw.close == null) return null;
+  const price = Number(raw.close);
+  const previousClose = raw.previous_close != null ? Number(raw.previous_close) : null;
   return {
     symbol: raw.symbol,
     name: raw.name,
     exchange: raw.exchange,
-    price: Number(raw.close),
-    previousClose: raw.previous_close != null ? Number(raw.previous_close) : null,
+    price,
+    previousClose,
+    // Twelve Data's raw /quote response includes this directly (see
+    // twelveDataProvider.js, which reads the same field client-side) — it
+    // was never mapped through here. Falling back to price-minus-previous
+    // when the vendor ever omits it keeps this from going missing again
+    // the same silent way.
+    change: raw.change != null ? Number(raw.change)
+      : (previousClose != null ? price - previousClose : null),
     changePct: raw.percent_change != null ? Number(raw.percent_change) : null,
     currency: raw.currency || 'USD',
     asOf: raw.datetime || null,
@@ -101,6 +110,10 @@ function normalizeSearch(raw){
     exchange: d.exchange, country: d.country, currency: d.currency
   }));
 }
+function normalizeFundamentals(raw){
+  if(!raw || typeof raw !== 'object') return null;
+  return raw;
+}
 
 
 module.exports = {
@@ -108,6 +121,6 @@ module.exports = {
   cacheGet, cacheSet,
   rateLimited,
   vendorFetch,
-  normalizeQuote, normalizeHistory, normalizeSearch,
+  normalizeQuote, normalizeHistory, normalizeSearch, normalizeFundamentals,
   _resetForTests: () => { cache.clear(); callers.clear(); }
 };

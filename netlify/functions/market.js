@@ -23,13 +23,14 @@
 
 const {
   TTL_MS, cacheGet, cacheSet, rateLimited, vendorFetch,
-  normalizeQuote, normalizeHistory, normalizeSearch
+  normalizeQuote, normalizeHistory, normalizeSearch, normalizeFundamentals
 } = require('../../functions/src/normalize.js');
 
 const ROUTES = {
-  quote:   { vendorPath: 'quote',         ttl: TTL_MS.quote,   normalize: normalizeQuote },
-  history: { vendorPath: 'time_series',   ttl: TTL_MS.history, normalize: normalizeHistory },
-  search:  { vendorPath: 'symbol_search', ttl: TTL_MS.search,  normalize: normalizeSearch }
+  quote:        { vendorPath: 'quote',         ttl: TTL_MS.quote,        normalize: normalizeQuote },
+  history:      { vendorPath: 'time_series',   ttl: TTL_MS.history,      normalize: normalizeHistory },
+  search:       { vendorPath: 'symbol_search', ttl: TTL_MS.search,       normalize: normalizeSearch },
+  fundamentals: { vendorPath: 'statistics',    ttl: TTL_MS.fundamentals, normalize: normalizeFundamentals }
 };
 
 // Same-origin in production (Netlify serves the built site and this function

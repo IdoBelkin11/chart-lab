@@ -81,8 +81,8 @@ export function formatPE(data, name, he){
   const pe = fd && (fd.pe_ratio || fd.trailing_pe || (fd.valuations_metrics && fd.valuations_metrics.trailing_pe));
   if(pe == null){
     return he
-      ? `אין לי כרגע נתון P/E זמין עבור ${name.he} — נתונים פונדמנטליים (P/E, שווי שוק, הכנסות) דורשים מסלול תשלום מול מקור הנתונים שלא נרכש כאן, זו לא רק שאלה של הגדרה. יש לי מחיר, ממוצעים נעים, RSI ומגמה מהנתונים הזמינים, אם זה יעזור.`
-      : `I don't have a P/E figure available for ${name.en} right now — fundamental data (P/E, market cap, revenue) sits behind a paid tier of the data provider that isn't purchased here, not just a missing setting. I do have price, moving averages, RSI, and trend from the data that is available, if that helps.`;
+      ? `לא הצלחתי לקבל נתון P/E זמין עבור ${name.he} כרגע — נסה שוב בעוד רגע. יש לי מחיר, ממוצעים נעים, RSI ומגמה מהנתונים הזמינים, אם זה יעזור.`
+      : `I couldn't get a P/E figure for ${name.en} right now — try again in a moment. I do have price, moving averages, RSI, and trend from the data that is available, if that helps.`;
   }
   return he
     ? `מכפיל הרווח (P/E) של ${name.he} הוא ${fmtNum(pe,1)}. ${asOfLine(data, true)}`
@@ -93,8 +93,8 @@ export function formatFundamental(data, name, he){
   const fd = data.fundamentals;
   if(!fd){
     return he
-      ? `אין לי כרגע נתונים פונדמנטליים (P/E, שווי שוק, הכנסות וכו') עבור ${name.he} — הנתונים האלה דורשים מסלול תשלום מול מקור הנתונים, לא רק הגדרה שאפשר להפעיל. אני כן יכול לתת לך תמונה טכנית אמיתית (מחיר, ממוצעים נעים, RSI, מגמה) אם זה מעניין.`
-      : `I don't have fundamental data (P/E, market cap, revenue, etc.) for ${name.en} right now — that data sits behind a paid tier of the data provider, not something that can just be turned on. I can give you a real technical picture instead (price, moving averages, RSI, trend) if that's useful.`;
+      ? `לא הצלחתי לקבל נתונים פונדמנטליים (P/E, שווי שוק, הכנסות וכו') עבור ${name.he} כרגע — נסה שוב בעוד רגע, או שאל אותי על התמונה הטכנית (מחיר, ממוצעים נעים, RSI, מגמה) בינתיים.`
+      : `I couldn't get fundamental data (P/E, market cap, revenue, etc.) for ${name.en} right now — try again in a moment, or ask me about the technical picture instead (price, moving averages, RSI, trend) in the meantime.`;
   }
   // Best-effort field extraction; Twelve Data's /statistics shape varies by plan.
   const vm = fd.valuations_metrics || {};

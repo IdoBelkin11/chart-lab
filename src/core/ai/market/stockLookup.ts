@@ -8,7 +8,8 @@
 // remembered at each call site.
 // ---------------------------------------------------------------------------
 import { getMarketData } from './index.js';
-import { resolveTicker } from '../entity/tickers.js';
+import { resolveTicker, resolveTickerDynamic } from '../entity/tickers.js';
+import { normalizeText } from '../engine/text.js';
 import type { Candle, Quote } from '@core/types/kb';
 
 export interface StockSnapshot {
@@ -37,7 +38,7 @@ export async function lookupStock(query: string, lang: 'he' | 'en'): Promise<Loo
   if (!trimmed) return { ok: false, reason: 'not-found' };
 
   const provider = getMarketData();
-  const known = resolveTicker(trimmed) as
+  const known = resolveTicker(normalizeText(trimmed)) as
     | { ticker: string; name?: { he: string; en: string } }
     | null
     | undefined;
@@ -47,11 +48,16 @@ export async function lookupStock(query: string, lang: 'he' | 'en'): Promise<Loo
 
   if (!symbol) {
     try {
-      const matches = await provider.searchSymbol(trimmed);
-      const first = matches?.[0] as { symbol?: string; instrument_name?: string } | undefined;
-      if (!first?.symbol) return { ok: false, reason: 'not-found' };
-      symbol = first.symbol;
-      displayName = first.instrument_name ?? first.symbol;
+      const dynamic = await resolveTickerDynamic(trimmed) as
+        | { ticker: string; name?: { he: string; en: string } }
+        | { ambiguous: true; candidates: unknown[] }
+        | null;
+      // An ambiguous match (several plausible companies, no single best
+      // one) has no disambiguation UI on this page to hand it to — the
+      // safest thing is "not found" rather than silently guessing one.
+      if (!dynamic || 'ambiguous' in dynamic) return { ok: false, reason: 'not-found' };
+      symbol = dynamic.ticker;
+      displayName = dynamic.name?.[lang] ?? trimmed;
     } catch {
       return { ok: false, reason: 'unavailable' };
     }

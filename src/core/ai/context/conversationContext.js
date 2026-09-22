@@ -93,7 +93,12 @@ export function expireEntityContextIfStale(context){
 //     already works for KB concepts (see matching-engine.js).
 // ---------------------------------------------------------------------------
 export const GENERIC_ENTITY_PRONOUN_KW = [
-  'שלה','שלו','שלהם','מה איתה','מה איתו','her','his','its',"it's"
+  'שלה','שלו','שלהם','מה איתה','מה איתו','her','his','its',"it's",
+  // "This stock/company" — refers back to the active entity exactly like a
+  // pronoun does, just phrased as a demonstrative instead of "her/it".
+  'במניה הזאת','במניה הזו','מניה הזאת','מניה זו','המניה הזאת','המניה הזו',
+  'בחברה הזאת','בחברה הזו','חברה זו','החברה הזאת','החברה הזו',
+  'this stock','this company','that stock','that company'
 ];
 // Subject pronouns ("how did IT change", "השתנתה"/"עלתה" — "how did SHE/IT
 // rise") are a distinct, common way to ask a follow-up — and critically,

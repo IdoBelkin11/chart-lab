@@ -75,4 +75,12 @@ describe('AI chat: live stock-data answers', () => {
     const r = await ask('כדאי להשקיע באנבידיה?');
     expect(r.topicId).toBe('stock-data');
   });
+
+  it('"this stock" resolves pros/cons against the company just discussed, not a generic definition', async () => {
+    const ctx = createConversationContext();
+    const first = await generateAiReply('תן לי מידע על רובינהוד', 'he', null, ctx);
+    const reply = await generateAiReply('תן לי יתרונות וחסרונות להשקעה במניה הזאת', 'he', first.topicId ?? null, ctx);
+    expect(reply.topicId).toBe('stock-data');
+    expect(reply.text).toMatch(/לכיוון החיובי|לכיוון הזהירות/);
+  });
 });

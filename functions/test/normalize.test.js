@@ -11,6 +11,22 @@ ok('quote is flagged as live, not demo', q.isDemo === false);
 ok('quote carries provenance', q.source === 'Twelve Data' && q.asOf === '2026-09-07');
 ok('missing close yields null rather than a broken object', n.normalizeQuote({}) === null);
 
+// change was missing from this shape entirely — the frontend's direction
+// word (up/down) reads `change >= 0`, and `undefined >= 0` is false, so
+// every quote silently displayed as "down" regardless of the real move
+// (the percentage, which DID come through via changePct, still showed the
+// correct sign — exactly the "down +9.12%" contradiction this caught).
+const up = n.normalizeQuote({ symbol:'AAPL', close:'171.20', previous_close:'169.42', change:'1.78', percent_change:'1.05' });
+ok('change is present and numeric', typeof up.change === 'number');
+ok('change agrees in sign with changePct', (up.change >= 0) === (up.changePct >= 0));
+const down = n.normalizeQuote({ symbol:'AAPL', close:'169.42', previous_close:'171.20', change:'-1.78', percent_change:'-1.04' });
+ok('a real decline is negative, not defaulted positive', down.change < 0 && down.changePct < 0);
+// Vendor response missing the field outright (not just this test's own
+// close/previous_close inputs) still yields a correctly-signed number,
+// computed rather than left undefined.
+const fallback = n.normalizeQuote({ symbol:'AAPL', close:'171.20', previous_close:'169.42', percent_change:'1.05' });
+ok('falls back to price minus previous close when the vendor omits change', Math.abs(fallback.change - 1.78) < 0.001);
+
 const h = n.normalizeHistory({ values: [
   { datetime:'2026-09-07', open:'1', high:'2', low:'0.5', close:'1.5', volume:'100' },
   { datetime:'2026-09-06', open:'1', high:'2', low:'0.5', close:'1.2', volume:'90' }

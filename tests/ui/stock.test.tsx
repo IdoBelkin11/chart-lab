@@ -44,6 +44,18 @@ describe('stock lookup service', () => {
     const r = await lookupStock('Apple', 'en');
     if (r.ok) expect(r.snapshot.isDemo).toBe(true);
   });
+
+  it('resolves an uncurated company by its Hebrew name, not just its English ticker', async () => {
+    // Same company searched two ways used to behave completely differently:
+    // the English/ticker spelling went through dynamic resolution and
+    // found something, while the Hebrew spelling was hurled at the
+    // provider's search as a raw, untranslated string and always came back
+    // empty — Twelve Data's search has no idea what to do with Hebrew text.
+    const en = await lookupStock('gauzy', 'he');
+    const he = await lookupStock('גאוזי', 'he');
+    expect(en.ok).toBe(true);
+    expect(he.ok).toBe(true);
+  });
 });
 
 describe('stock route', () => {

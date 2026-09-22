@@ -6,6 +6,7 @@
 .head::before {
   content: '';
   position: absolute;
+<<<<<<< ours
   /* Bottom pinned to .head's own bottom edge (0), not a fixed height like
      the home/lesson version use — those don't have anything sitting close
      beneath their glow, but here the sticky, opaque search bar starts
@@ -14,6 +15,17 @@
      fading away. Ending exactly at .head's edge means there is nothing
      left to cut off, at any content height or screen width. */
   inset: -40px -8% 0 -8%;
+=======
+  /* Identical to the lesson page's version (LessonRoute.module.css) — same
+     technique, same numbers. The earlier attempt here used a different
+     technique (bottom pinned to .head's own edge instead of a fixed
+     height) to dodge the sticky search bar cutting into the glow, which is
+     exactly why it stopped looking like the same thing; the search bar's
+     extra clearance below is what actually fixes that now, not a
+     different-shaped glow. */
+  inset: -40px -8% auto -8%;
+  height: 300px;
+>>>>>>> theirs
   background: var(--spotlight);
   pointer-events: none;
   z-index: 0;
@@ -36,7 +48,7 @@
   top: 0;
   z-index: 2;
   display: flex; align-items: center; gap: 14px;
-  margin-top: var(--s-5);
+  margin-top: var(--s-8);
   padding: var(--s-3) 0;
   background: var(--canvas);
 }
