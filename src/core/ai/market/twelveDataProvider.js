@@ -142,7 +142,10 @@ export async function twelveDataGetFundamentals(ticker){
 export async function twelveDataSearchSymbol(queryText){
   const url = twelveDataUrl('search', { symbol: queryText, q: queryText });
   const res = await fetch(url, { cache: 'no-store' });
-  if(!res.ok) return [];
+  // Same rule as BackendProvider's search: a request that failed has not told
+  // us the company doesn't exist, so it must not return the empty array that
+  // means exactly that. A rate-limited or expired key hits this path.
+  if(!res.ok) throw new Error('twelvedata_http_' + res.status);
   const json = await res.json();
   return Array.isArray(json.data) ? json.data : [];
 }

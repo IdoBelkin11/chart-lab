@@ -10,6 +10,7 @@ import { resolveCurrentTopic } from '@core/lessons/currentTopic';
 import { useLang } from '@ui/hooks/useLang';
 import { useProgress } from '@ui/hooks/useProgress';
 import { useRoute } from '@ui/hooks/useRoute';
+import { SparkleIcon } from '@ui/components/icons/Icons';
 import styles from './AiLauncher.module.css';
 
 /**
@@ -60,7 +61,7 @@ export function AiLauncher() {
       aria-label={lang === 'he' ? `${label} — שאל שאלה על שוק ההון` : `${label} — ask a market question`}
       title={label}
     >
-      <span className={styles.glyph} aria-hidden="true">✦</span>
+      <SparkleIcon className={styles.glyph} />
       <span className={styles.text}>{label}</span>
     </button>
   );

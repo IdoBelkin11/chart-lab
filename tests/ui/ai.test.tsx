@@ -61,17 +61,18 @@ describe('AI tutor route', () => {
     };
     ask('מה זה צלב זהב?');
     await waitFor(() => expect(screen.getAllByText(/צלב זהב/).length).toBeGreaterThan(0), { timeout: 3000 });
+    // Compared at the BLOCK, not at the node that matched. "דוגמה היפותטית"
+    // is now rendered as the block's own label element (see AiAnswer), so the
+    // matched node is that label — identical for every example — and comparing
+    // it would report two different examples as the same one.
+    const exampleBlocks = () =>
+      screen.getAllByText(/היפותטית/).map((n) => n.closest('p')?.textContent ?? n.textContent);
+
     ask('תן לי דוגמה');
-    await waitFor(() => expect(screen.getAllByText(/היפותטית/).length).toBeGreaterThan(0), { timeout: 3000 });
-    const first = screen.getAllByText(/היפותטית/)[0]!.textContent;
+    await waitFor(() => expect(exampleBlocks().length).toBeGreaterThan(0), { timeout: 3000 });
+    const first = exampleBlocks()[0]!;
     ask('תן לי דוגמה אחרת');
-    await waitFor(
-      () => {
-        const all = screen.getAllByText(/היפותטית/).map((n) => n.textContent);
-        expect(all.some((x) => x !== first)).toBe(true);
-      },
-      { timeout: 3000 }
-    );
+    await waitFor(() => expect(exampleBlocks().some((x) => x !== first)).toBe(true), { timeout: 3000 });
   });
 
   it('example prompts are offered when empty', async () => {

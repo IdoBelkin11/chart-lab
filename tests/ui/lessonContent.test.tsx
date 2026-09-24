@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent, within } from '@testing-library/react';
 import { App } from '@ui/app/App';
 import { LESSONS } from '@core/lessons/lessons';
 import { LESSON_PROSE, proseFor } from '@core/lessons/prose';
 import { LESSON_CHARTS } from '@core/charts/lessonCharts';
+import { layoutChartCards, preferredSpan } from '@core/charts/cardLayout';
 import { annotationsFor } from '@core/lessons/exercises';
 
 beforeEach(() => {
@@ -109,10 +110,17 @@ describe('chart cards', () => {
     expect(cards[1]!.textContent).toMatch(/כוכב נופל/);
   });
 
-  it('a single-chart lesson still gets a card', () => {
-    location.hash = '#/lesson/l3';
-    render(<App />);
-    expect(screen.getAllByRole('figure').length).toBe(1);
+  it('every lesson that teaches from charts shows more than one', () => {
+    // This replaces a pair of tests that used l3 as "the single-chart lesson".
+    // l1, l3 and l5 each had exactly one example, which meant the three
+    // concepts hardest to believe from one picture — that a level is an area
+    // and not a line, that a moving average is meaningless without a trend,
+    // and that a Fibonacci level is not a floor — were each taught from the
+    // single case where the idea works. A second chart per lesson is the
+    // counter-example, so the rule is now that there is always one.
+    for (const [id, specs] of Object.entries(LESSON_CHARTS)) {
+      expect(specs.length, `${id} has only one chart`).toBeGreaterThan(1);
+    }
   });
 
   it('charts are sized per content, not one height for all', () => {
@@ -150,11 +158,17 @@ describe('moving-averages lesson explains both of its lines', () => {
 });
 
 describe('finishing the course', () => {
-  it('the last lesson offers Finish instead of a forward arrow', () => {
+  it('the last lesson offers Finish, and cannot page forward', () => {
     location.hash = '#/lesson/l7';
     render(<App />);
     expect(screen.getByRole('button', { name: /סיים את הקורס/ })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /שיעור הבא/ })).toBeNull();
+    // The forward arrow is DISABLED rather than removed. Removing it used to
+    // need an empty spacer element to stop the page count sliding off centre
+    // — a placeholder holding a hole open. Keeping the real control and
+    // disabling it says the same thing to a screen reader and needs no
+    // phantom sibling.
+    const forward = screen.getByRole('button', { name: /שיעור הבא/ }) as HTMLButtonElement;
+    expect(forward.disabled).toBe(true);
   });
 
   it('Finish is locked until every chapter is complete', () => {
@@ -183,8 +197,22 @@ describe('finishing the course', () => {
   it('a middle lesson still pages forward normally', () => {
     location.hash = '#/lesson/l3';
     render(<App />);
-    expect(screen.getByRole('button', { name: /שיעור הבא/ })).toBeTruthy();
+    const forward = screen.getByRole('button', { name: /שיעור הבא/ }) as HTMLButtonElement;
+    expect(forward.disabled).toBe(false);
     expect(screen.queryByRole('button', { name: /סיים את הקורס/ })).toBeNull();
+  });
+
+  it('the primary action names the chapter it leads to, not just "next"', () => {
+    // The pager arrow and the primary button do the same thing, so if they
+    // also read the same they are two controls saying one word. The button
+    // carries the destination; that is what makes it worth its weight.
+    location.hash = '#/lesson/l3';
+    const { container } = render(<App />);
+    const next = LESSONS[LESSONS.findIndex((l) => l.id === 'l3') + 1]!;
+    // Scoped to the footer: the rail lists every chapter by the same label, so
+    // an unscoped query matches the roadmap entry too.
+    const footer = container.querySelector('footer')!;
+    expect(within(footer).getByRole('button', { name: new RegExp(next.navLabel.he) })).toBeTruthy();
   });
 });
 
@@ -198,13 +226,6 @@ describe('chart cards lay out as a grid, not one per screen', () => {
     // into five screens of scrolling, and stretched each chart far wider
     // than the one candle it points at.
     expect(stack.className).not.toMatch(/cardStackSingle/);
-  });
-
-  it('a single-chart lesson still takes the full width', () => {
-    location.hash = '#/lesson/l3';
-    const { container } = render(<App />);
-    const stack = container.querySelector('[class*="cardStack"]')!;
-    expect(stack.className).toMatch(/cardStackSingle/);
   });
 
   it('the card carrying the practice panel spans the whole row', () => {
@@ -227,7 +248,14 @@ describe('quiz/lesson alignment audit — content added where the quiz tested so
     ['l0', /סימול/, /דיבידנד/],
     ['l4', /פטיש/, /בליעה עולה/],
     ['l6', /דיוורגנס/, /RSI/],
-    ['l7', /תחתית כפולה/, /קו הצוואר/]
+    ['l7', /תחתית כפולה/, /קו הצוואר/],
+    // l2 was added later, on a different criterion than the four above. Its
+    // quiz IS answerable from the lesson — the annotation note explains what a
+    // volume spike signals, which is what the question asks. What the lesson
+    // never did was say what volume IS: the word appears three times in
+    // visible copy (intro and chart note) without once stating that it counts
+    // shares changing hands. A comprehension gap rather than a quiz gap.
+    ['l2', /נפח מסחר/, /עברו יד/]
   ];
   for (const [lessonId, ...patterns] of cases) {
     it(`${lessonId} now teaches what its own quiz questions test`, () => {
@@ -242,10 +270,14 @@ describe('quiz/lesson alignment audit — content added where the quiz tested so
   }
 
   it('lessons with no gap render no extra panel at all', () => {
-    // l1/l2/l3/l5 were audited too and found already covered — by the
-    // annotation notes for l2/l3/l5, and by prose alone for l1. No
-    // invented content for lessons that did not need any.
-    for (const lessonId of ['l1', 'l2', 'l3', 'l5']) {
+    // l1/l3/l5 were audited too and found already covered — by the annotation
+    // notes for l3/l5, and by prose alone for l1. No invented content for
+    // lessons that did not need any: l3 in particular was checked again and
+    // deliberately left alone, because the only undefined terms on it (EMA,
+    // SMA) appear solely in the chart's accessible label, never in copy a
+    // reader sees — explaining acronyms that are not on screen would add
+    // confusion, not clarity.
+    for (const lessonId of ['l1', 'l3', 'l5']) {
       cleanup();
       location.hash = `#/lesson/${lessonId}`;
       render(<App />);
@@ -272,46 +304,45 @@ describe('layout fixes from real-use feedback', () => {
     expect(deeperRow).toBe(extraRow);
   });
 
-  it('a lesson with an odd number of example charts spans the lone leftover card across the row, centred, rather than leaving it beside empty space', () => {
-    // l7 (chart patterns) has 5 examples — the exact case reported.
-    location.hash = '#/lesson/l7';
-    render(<App />);
-    const cards = document.querySelectorAll('figure[class*="card"]');
-    expect(cards.length).toBe(5);
-    const last = cards[cards.length - 1]!;
-    expect(last.className).toMatch(/spanFullCentered/);
-    // None of the OTHER four should get it — only the one left alone.
-    for (let i = 0; i < cards.length - 1; i++) {
-      expect(cards[i]!.className, `card ${i}`).not.toMatch(/spanFullCentered/);
-    }
-  });
-
-  it('a lone card at the front (from an aside) does not throw off the pairing after it', () => {
-    // l2 has 3 example charts, and the FIRST spans the row by itself (it
-    // carries the annotation notes) — a naive "is the total odd" check
-    // said card 3 was alone too, which was wrong: card 1 already used up
-    // its own full row, so cards 2 and 3 pair up cleanly after it.
-    location.hash = '#/lesson/l2';
-    render(<App />);
-    const cards = document.querySelectorAll('figure[class*="card"]');
-    expect(cards.length).toBe(3);
-    for (const card of Array.from(cards)) {
-      expect(card.className).not.toMatch(/spanFullCentered/);
-    }
-  });
-
-  it('the same odd-gallery fix applies to every lesson with an odd example count, not just the one reported', () => {
-    // l4 (candlesticks) and l6 (RSI) turned out to have the identical
-    // shape once checked — 5 and 3 plain example charts respectively, no
-    // aside — so the same fix that closes the reported l7 gap closes
-    // theirs too, found by checking every lesson rather than only l7.
-    for (const [lessonId, expectedCount] of [['l4', 5], ['l6', 3]] as const) {
+  it('no card is ever left alone at half width in its row', () => {
+    // These three tests replace a set that pinned `spanFullCentered` — a card
+    // that took the whole row but stayed narrow and centred inside it. It was
+    // added so a leftover card would not sit beside a gap, and it is exactly
+    // what made a lesson read as "one wide chart, and a smaller one underneath
+    // it" with no reason a reader could see. A card that takes the row now
+    // uses it; the guarantee being kept is only that nothing is stranded.
+    for (const lessonId of ['l4', 'l6', 'l7', 'l1', 'l2'] as const) {
       cleanup();
       location.hash = `#/lesson/${lessonId}`;
       render(<App />);
-      const cards = document.querySelectorAll('figure[class*="card"]');
-      expect(cards.length, lessonId).toBe(expectedCount);
-      expect(cards[cards.length - 1]!.className, lessonId).toMatch(/spanFullCentered/);
+      const spans = [...document.querySelectorAll('figure[class*="card"]')].map((c) =>
+        /spanFull/.test(c.className) ? 'full' : 'half'
+      );
+      // Walk the rows the grid will build and check no half card is alone.
+      let column = 0;
+      spans.forEach((s, i) => {
+        if (s === 'full') { column = 0; return; }
+        if (column === 0) {
+          expect(spans[i + 1], `${lessonId} card ${i} has no partner`).toBe('half');
+          column = 1;
+        } else {
+          column = 0;
+        }
+      });
     }
+  });
+
+  it('a chart keeps the same width wherever it appears', () => {
+    // The old rule derived width from position, so the identical chart could
+    // be full-width in one lesson and half in another purely because of how
+    // many siblings it had. Width now comes from the series itself.
+    const longSeries = LESSON_CHARTS.l3![0]!;   // 260 candles — a trend
+    const illustration = LESSON_CHARTS.l4![1]!; // ~20 candles — one pattern
+    expect(preferredSpan(longSeries)).toBe('full');
+    expect(preferredSpan(illustration)).toBe('half');
+  });
+
+  it('the exercise card takes the whole row, since it holds two things', () => {
+    expect(layoutChartCards(LESSON_CHARTS.l1!, { hasAside: true })[0]).toBe('full');
   });
 });

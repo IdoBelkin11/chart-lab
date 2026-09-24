@@ -9,19 +9,41 @@
 .text { }
 
 /* Each kind gets a distinct treatment so the eye can find the example or the
-   takeaway without re-reading the whole answer. Colours follow the semantic
-   hierarchy: blue informs, amber cautions, green concludes. */
+   takeaway without re-reading the whole answer. Colours carry the meaning:
+   the informational blue for an illustration, the brighter action blue for
+   something to watch out for, green for the conclusion.
+
+   All three are TINTS of their own hue — a translucent wash over whatever is
+   behind them — not opaque surfaces. The example block used to be painted in
+   `--surface`, an opaque grey, which read as a card dropped into the answer
+   rather than as a passage highlighted within it. That is the difference the
+   mockup has and this did not. */
+.example, .note, .takeaway {
+  padding: 13px 16px;
+  border-radius: 16px;
+  line-height: 1.65;
+}
 .example {
-  padding: 13px 16px; border-radius: var(--r-md);
-  background: var(--surface); border-inline-start: 2px solid var(--accent);
+  background: rgba(138, 182, 224, 0.13);
+  border-inline-start: 2px solid var(--accent);
   color: var(--text-muted);
 }
 .note {
-  padding: 13px 16px; border-radius: var(--r-md);
-  background: var(--action-dim); border-inline-start: 2px solid var(--action);
+  background: rgba(124, 192, 245, 0.12);
+  border-inline-start: 2px solid var(--action-text);
 }
 .takeaway {
-  padding: 13px 16px; border-radius: var(--r-md);
-  background: var(--success-dim); border-inline-start: 2px solid var(--success);
+  background: rgba(108, 199, 155, 0.13);
+  border-inline-start: 2px solid var(--success);
   font-weight: 600;
 }
+
+/* Light mode needs its own alphas: the same wash that lifts a block off a dark
+   canvas is invisible against a near-white one. */
+:root[data-theme='light'] .example { background: rgba(23, 91, 172, 0.09); color: var(--text); }
+:root[data-theme='light'] .note { background: rgba(14, 87, 172, 0.10); }
+:root[data-theme='light'] .takeaway { background: rgba(23, 130, 88, 0.11); }
+
+/* The opener ("Example ·", "Bottom line ·") is set in the full text colour so
+   the block announces what it is before it is read. */
+.lead { color: var(--text); font-weight: 700; }

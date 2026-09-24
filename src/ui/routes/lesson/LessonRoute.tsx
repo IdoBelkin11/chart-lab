@@ -4,8 +4,10 @@ import { useLang } from '@ui/hooks/useLang';
 import { useProgress } from '@ui/hooks/useProgress';
 import { useRoute } from '@ui/hooks/useRoute';
 import { chartsForLesson } from '@core/charts/lessonCharts';
+import { layoutChartCards } from '@core/charts/cardLayout';
 import { proseFor } from '@core/lessons/prose';
 import { annotationsFor, exerciseFor } from '@core/lessons/exercises';
+import { ChevronIcon, CheckIcon } from '@ui/components/icons/Icons';
 import { TryItPanel } from '@ui/components/learning/TryItPanel';
 import { NotesPanel } from '@ui/components/learning/NotesPanel';
 import { GlossarySegments } from '@ui/components/learning/GlossaryText';
@@ -115,24 +117,13 @@ export function LessonRoute({ lessonId }: { lessonId: string }) {
               </p>
             )}
           </div>
-          <div className={chartSpecs.length > 1 ? styles.cardStack : `${styles.cardStack} ${styles.cardStackSingle}`}>
+          <div className={styles.cardStack}>
             {(() => {
-              // Which single card (if any) is left alone in the grid's last
-              // row, at exactly two columns per row (see .cardStack's own
-              // max-width — the grid is capped there specifically so this
-              // arithmetic is reliable everywhere, not just on the screen
-              // widths this was tested at).
-              //
-              // Card 0 spanning the full row by itself (because it carries
-              // the exercise/notes aside) shifts the parity of everything
-              // after it — the naive "is the total count odd" check looked
-              // right for l7 (5 plain cards, no aside) but was wrong for l2
-              // (3 cards, but card 0's aside makes it 1 spanning row + a
-              // clean pair after it, leaving nobody alone).
-              const hasAsideOnFirst = Boolean(exercise || notes);
-              const packedCount = chartSpecs.length - (hasAsideOnFirst ? 1 : 0);
-              const hasLoneTrailingCard = chartSpecs.length > 1 && packedCount % 2 === 1;
-              const loneIndex = hasLoneTrailingCard ? chartSpecs.length - 1 : -1;
+              // Each card's width comes from its own chart — see
+              // @core/charts/cardLayout. Nothing here counts indexes.
+              const spans = layoutChartCards(chartSpecs, {
+                hasAside: Boolean(exercise || notes)
+              });
 
               return chartSpecs.map((chartSpec, i) => (
                 <ChartCard
@@ -140,8 +131,8 @@ export function LessonRoute({ lessonId }: { lessonId: string }) {
                   spec={chartSpec}
                   index={i}
                   count={chartSpecs.length}
+                  span={spans[i]!}
                   {...(chartSpec.height ? { height: chartSpec.height } : {})}
-                  {...(i === loneIndex ? { spanFull: true } : {})}
                   {...(i === 0 && exercise ? { onPriceClick: handlePriceClick } : {})}
                   {...(i === 0 && revealed && exercise
                     ? {
@@ -262,8 +253,20 @@ export function LessonRoute({ lessonId }: { lessonId: string }) {
         </div>
       </section>
 
+      {/* One row, read from both ends: where you are on the start side, what to
+          do next on the end side. It used to be a centred column — the page
+          count stacked above a lone "mark complete" chip — which gave the most
+          prominent slot on the page to a counter and left the actual next step
+          (the next chapter) as an unlabelled arrow. */}
       <footer className={styles.footer}>
-        <div className={styles.pager}>
+        <div
+          className={styles.pager}
+          aria-label={
+            lang === 'he'
+              ? `שיעור ${lesson.index + 1} מתוך ${LESSONS.length}`
+              : `Lesson ${lesson.index + 1} of ${LESSONS.length}`
+          }
+        >
           <button
             type="button"
             className={styles.arrow}
@@ -271,67 +274,79 @@ export function LessonRoute({ lessonId }: { lessonId: string }) {
             aria-label={lang === 'he' ? 'שיעור קודם' : 'Previous lesson'}
             onClick={() => prev && go('lesson', { lessonId: prev.id })}
           >
-            ‹
+            <ChevronIcon />
           </button>
           <span className={styles.pagerCount}>
-            {lang === 'he'
-              ? `עמוד ${lesson.index + 1} מתוך ${LESSONS.length}`
-              : `Page ${lesson.index + 1} of ${LESSONS.length}`}
+            {lesson.index + 1} / {LESSONS.length}
           </span>
-          {!isLast && (
-            <button
-              type="button"
-              className={styles.arrow}
-              aria-label={lang === 'he' ? 'שיעור הבא' : 'Next lesson'}
-              onClick={() => go('lesson', { lessonId: next.id })}
-            >
-              ›
-            </button>
-          )}
-          {/* The trailing slot stays occupied (but empty) on the last
-              chapter, so removing the arrow does not shift the page count
-              off centre. */}
-          {isLast && <span className={styles.arrowSpacer} aria-hidden="true" />}
-        </div>
-
-        {isLast && (
           <button
             type="button"
-            className={allComplete ? styles.finish : styles.finishLocked}
-            disabled={!allComplete}
-            onClick={() => setCelebrating(true)}
-            aria-label={
-              allComplete
-                ? (lang === 'he' ? 'סיים את הקורס' : 'Finish the course')
-                : (lang === 'he'
-                    ? `סיים את הקורס — נותרו ${LESSONS.length - completedCount} פרקים להשלמה`
-                    : `Finish the course — ${LESSONS.length - completedCount} chapters still to complete`)
-            }
+            className={`${styles.arrow} ${styles.arrowNext}`}
+            disabled={isLast}
+            aria-label={lang === 'he' ? 'שיעור הבא' : 'Next lesson'}
+            onClick={() => next && go('lesson', { lessonId: next.id })}
           >
-            <span className={styles.finishText}>
-              {lang === 'he' ? 'סיים את הקורס' : 'Finish the course'}
-            </span>
-            {!allComplete && (
-              <span className={styles.finishHint}>
-                {lang === 'he'
-                  ? `${completedCount}/${LESSONS.length} פרקים הושלמו`
-                  : `${completedCount}/${LESSONS.length} chapters complete`}
-              </span>
-            )}
+            <ChevronIcon />
           </button>
-        )}
+        </div>
 
-        {/* On its own row, below the pager — not wedged inline with it. */}
-        <button
-          type="button"
-          className={done ? `${styles.complete} ${styles.completeDone}` : styles.complete}
-          aria-pressed={done}
-          onClick={() => toggleLessonComplete(lesson.id)}
-        >
-          {done
-            ? (lang === 'he' ? 'הושלם ✓' : 'Completed ✓')
-            : (lang === 'he' ? 'סמן כהושלם' : 'Mark as complete')}
-        </button>
+        <div className={styles.footerActions}>
+          <button
+            type="button"
+            className={done ? `${styles.complete} ${styles.completeDone}` : styles.complete}
+            aria-pressed={done}
+            onClick={() => toggleLessonComplete(lesson.id)}
+          >
+            <CheckIcon className={styles.completeIcon} />
+            {done
+              ? (lang === 'he' ? 'הושלם' : 'Completed')
+              : (lang === 'he' ? 'סמן כהושלם' : 'Mark as complete')}
+          </button>
+
+          {/* The primary action, which the mockup has and this page did not:
+              the next chapter, named. On the last chapter that slot is what
+              finishes the course instead — the same position, still the one
+              thing to do from here. */}
+          {isLast ? (
+            <button
+              type="button"
+              className={allComplete ? styles.finish : styles.finishLocked}
+              disabled={!allComplete}
+              onClick={() => setCelebrating(true)}
+              aria-label={
+                allComplete
+                  ? (lang === 'he' ? 'סיים את הקורס' : 'Finish the course')
+                  : (lang === 'he'
+                      ? `סיים את הקורס — נותרו ${LESSONS.length - completedCount} פרקים להשלמה`
+                      : `Finish the course — ${LESSONS.length - completedCount} chapters still to complete`)
+              }
+            >
+              <span className={styles.finishText}>
+                {lang === 'he' ? 'סיים את הקורס' : 'Finish the course'}
+              </span>
+              {!allComplete && (
+                <span className={styles.finishHint}>
+                  {lang === 'he'
+                    ? `${completedCount}/${LESSONS.length} פרקים הושלמו`
+                    : `${completedCount}/${LESSONS.length} chapters complete`}
+                </span>
+              )}
+            </button>
+          ) : (
+            // Names where it goes, not just that it goes. The arrows beside
+            // the count are the pager; this is the one thing to do next, and
+            // "Next: Moving averages" tells you what you are about to start
+            // while "Next lesson" only repeats what the arrow already said.
+            <button
+              type="button"
+              className={styles.nextLesson}
+              onClick={() => next && go('lesson', { lessonId: next.id })}
+            >
+              <span className={styles.nextKicker}>{lang === 'he' ? 'הבא' : 'Next'}</span>
+              <span className={styles.nextTitle}>{next.navLabel[lang]}</span>
+            </button>
+          )}
+        </div>
       </footer>
 
       {celebrating && (

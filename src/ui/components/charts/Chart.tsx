@@ -148,15 +148,33 @@ export function Chart({ candles, variant = 'price', options, label, height = 320
       frame.current = null;
       const parent = canvas.parentElement;
       if (!parent) return;
-      const cssWidth = parent.clientWidth;
-      const cssHeight = height;
-      const dpr = window.devicePixelRatio || 1;
+      // CSS owns the canvas's box (see .canvas — pinned to all four sides of
+      // the wrapper), so this only READS it. Writing it here as well is what
+      // produced a canvas that kept one height forever no matter which card it
+      // was in: this function sized the canvas from its parent while drawChart
+      // sized it from its own previous backing store, and the two never agreed
+      // on who was measuring whom.
+      //
+      // The one thing still written is the wrapper's height, and only when its
+      // container gives it none — a caller that drops a chart into an
+      // auto-height box. Without that the wrapper would collapse, because the
+      // canvas inside it is out of flow and holds nothing open.
+      const cs = getComputedStyle(parent);
+      const vPad = parseFloat(cs.paddingTop || '0') + parseFloat(cs.paddingBottom || '0');
+      if (parent.clientHeight - vPad <= 1) parent.style.height = `${height + vPad}px`;
 
-      // Size the backing store in device pixels, the element in CSS pixels.
+      const cssWidth = canvas.clientWidth;
+      const cssHeight = canvas.clientHeight;
+      // Mid-transition, or before the container has been laid out, there is
+      // nothing to draw into yet — and a zero-sized backing store would throw
+      // the scale maths off rather than merely render nothing.
+      if (cssWidth < 1 || cssHeight < 1) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      // Only the backing store, in device pixels. The element's CSS size is
+      // already correct and must not be overwritten.
       canvas.width = Math.round(cssWidth * dpr);
       canvas.height = Math.round(cssHeight * dpr);
-      canvas.style.width = `${cssWidth}px`;
-      canvas.style.height = `${cssHeight}px`;
       const ctx = canvas.getContext('2d');
       // A 2D context can genuinely be unavailable — canvas disabled by policy,
       // or a non-painting environment such as jsdom under test. Bail out

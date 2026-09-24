@@ -20,8 +20,16 @@
      edge. It reads as light falling on the card rather than as a flat panel,
      and costs nothing — the alternative, a heavier drop shadow, would fight
      the recessed chart well sitting inside it. */
-  background: linear-gradient(to bottom, var(--surface-2) 0%, var(--surface) 34%);
-  box-shadow: inset 0 0 0 1px var(--line-soft), var(--e-1);
+  /* Glass, over the ambient field. The chart well nested inside stays opaque
+     and recessed, so the card reads as a lit pane holding a dark instrument —
+     which is the contrast that gives the lesson page its depth. */
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow:
+    inset 0 0 0 1px var(--glass-border),
+    var(--glass-inset),
+    var(--glass-shadow);
   overflow: hidden;
   position: relative;
   /* min-width:0 on a grid item is what actually lets it shrink: without it
@@ -55,22 +63,11 @@
   .card:hover { transform: none; }
 }
 
-/* A card that carries the exercise/notes panel spans the full row: it is a
-   different kind of object from a plain example, and squeezing a chart plus
-   its practice panel into one grid column leaves neither enough room. */
+/* A chart whose content needs the room: a long series, a two-panel price+RSI,
+   or the card carrying the exercise panel beside its chart. Decided from the
+   chart itself in @core/charts/cardLayout, so the same chart is the same width
+   in every lesson it appears in. */
 .spanFull { grid-column: 1 / -1; }
-
-/* The lone card left over by an odd total, with no aside to justify using
-   the extra width. Spans the row for the same reason .spanFull does —
-   otherwise it sits in one column beside an empty other — but centred at
-   a normal card's width instead of stretched, so the chart keeps the same
-   proportions as every other example in the lesson. */
-.spanFullCentered {
-  grid-column: 1 / -1;
-  justify-self: center;
-  width: 100%;
-  max-width: 640px;
-}
 
 .header {
   display: flex;
@@ -145,7 +142,7 @@
   flex: 0 0 auto;
   align-self: flex-start;
   padding: 3px 9px;
-  border-radius: var(--r-full);
+  border-radius: var(--r-xs);
   background: var(--canvas);
   box-shadow: inset 0 0 0 1px var(--line-soft);
   font-family: var(--mono);
@@ -166,12 +163,23 @@
   }
 }
 
-/* The recessed instrument surface the canvas draws onto. */
+/* The recessed instrument surface the canvas draws onto.
+
+   Its height comes from an ASPECT RATIO, not a fixed pixel value: a card can
+   be half a row or a whole one, and a chart that is a good shape at one width
+   is a narrow column at the other. The ratio is set per card (see ChartCard's
+   `--chart-aspect`), the chart reads the resulting height, and the whole thing
+   reflows with the grid instead of needing a height per breakpoint.
+
+   `max-height` keeps the spec's own figure as a ceiling, so a full-row chart
+   on a very wide monitor does not grow into a wall. */
 .well {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  aspect-ratio: var(--chart-aspect, 16 / 10);
+  max-height: var(--chart-max-h, none);
+  min-height: 240px;
   border-radius: var(--r-md);
   padding: var(--s-2);
   background:

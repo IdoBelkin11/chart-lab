@@ -1,83 +1,185 @@
+/* A capsule that FLOATS over the workspace rather than a bar welded to its
+   top edge. Floating is what lets the closed rim ring stay closed — a welded
+   bar only ever catches light along one edge, which is why this used to
+   override ::before down to a single hairline. */
 .header {
+  composes: glass from '../styles/glass.module.css';
+
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--s-4);
-  min-height: 72px;
-  padding: 0 var(--s-5);
+  min-height: 68px;
+  padding: 8px 10px;
+  margin: var(--s-3) var(--s-4) 0;
+  border-radius: var(--r-pill);
   position: sticky;
-  top: 0;
+  top: var(--s-3);
   z-index: 5;
-  background: var(--glass-bg);
-  backdrop-filter: blur(14px) saturate(1.4);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-  border-bottom: 1px solid var(--glass-border);
 }
 
 /* The row still scrolls when it must, but the feature entry never shrinks
    and never gets scrolled out of reach: it is pinned outside the scrolling
    area. Being first in an overflow-x row is exactly how it ended up clipped
    at the viewport edge. */
-.tools { display: flex; align-items: center; gap: 2px; min-width: 0; }
+/* `position: relative` is what the sliding capsule is measured and positioned
+   against — Header.tsx reads each tab's offsetLeft within this box. */
+.tools { position: relative; display: flex; align-items: center; gap: 2px; min-width: 0; }
 .toolsScroll {
   display: flex; gap: 2px; min-width: 0;
   overflow-x: auto; scrollbar-width: none;
 }
+
+/* The travelling capsule this header introduced now lives in
+   @ui/components/nav/SlidingPill — every selection in the product uses it. */
 .toolsScroll::-webkit-scrollbar { display: none; }
 .tools::-webkit-scrollbar { display: none; }
 
+/* z-index keeps the label above the sliding capsule, which is painted first
+   as a sibling behind the row. */
 .tool {
-  padding: 11px 20px;
+  position: relative;
+  z-index: 1;
+  padding: 13px 22px;
   border: none;
   background: none;
-  border-radius: var(--r-full);
+  border-radius: var(--r-btn);
   color: var(--text-muted);
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
-  transition: color var(--t-fast), background var(--t-fast);
+  transition: color var(--t-med) var(--ease), background var(--t-fast), box-shadow var(--t-fast);
 }
-.tool:hover { color: var(--text); background: var(--surface-2); }
-.toolActive { color: var(--accent); background: var(--accent-dim); }
+/* Hover is a lit pane, not a flat dark rectangle. --surface-2 is opaque, so
+   it cut a solid block out of the glass bar instead of highlighting within
+   it; a white-alpha wash plus the same top specular line keeps the hover
+   inside the material. */
+.tool:hover {
+  color: var(--text);
+  background: linear-gradient(to bottom,
+    rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05));
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.20);
+}
+:root[data-theme='light'] .tool:hover {
+  background: linear-gradient(to bottom,
+    rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.55));
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 1),
+              inset 0 0 0 1px rgba(10, 20, 29, 0.05);
+}
+/* The active tab paints NO background of its own — `.pill` is the only thing
+   that draws one, and it travels. A tab that also filled itself would make
+   two capsules visible during the transition. All that changes here is the
+   label's weight and colour. */
+.toolActive, .toolActive:hover {
+  color: var(--text);
+  font-weight: 600;
+  background: none;
+  box-shadow: none;
+}
 
 
 
 .controls { display: flex; align-items: center; gap: var(--s-2); flex: none; }
 
+/* A capsule track with a travelling lens, not an icon button. The track is
+   recessed so the thumb reads as sitting IN it rather than on top of it. */
 .theme {
-  width: 42px; height: 42px;
-  display: grid; place-items: center;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  border-radius: var(--r-full);
-  color: var(--text-muted);
+  position: relative;
+  width: 66px; height: 36px;
+  flex: none;
+  padding: 0;
+  border: none;
+  border-radius: var(--r-pill);
   cursor: pointer;
-  transition: border-color var(--t-fast), color var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
+  background: rgba(0, 0, 0, 0.26);
+  box-shadow:
+    inset 0 1.5px 3px rgba(0, 0, 0, 0.42),
+    inset 0 0 0 1px var(--glass-border);
+  transition: background var(--t-med) var(--ease);
 }
-.theme:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); box-shadow: var(--e-1); }
-.theme { font-size: var(--fs-md); }
+:root[data-theme='light'] .theme {
+  background: rgba(12, 22, 34, 0.09);
+  box-shadow:
+    inset 0 1.5px 3px rgba(12, 22, 34, 0.14),
+    inset 0 0 0 1px rgba(12, 22, 34, 0.07);
+}
+.theme:focus-visible { outline: none; box-shadow: var(--ring); }
 
+/* The thumb is a LENS: it brightens and saturates what sits behind it, catches
+   a hard highlight along its top-left arc, and carries its own travelling
+   shadow. A flat filled circle slides; this reads as a piece of glass moving. */
+.themeThumb {
+  position: absolute;
+  top: 4px;
+  inset-inline-start: 4px;
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border-radius: var(--r-pill);
+  color: var(--text);
+  background: radial-gradient(72% 72% at 32% 26%,
+    rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.22) 58%, rgba(255, 255, 255, 0.12));
+  backdrop-filter: blur(5px) saturate(165%) brightness(1.14);
+  -webkit-backdrop-filter: blur(5px) saturate(165%) brightness(1.14);
+  box-shadow:
+    inset 0 2px 1px 0 rgba(255, 255, 255, 0.90),
+    inset 0 -2px 3px 0 rgba(0, 0, 0, 0.20),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.34),
+    0 6px 14px -4px rgba(0, 0, 0, 0.55);
+  transition: translate var(--t-slow) var(--ease-spring);
+}
+/* `translate` keeps the travel on the compositor. It is a physical axis in
+   both writing modes, so RTL gets the sign flipped rather than a logical
+   property that would not animate. */
+.theme[data-on='true'] .themeThumb { translate: 30px 0; }
+[dir='rtl'] .theme[data-on='true'] .themeThumb { translate: -30px 0; }
+
+.themeThumb svg { width: 15px; height: 15px; display: block; }
+
+/* The lens effect IS a backdrop-filter, on a hardcoded blur(5px) rather than
+   the shared tokens (it needs its own small radius), so the global
+   --glass-blur override in tokens.css does not reach it either. Same fix as
+   the AI launcher: an opaque fill, filter removed outright. */
+@media (prefers-reduced-transparency: reduce) {
+  .themeThumb {
+    background: var(--surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* A recessed track, like the mockup's — the travelling accent capsule reads as
+   sitting IN it rather than floating over a flat group. `position: relative` is
+   what that capsule is measured and positioned against. */
 .langGroup {
+  position: relative;
   display: flex;
-  padding: 2px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-full);
+  padding: 3px;
+  border-radius: var(--r-pill);
+  background: rgba(0, 0, 0, 0.26);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 0 0 1px var(--glass-border);
+}
+:root[data-theme='light'] .langGroup {
+  background: rgba(12, 22, 34, 0.08);
+  box-shadow: inset 0 1px 2px rgba(12, 22, 34, 0.12), inset 0 0 0 1px rgba(12, 22, 34, 0.06);
 }
 .lang {
-  padding: 8px 15px;
+  position: relative;
+  z-index: 1;
+  padding: 7px 14px;
   border: none;
   background: none;
-  border-radius: var(--r-full);
+  border-radius: var(--r-pill);
   color: var(--text-faint);
   font-family: var(--mono);
   font-size: var(--fs-xs);
   font-weight: 700;
   cursor: pointer;
-  transition: background var(--t-fast), color var(--t-fast);
+  transition: color var(--t-med) var(--ease);
 }
-.langActive { background: var(--accent); color: var(--accent-ink); }
+/* Paints no background of its own: the capsule is the only thing that draws
+   one, and it travels. Two filled boxes would be visible mid-transition. */
+.langActive { color: var(--accent-ink); }
 
 @media (max-width: 600px) {
   .header { min-height: 60px; padding: 0 var(--s-3); }

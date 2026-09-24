@@ -1,69 +1,147 @@
-.page { padding: var(--s-7) clamp(var(--s-4), 4vw, var(--s-7)) var(--s-8); max-width: 760px; }
+/* Centred: a capped column without margin-inline:auto hugs the start
+   edge — the right, in Hebrew — leaving a dead band opposite it. */
+.page {
+  padding: var(--s-7) clamp(var(--s-4), 4vw, var(--s-7)) var(--s-8);
+  max-width: 880px;
+  margin-inline: auto;
+}
 .head { margin-bottom: var(--s-5); }
 .title { font-size: clamp(22px, 3vw, 30px); font-weight: 650; letter-spacing: -0.025em; }
 
-/* Underlined section switches, not filled pills — the tools should read as
-   part of the same product as the lessons, not as a separate widget. */
-.tabs { display: flex; gap: 22px; border-bottom: 1px solid var(--line-soft); margin-bottom: var(--s-6); overflow-x: auto; }
-.tab {
-  position: relative; padding: 10px 2px;
-  border: none; background: none; cursor: pointer; white-space: nowrap;
-  color: var(--text-faint); font-size: var(--fs-xs); font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase;
+/* A segmented capsule, matching the header's own switch: a recessed track with
+   one lit pane marking the section you are in. These four are exclusive
+   choices over the same space, which is exactly what a segmented control
+   says and what a row of underlined links does not. */
+.tabs {
+  position: relative; /* what the travelling capsule is measured against */
+  display: inline-flex; padding: 4px; gap: 2px;
+  margin-bottom: var(--s-6);
+  border-radius: var(--r-pill);
+  background: rgba(0, 0, 0, 0.26);
+  box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.4), inset 0 0 0 1px var(--glass-border);
+  max-width: 100%; overflow-x: auto; scrollbar-width: none;
 }
-.tab::after {
-  content: ''; position: absolute; inset-inline: 0; bottom: -1px; height: 2px;
-  background: var(--accent); transform: scaleX(0); transition: transform var(--t-med);
+.tabs::-webkit-scrollbar { display: none; }
+:root[data-theme='light'] .tabs {
+  background: rgba(12, 22, 34, 0.08);
+  box-shadow: inset 0 1.5px 3px rgba(12, 22, 34, 0.12), inset 0 0 0 1px rgba(12, 22, 34, 0.06);
+}
+/* z-index keeps the label above the capsule, which is a sibling painted first. */
+.tab {
+  position: relative; z-index: 1;
+  padding: 10px 19px;
+  border: none; background: none; cursor: pointer; white-space: nowrap;
+  border-radius: var(--r-pill);
+  color: var(--text-muted); font-size: var(--fs-sm); font-weight: 500;
+  transition: color var(--t-med) var(--ease);
 }
 .tab:hover { color: var(--text); }
-.tabActive { color: var(--text); font-weight: 700; }
-.tabActive::after { transform: scaleX(1); }
+/* Paints no background of its own — the travelling capsule is the only thing
+   that draws one. A segment that also filled itself would show two capsules
+   for the length of the transition, which is exactly what made this control
+   blink instead of flow. */
+.tabActive, .tabActive:hover { color: var(--text); font-weight: 600; }
 
-.body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 0.7fr); gap: var(--s-6); align-items: start; }
+/* A fixed result column, not a fraction of the page. The panel holds one big
+   number and two short lines — it needs the same width at every viewport, and
+   a fractional track made it grow with the page and go slack. */
+.body { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 26px; align-items: start; }
 
-/* Inputs are ruled rows, not boxed fields. */
+/* Inputs are ruled rows, not boxed fields. A two-track grid rather than
+   space-between, so every input starts at the same x — with flex, a long
+   label pushed its input out of line with the others. */
 .fields { display: flex; flex-direction: column; }
 .field {
-  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-5);
+  display: grid; grid-template-columns: 1fr 180px;
+  align-items: center; gap: 18px;
   padding: 15px 12px; margin-inline: -12px;
   border-bottom: 1px solid var(--line-soft);
   border-radius: var(--r-xs);
   transition: background var(--t-fast);
 }
+/* The last rule would be a line under the final row with nothing beneath it. */
+.field:last-of-type { border-bottom: none; }
 /* The row, not just the input, responds — the label and its value are one
    thing to the reader, so highlighting half of it reads as a glitch. */
 .field:hover,
 .field:focus-within { background: var(--surface); }
 .fieldLabel { flex: 1; font-size: var(--fs-sm); color: var(--text-muted); }
+/* A recessed well, like every other place a value is entered or read in this
+   product — an input is something you type INTO, so it sits below the page. */
 .input {
-  width: auto; max-width: 180px; text-align: end;
-  padding: 2px 0; border: none; border-bottom: 1px solid transparent;
-  background: none; color: var(--text);
-  font-family: var(--mono); font-size: var(--fs-md); font-weight: 600;
+  width: 100%; min-width: 0; text-align: start;
+  padding: 11px 15px; border: none;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.26);
+  box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--glass-border);
+  color: var(--text);
+  font-size: var(--fs-md); font-weight: 600;
 }
-.input:focus { outline: none; border-bottom-color: var(--accent); }
+:root[data-theme='light'] .input {
+  background: rgba(12, 22, 34, 0.06);
+  box-shadow: inset 0 1.5px 3px rgba(12, 22, 34, 0.1), inset 0 0 0 1px rgba(12, 22, 34, 0.07);
+}
+.input:focus { outline: none; box-shadow: var(--ring); }
 
-/* The result is an editorial figure under a rule, not a gradient card. */
+/* The one lit thing on the screen: the answer. Glass, like every other raised
+   surface, rather than a flat tinted panel. */
 .result {
+  composes: glass from '../../styles/glass.module.css';
   display: block;
-  padding: var(--s-5);
-  border-radius: var(--r-lg);
-  background: var(--accent-dim);
-  border-top: 2px solid var(--accent);
+  padding: 26px 24px;
+  border-radius: var(--r-card);
+}
+.resultKicker {
+  font-size: var(--fs-2xs); font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--action-text); margin-bottom: var(--s-3);
 }
 .headline {
-  font-family: var(--mono); font-size: clamp(30px, 5vw, 46px);
-  font-weight: 700; letter-spacing: -0.04em; line-height: 1; margin-bottom: var(--s-4);
+  font-size: clamp(30px, 5vw, 42px);
+  font-weight: 700; letter-spacing: -0.03em; line-height: 1;
   color: var(--text);
 }
+/* The cents, set smaller and quieter. At full size they are as loud as the
+   thousands they hang off, and the eye has to read past them to get the
+   number. They still have to be legible — this is money, not decoration — so
+   they are dimmed to the muted text colour, not faded out. */
+.frac { font-size: 0.6em; color: var(--text-muted); }
+/* Same bidi isolation as the summary lines. inline-block, so the figure still
+   sits at the start of the line (the right, in Hebrew) rather than being
+   dragged left along with its own direction. */
+.figure { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+.rule { height: 1px; background: var(--glass-border); margin: 20px 0 16px; }
 .line {
   display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-4);
-  padding: 8px 0; font-size: var(--fs-sm); color: var(--text-muted);
+  padding: 5.5px 0; font-size: var(--fs-sm); color: var(--text-muted);
 }
-.line b { font-family: var(--mono); color: var(--text); font-weight: 600; }
-.note { margin-top: var(--s-6); font-size: var(--fs-2xs); color: var(--text-faint); }
+/* A number is always read left-to-right, even on a Hebrew page. Without the
+   isolate, bidi reorders a leading sign to the far end of the run and
+   "+9,671.51" is displayed as "9,671.51+" — which reads as a different thing,
+   or as a typo. The isolate also stops the number from reordering whatever
+   sits beside it. */
+.line b { color: var(--text); font-weight: 600; direction: ltr; unicode-bidi: isolate; }
+.lineGrowth b { color: var(--success); }
 
-@media (max-width: 760px) {
+/* The growth curve. Recessed like every chart in the product, and drawn from
+   the SAME function that produced the headline — so the curve can never tell
+   a different story than the number above it. */
+.spark {
+  margin-top: var(--s-4);
+  height: 92px;
+  border-radius: var(--r-well);
+  background: var(--well);
+  box-shadow: inset 0 0 0 1px var(--line-soft), inset 0 3px 12px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+.spark svg { display: block; width: 100%; height: 100%; }
+.note { margin: 16px 4px 0; font-size: var(--fs-2xs); line-height: 1.6; color: var(--text-faint); }
+
+@media (max-width: 860px) {
   .body { grid-template-columns: 1fr; }
   .page { padding: var(--s-5) var(--s-3) var(--s-7); }
+  /* Below the stacking point the fixed input track wastes the width it was
+     protecting, so the rows go back to label-and-value on one line. */
+  .field { grid-template-columns: 1fr auto; }
+  .input { width: auto; max-width: 180px; text-align: end; }
 }

@@ -1,24 +1,14 @@
 .page { padding: 0 clamp(var(--s-4), 4vw, var(--s-7)) var(--s-8); }
 
+/* No hero glow of its own — see the note in LessonRoute.module.css. The
+   ambient field under the shell is the product's single light source. */
 .masthead {
-  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(220px, 0.5fr);
   gap: clamp(24px, 4vw, 56px);
   align-items: start;
   padding: clamp(36px, 6vh, 72px) 0 var(--s-7);
   border-bottom: 1px solid var(--line-soft);
-}
-/* A single soft light source behind the hero — used once on the whole
-   screen, which is what keeps it reading as emphasis rather than noise. */
-.masthead::before {
-  content: '';
-  position: absolute;
-  inset: -32px -6% auto -6%;
-  height: 380px;
-  background: var(--spotlight);
-  pointer-events: none;
-  z-index: 0;
 }
 .kicker,
 .headline,
@@ -31,9 +21,12 @@
   align-self: start;
   align-items: center;
   gap: 8px;
-  padding: 7px 14px;
-  border-radius: var(--r-full);
+  padding: 8px 15px;
+  border-radius: var(--r-btn);
   background: var(--accent-dim);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow: var(--glass-inset), inset 0 0 0 1px var(--glass-border);
   color: var(--accent-strong);
   font-size: var(--fs-xs);
   font-weight: 600;
@@ -81,38 +74,82 @@
 
 /* The single primary action. Yellow, because in this design yellow means
    "the one thing to do next" — nothing else on the screen uses it. */
+/* Glass, with the warm corner wash kept on top of it — the tint is what marks
+   this as the primary action, the material is what lifts it off the page. */
 .resume {
+  composes: glass from '../../styles/glass.module.css';
+
   margin-top: var(--s-7);
   padding: var(--s-6);
   border-radius: var(--r-xl);
-  background: radial-gradient(140% 180% at 100% 0%, var(--action-dim), transparent 62%), var(--surface);
-  border: 1px solid var(--line);
+  background:
+    radial-gradient(140% 180% at 100% 0%, var(--action-dim), transparent 62%),
+    var(--glass-bg);
   max-width: 560px;
 }
 .resumeKicker {
   font-family: var(--mono); font-size: 10px; font-weight: 700;
   letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--action); margin-bottom: var(--s-4);
+  color: var(--action-text); margin-bottom: var(--s-4);
 }
 .resumeTitle { font-size: clamp(21px, 2.4vw, 28px); font-weight: 700; letter-spacing: -0.025em; margin-bottom: 8px; }
 .resumeMeta { font-family: var(--mono); font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: var(--s-5); }
-.track { height: 6px; border-radius: var(--r-full); background: var(--well); overflow: hidden; margin-bottom: var(--s-5); }
+/* The channel is recessed and the fill is glossy — a bar cut into the surface
+   with something luminous sitting in it, rather than two flat rectangles. */
+.track {
+  height: 6px; border-radius: var(--r-full);
+  background: var(--well); overflow: hidden; margin-bottom: var(--s-5);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+}
 .track > span {
   display: block; height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--success));
+  border-radius: inherit;
+  background:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(90deg, var(--accent), var(--success));
   transition: width var(--t-slow) var(--ease-out);
 }
 .cta {
+  position: relative;
   width: 100%;
   padding: 15px 26px;
-  border: none; border-radius: var(--r-full);
-  background: var(--action); color: var(--action-ink);
+  border: none; border-radius: var(--r-btn);
+  /* The shared three-stop ramp, so every primary action in the product is lit
+     from the same angle by the same light. */
+  background: var(--action-fill);
+  color: var(--action-ink);
   font-size: var(--fs-base); font-weight: 700;
-  cursor: pointer; box-shadow: var(--e-2);
-  transition: transform var(--t-fast), filter var(--t-fast), box-shadow var(--t-med);
+  cursor: pointer;
+  /* The bright inset is doing accessibility work, not decoration: a fill this
+     deep sits at only 2.5:1 against the canvas, below the 3:1 a control
+     boundary needs. This rim reads 3.25:1 against the fill and 8.16:1 against
+     the canvas, so the edge is defined even though the fill is not. */
+  box-shadow:
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.48),
+    inset 0 -1.5px 0 0 rgba(0, 18, 44, 0.38),
+    0 14px 36px -14px var(--action-glow);
+  transition: transform var(--t-med) var(--ease-spring),
+              filter var(--t-fast), box-shadow var(--t-med);
 }
-.cta:hover { filter: brightness(1.06); transform: translateY(-2px); box-shadow: var(--e-3); }
-.cta:active { transform: translateY(0) scale(0.99); }
+/* Same sheen as the floating launcher, so every raised control in the product
+   is lit from the same direction. */
+.cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 58%);
+  pointer-events: none;
+}
+.cta:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.58),
+    inset 0 -1.5px 0 0 rgba(0, 18, 44, 0.38),
+    0 18px 44px -14px var(--action-glow);
+}
+.cta:active { transform: translateY(0) scale(0.985); }
 
 .band { margin-top: var(--s-7); }
 .bandTitle {

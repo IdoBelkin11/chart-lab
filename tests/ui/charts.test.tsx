@@ -11,9 +11,42 @@ beforeEach(() => {
 });
 
 describe('chart data ported to core', () => {
-  it('all series survived the port', () => {
+  it('no series was lost in the port', () => {
+    // 19 is the floor carried over from the pre-port build, not a target: this
+    // test exists to catch a series going MISSING. Pinning it exactly meant
+    // every chart added to a lesson failed a test about a migration it had
+    // nothing to do with, which teaches the reflex of editing the number
+    // instead of reading why it is there. The companion test below — every
+    // series is wired to some lesson — is what stops the count drifting up
+    // with data nothing draws.
     const arrays = Object.keys(series).filter((k) => Array.isArray((series as never)[k]));
-    expect(arrays.length).toBe(19);
+    expect(arrays.length).toBeGreaterThanOrEqual(19);
+  });
+
+  it('the "area, not a line" chart actually shows what its caption claims', () => {
+    // The caption says some turns stop above the line, some cut below it, and
+    // every one of them sits inside the band. That is a claim ABOUT THE DATA,
+    // and the first draft of this chart broke it: hand-picked band edges plus
+    // generated noise put wicks well below the band while the caption said
+    // price never left it. A caption contradicting its own picture teaches the
+    // opposite of the lesson, so the claim is pinned here rather than trusted
+    // to a screenshot.
+    const s = series.L1_ZONE;
+    const [lo, hi] = s.band;
+    const turns: number[] = [];
+    for (let i = 3; i < s.length - 3; i++) {
+      const l = s[i]!.l;
+      if (l < 158 && s.slice(i - 3, i + 4).every((c) => c.l >= l)) turns.push(l);
+    }
+    expect(turns.length, 'turns found').toBeGreaterThanOrEqual(4);
+    for (const t of turns) {
+      expect(t, `turn at ${t} is inside [${lo}, ${hi}]`).toBeGreaterThanOrEqual(lo);
+      expect(t).toBeLessThanOrEqual(hi);
+    }
+    // And the line is genuinely ambiguous: crossed by some turns, respected by
+    // others. A line every turn cleared would make the opposite point.
+    expect(turns.some((t) => t < s.exactLine), 'a turn below the line').toBe(true);
+    expect(turns.some((t) => t > s.exactLine), 'a turn above the line').toBe(true);
   });
 
   it('series are deterministic — a lesson referring to a level stays true', () => {
@@ -88,9 +121,16 @@ describe('chart rendering', () => {
   it('renders a labelled canvas, not an opaque one', () => {
     location.hash = '#/lesson/l1';
     render(<App />);
-    const img = screen.getByRole('img');
-    expect(img.tagName).toBe('CANVAS');
-    expect(img.getAttribute('aria-label')).toMatch(/תמיכה|התנגדות/);
+    // Every chart on the lesson, not just the first: a canvas is invisible to
+    // assistive tech, so one unlabelled chart among several is one chart that
+    // does not exist for part of the audience.
+    const imgs = screen.getAllByRole('img');
+    expect(imgs.length).toBeGreaterThan(1);
+    for (const img of imgs) {
+      expect(img.tagName).toBe('CANVAS');
+      expect(img.getAttribute('aria-label')!.length).toBeGreaterThan(20);
+    }
+    expect(imgs[0]!.getAttribute('aria-label')).toMatch(/תמיכה|התנגדות/);
   });
 
   it('a lesson with no chart (l0) simply has no analysis workspace section', () => {

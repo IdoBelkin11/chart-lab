@@ -81,6 +81,9 @@
   to   { opacity: 1; transform: none; }
 }
 
+/* Glass, tinted with the action colour — same material as every other mark
+   in the product (the AI mark, the launcher), not the radial decorative wash
+   this carried before. */
 .medal {
   width: 76px;
   height: 76px;
@@ -88,11 +91,19 @@
   display: grid;
   place-items: center;
   border-radius: var(--r-full);
-  background: radial-gradient(circle at 34% 28%, var(--action-dim), transparent 70%), var(--surface-2);
-  box-shadow: inset 0 0 0 1px var(--line), 0 0 34px -6px var(--action-dim);
+  background:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0.06)),
+    var(--action-dim);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow:
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px var(--glass-border),
+    0 0 30px -10px var(--action-glow);
   animation: pop var(--t-slow) var(--ease-out) 120ms both;
 }
-.medalGlyph { font-size: 38px; line-height: 1; }
+.medalGlyph { width: 40px; height: 40px; color: var(--action-text); }
 
 @keyframes pop {
   0%   { opacity: 0; transform: scale(0.5) rotate(-18deg); }
@@ -106,7 +117,7 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--action);
+  color: var(--action-text);
   margin-bottom: var(--s-3);
 }
 .title {
@@ -163,21 +174,34 @@
 }
 
 .actions { display: flex; flex-wrap: wrap; gap: var(--s-3); justify-content: center; }
+/* The shared three-stop sapphire ramp — same fill and rim treatment as every
+   other primary action in the product. */
 .primary {
   padding: 11px 22px;
   border: none;
-  border-radius: var(--r-full);
-  background: var(--action);
+  border-radius: var(--r-btn);
+  background: var(--action-fill);
   color: var(--action-ink);
   font-size: var(--fs-sm);
   font-weight: 700;
   cursor: pointer;
-  transition: filter var(--t-fast), transform var(--t-fast);
+  box-shadow:
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.48),
+    inset 0 -1.5px 0 0 rgba(0, 18, 44, 0.38),
+    0 10px 26px -14px var(--action-glow);
+  transition: filter var(--t-fast), transform var(--t-med) var(--ease-spring), box-shadow var(--t-med);
 }
-.primary:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.primary:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.56),
+    inset 0 -1.5px 0 0 rgba(0, 18, 44, 0.38),
+    0 14px 32px -14px var(--action-glow);
+}
 .ghost {
   padding: 11px 22px;
-  border-radius: var(--r-full);
+  border-radius: var(--r-btn);
   border: 1px solid var(--line);
   background: none;
   color: var(--text-muted);

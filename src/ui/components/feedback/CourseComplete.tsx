@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useLang } from '@ui/hooks/useLang';
+import { MedalIcon } from '@ui/components/icons/Icons';
 import styles from './CourseComplete.module.css';
 
 /**
@@ -91,7 +92,7 @@ export function CourseComplete({
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.medal} aria-hidden="true">
-          <span className={styles.medalGlyph}>🎉</span>
+          <MedalIcon className={styles.medalGlyph} />
         </div>
 
         <p className={styles.kicker}>{he ? 'הקורס הושלם' : 'Course complete'}</p>

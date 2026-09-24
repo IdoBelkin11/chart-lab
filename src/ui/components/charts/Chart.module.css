@@ -1,7 +1,20 @@
 /* Charts are RECESSED below the page — an embedded instrument, not another
    raised card. The faint grid reinforces that reading. */
+/* Fills its container rather than being sized by the canvas inside it.
+
+   That direction matters and was the bug: the canvas is measured against this
+   element, so while this element's height came FROM the canvas, the
+   measurement was circular. The canvas kept whatever height it was first
+   given — 440px — no matter how tall the card it sat in actually was, and a
+   292px well simply clipped 172px of chart off the bottom. */
 .wrap {
   position: relative;
+  /* Both, on purpose: `height` covers a plain block parent, `flex` covers a
+     flex-column one (the lesson card's well). Whichever the container is, this
+     element ends up with the container's height rather than the canvas's. */
+  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
   border-radius: var(--r-lg);
   padding: var(--s-4);
   background:
@@ -10,7 +23,30 @@
   box-shadow: inset 0 0 0 1px var(--line-soft);
   overflow: hidden;
 }
-.canvas { display: block; width: 100%; }
+/* Pinned to all four sides of .wrap's content box, so CSS alone decides how
+   big the canvas is and JS only ever reads that decision.
+
+   Nothing sets `style.width`/`style.height` on this element any more. Two
+   places used to — the React component and drawChart, each deriving a size
+   from the other's last result — and the canvas settled on whatever it was
+   given first (440px) and then ignored the card it was sitting in. A 292px
+   well clipped 172px of chart off the bottom of every example. */
+.canvas {
+  display: block;
+  position: absolute;
+  inset-block-start: var(--s-4);
+  inset-inline-start: var(--s-4);
+  /* Explicit, not `inset` on all four sides. A canvas is a REPLACED element:
+     its width/height attributes are an intrinsic size, so with `auto`
+     dimensions it takes that intrinsic size and ignores the opposite insets.
+     The result was a feedback loop — JS read clientWidth, wrote a larger
+     backing store, which enlarged the intrinsic size, which grew clientWidth
+     — and the canvas ran to 33 million pixels in a few frames.
+     Percentages here resolve against .wrap's padding box, so the padding is
+     subtracted back out to land on its content box. */
+  width: calc(100% - 2 * var(--s-4));
+  height: calc(100% - 2 * var(--s-4));
+}
 
 .tip {
   position: absolute;

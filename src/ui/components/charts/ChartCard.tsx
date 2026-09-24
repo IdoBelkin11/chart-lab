@@ -26,7 +26,7 @@ export function ChartCard({
   count,
   height,
   aside,
-  spanFull,
+  span = 'half',
   onPriceClick,
   options
 }: {
@@ -36,10 +36,9 @@ export function ChartCard({
   height?: number;
   /** The exercise or notes panel, when this chart has one. */
   aside?: ReactNode;
-  /** Forces the full-row treatment even with no aside — for the one card
-   *  left alone in its row by an odd total, which would otherwise sit in a
-   *  half-width column beside empty space. */
-  spanFull?: boolean;
+  /** How wide this card sits in the grid. Decided from the chart's own
+   *  content by @core/charts/cardLayout, never from its position. */
+  span?: 'full' | 'half';
   onPriceClick?: (price: number) => void;
   /** Overrides spec.options — used when an exercise reveals its answer. */
   options?: Record<string, unknown>;
@@ -48,17 +47,23 @@ export function ChartCard({
   const caption = spec.caption?.[lang];
   const tone = spec.tone ?? 'neutral';
 
-  // A card holding the practice panel spans the whole row AND uses that
-  // width, for the split chart+panel layout below. A lone card with no
-  // aside spans the row too — so it isn't left beside empty space — but
-  // stays centred at a normal card's width: stretching a single chart to
-  // fill a two-column row would distort it into a wide, short strip
-  // instead of the proportions every other example in the lesson has.
-  const className = aside
-    ? `${styles.card} ${styles.spanFull}`
-    : spanFull
-      ? `${styles.card} ${styles.spanFullCentered}`
-      : styles.card;
+  // A full card uses the whole row and the whole width. There is no longer a
+  // third "spans the row but stays narrow and centred" state: that existed to
+  // stop a leftover card looking stranded, and it is what made two charts in
+  // one lesson read as two different sizes for no reason the reader could see.
+  // A card that takes the row now uses it.
+  const className = span === 'full' ? `${styles.card} ${styles.spanFull}` : styles.card;
+
+  // The shape of the well, not its pixel height — see .well's comment.
+  // A price+RSI chart stacks two panels, so it needs to be squarer or the
+  // lower panel is a sliver; a half-width illustration is wider than it is
+  // tall because that is the shape a short candle series reads best in; a
+  // full-row chart beside an exercise panel gets the roomiest ratio.
+  const aspect =
+    spec.variant === 'price-rsi' ? '16 / 12'
+      : aside ? '16 / 9'
+        : span === 'full' ? '16 / 8'
+          : '16 / 11';
 
   return (
     <figure className={className} data-tone={tone}>
@@ -80,7 +85,13 @@ export function ChartCard({
       )}
 
       <div className={aside ? styles.bodySplit : styles.body}>
-        <div className={styles.well}>
+        <div
+          className={styles.well}
+          style={{
+            '--chart-aspect': aspect,
+            ...(height ? { '--chart-max-h': `${height}px` } : null)
+          } as React.CSSProperties}
+        >
           <Chart
             candles={spec.candles as never}
             variant={spec.variant}

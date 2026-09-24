@@ -23,7 +23,7 @@
 @keyframes slide { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
 
 .reveal {
-  padding: 9px 16px; border-radius: var(--r-full);
+  padding: 9px 16px; border-radius: var(--r-btn);
   border: 1px solid var(--line); background: none; color: var(--text);
   font-size: var(--fs-xs); font-weight: 600; cursor: pointer;
   transition: border-color var(--t-fast), color var(--t-fast), transform var(--t-fast);

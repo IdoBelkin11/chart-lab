@@ -1,0 +1,70 @@
+/* ===========================================================================
+   Liquid glass — the shared material.
+
+   Composed into a component rather than copied: `composes: glass from
+   '../../styles/glass.module.css'`. The component keeps its own geometry
+   (size, radius, padding, layout); this file only supplies the material, so
+   a change to how glass behaves happens in exactly one place.
+
+   The radius is deliberately NOT set here. Both pseudo-elements inherit it
+   from whatever the host sets, which is what keeps the rim and the sheen
+   welded to the component's own shape instead of to a fixed corner.
+   =========================================================================== */
+
+.glass {
+  position: relative;
+  /* Contains the sheen's negative z-index so it can sit above this element's
+     own background without falling behind whatever is painted underneath. */
+  isolation: isolate;
+
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow: var(--glass-inset), var(--glass-shadow);
+}
+
+/* The lensed rim: a 1px gradient ring, bright where the light lands and
+   nearly gone on the opposite edge. Drawn as a padding-box/border-box mask
+   pair because a plain `border` cannot hold a gradient, and a gradient border
+   drawn with two stacked backgrounds cannot follow a rounded corner. */
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--glass-edge);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* The sheen: light falling from above, fading out before it reaches the
+   bottom edge. Full-box rather than a half-height strip so the bottom corners
+   keep the host's radius — the gradient itself is what stops it short. */
+.glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--glass-sheen);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* A panel that sits on the page rather than floating over it: same material,
+   no ambient drop shadow, so it does not read as detached. */
+.glassFlat {
+  composes: glass;
+  box-shadow: var(--glass-inset);
+}
+
+/* Safari and Chrome both support backdrop-filter, but a browser without it
+   would render --glass-bg's partial alpha straight over the content behind,
+   which is unreadable rather than merely unstyled. Opaque fallback first. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background: var(--surface); }
+}

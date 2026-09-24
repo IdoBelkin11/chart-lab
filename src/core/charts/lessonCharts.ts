@@ -44,10 +44,21 @@ export interface LessonChartSpec {
    * one candle they were pointing at.
    */
   height?: number;
+  /**
+   * Overrides the width this chart would otherwise be given. Left unset on
+   * every chart in the course — the default comes from the series itself (see
+   * cardLayout.ts), which is what keeps a chart the same width wherever it
+   * appears. Set it only for a chart whose right width genuinely disagrees
+   * with its candle count.
+   */
+  span?: 'full' | 'half';
 }
 
 const ma20 = series.ema(series.L3.map((c: { c: number }) => c.c), 20);
 const ma150 = series.sma(series.L3.map((c: { c: number }) => c.c), 150);
+// The same 20-period average, over a market with no trend in it — see the
+// second l3 chart for why that case is worth its own illustration.
+const l3ChopMa = series.ema(series.L3_CHOP.map((c: { c: number }) => c.c), 20);
 
 export const LESSON_CHARTS: Record<string, LessonChartSpec[]> = {
   l1: [
@@ -66,6 +77,51 @@ export const LESSON_CHARTS: Record<string, LessonChartSpec[]> = {
       // No zones by default — this lesson's exercise asks the learner to
       // guess the zone first. LessonRoute overlays the answer as zones
       // (tone: 'support' / 'resistance') only once revealed.
+    },
+    {
+      // The lesson says "an area, not a single line". This is the chart that
+      // shows why: the SAME price action reads as five failures against an
+      // exact line and five holds against a band. Both are drawn here at once
+      // so the comparison needs no second chart and no memory.
+      candles: series.L1_ZONE,
+      variant: 'price',
+      options: {
+        showVolume: false,
+        zones: [
+          {
+            range: series.L1_ZONE.band,
+            tone: 'support',
+            // Read off the derived band, so the label cannot drift from what is
+            // actually drawn.
+            label: {
+              he: `האזור — ${series.L1_ZONE.band[0]} עד ${series.L1_ZONE.band[1]}`,
+              en: `The area — ${series.L1_ZONE.band[0]} to ${series.L1_ZONE.band[1]}`
+            }
+          }
+        ],
+        segments: [
+          {
+            x1: 0, y1: series.L1_ZONE.exactLine,
+            x2: series.L1_ZONE.length - 1, y2: series.L1_ZONE.exactLine,
+            tone: 'bear', dash: [4, 4], labelAt: 'end', labelAlign: 'right',
+            label: {
+              he: `הקו המדויק — ${series.L1_ZONE.exactLine}`,
+              en: `The exact line — ${series.L1_ZONE.exactLine}`
+            }
+          }
+        ]
+      },
+      label: {
+        he: `גרף שבו המחיר חוזר שוב ושוב לאזור ${series.L1_ZONE.band[0]}–${series.L1_ZONE.band[1]}: חלק מהפניות עוצרות מעל הקו ${series.L1_ZONE.exactLine} וחלק חוצות אותו, אך כולן נשארות בתוך הרצועה`,
+        en: `Chart where price returns repeatedly to the ${series.L1_ZONE.band[0]}–${series.L1_ZONE.band[1]} area: some turns stop above the ${series.L1_ZONE.exactLine} line and some cut through it, yet all of them stay inside the band`
+      },
+      caption: { he: 'למה זה אזור ולא קו', en: 'Why it is an area, not a line' },
+      subcaption: {
+        he: `חלק מהפניות עצרו מעל ${series.L1_ZONE.exactLine} וחלק ירדו מתחתיו — אבל כולן בתוך הרצועה. מי שצייר קו רואה כישלונות; מי שצייר רצועה רואה את אותו אזור מחזיק.`,
+        en: `Some turns stopped above ${series.L1_ZONE.exactLine} and some dropped below it — but every one is inside the band. Draw the line and you see failures; draw the band and you see the same area holding.`
+      },
+      tone: 'neutral',
+      height: 380
     }
   ],
 
@@ -147,10 +203,34 @@ export const LESSON_CHARTS: Record<string, LessonChartSpec[]> = {
         he: 'גרף עם ממוצע נע (EMA) של 20 יום וממוצע (SMA) של 150 יום המחליקים את תנועת המחיר',
         en: 'Chart with a 20-day EMA and a 150-day SMA smoothing the price action'
       },
-      caption: { he: 'ממוצע 20 (כתום) מול ממוצע 150 (סגול)', en: '20 average (orange) vs 150 average (purple)' },
-      subcaption: { he: 'הכתום נצמד למחיר; הסגול מתאר את המגמה הרחבה — ומתחיל מאוחר יותר.', en: 'The orange hugs price; the purple describes the broad trend — and starts later.' },
+      caption: { he: 'ממוצע 20 (כתום) מול ממוצע 150 (טורקיז)', en: '20 average (orange) vs 150 average (teal)' },
+      subcaption: { he: 'הכתום נצמד למחיר; הטורקיז מתאר את המגמה הרחבה — ומתחיל מאוחר יותר.', en: 'The orange hugs price; the teal describes the broad trend — and starts later.' },
       tone: 'neutral',
       height: 460
+    },
+    {
+      // The other half of the lesson: an average is an average of the PAST, so
+      // it can only turn after price already has. In a trend that lag is
+      // harmless, which is why every textbook example is a trend. In a range it
+      // is the whole story — and a learner who only ever sees the trend case
+      // walks away thinking the line is a signal rather than a description.
+      candles: series.L3_CHOP,
+      variant: 'price',
+      options: {
+        showVolume: false,
+        extraLines: [{ tone: 'ema20', values: l3ChopMa }]
+      },
+      label: {
+        he: 'גרף של שוק דשדוש שבו המחיר חוצה את הממוצע הנע שוב ושוב, בלי שאף חצייה מובילה למגמה',
+        en: 'Chart of a sideways market where price crosses the moving average repeatedly, with no crossing leading to a trend'
+      },
+      caption: { he: 'כשאין מגמה, הממוצע מצטלב בלי סוף', en: 'With no trend, the average crosses endlessly' },
+      subcaption: {
+        he: 'ספרו כמה פעמים המחיר חצה את הקו. כל חצייה נראית בדיוק כמו זו שעובדת במגמה — ההבדל הוא לא בחצייה, אלא בשאלה אם יש מגמה מלכתחילה.',
+        en: 'Count the crossings. Each one looks exactly like the one that works in a trend — the difference is not the crossing, it is whether there is a trend at all.'
+      },
+      tone: 'bear',
+      height: 380
     }
   ],
 
@@ -245,6 +325,45 @@ export const LESSON_CHARTS: Record<string, LessonChartSpec[]> = {
       caption: { he: 'התנועה, והתיקון שאחריה', en: 'The move, and the pullback after it' },
       subcaption: { he: 'הרמות נמדדות מהשפל לשיא. שימו לב איפה התיקון נעצר.', en: 'The levels are measured from the low to the high. Notice where the pullback stalled.' },
       tone: 'advanced',
+      height: 470
+    },
+    {
+      // Drawn exactly like the chart above — same construction, same levels —
+      // and price goes straight through every one of them and closes below the
+      // low it started from. Included deliberately: every Fibonacci
+      // illustration in circulation is one where the level held, and a tool
+      // only ever shown working is taught as a floor rather than as a place
+      // people happen to be watching.
+      candles: series.L5_FAIL,
+      variant: 'price',
+      options: {
+        showVolume: false,
+        dots: [
+          { idx: series.L5_FAIL.lowIdx, price: series.L5_FAIL.swingLow, tone: 'bull', labelAlign: 'left', label: { he: 'שפל התנועה', en: 'Swing low' } },
+          { idx: series.L5_FAIL.highIdx, price: series.L5_FAIL.swingHigh, tone: 'bear', labelAlign: 'right', label: { he: 'שיא התנועה', en: 'Swing high' } }
+        ],
+        segments: series.L5_FAIL.fibLevels.map((f: { ratio: number; price: number }) => ({
+          x1: 0,
+          y1: f.price,
+          x2: series.L5_FAIL.length - 1,
+          y2: f.price,
+          tone: 'gold',
+          dash: [5, 4],
+          labelAt: 'end',
+          labelAlign: 'right',
+          label: { he: `${(f.ratio * 100).toFixed(1)}%`, en: `${(f.ratio * 100).toFixed(1)}%` }
+        }))
+      },
+      label: {
+        he: 'גרף שבו התיקון חוצה את כל רמות הפיבונאצ׳י וממשיך אל מתחת לשפל שממנו נמדדו',
+        en: 'Chart where the pullback cuts through every Fibonacci level and continues below the low they were measured from'
+      },
+      caption: { he: 'ואיך זה נראה כשזה לא עובד', en: 'And what it looks like when it does not work' },
+      subcaption: {
+        he: 'אותה שיטת מדידה בדיוק — והמחיר עבר את כל הרמות וירד מתחת לשפל ההתחלתי. הרמות מסמנות איפה אנשים מסתכלים, לא איפה המחיר חייב לעצור.',
+        en: 'The exact same measurement — and price went through every level and below the starting low. The levels mark where people are watching, not where price has to stop.'
+      },
+      tone: 'bear',
       height: 470
     }
   ],

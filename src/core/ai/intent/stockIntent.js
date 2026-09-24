@@ -275,7 +275,19 @@ export async function tryStockDataAnswerStatic(norm, langCode, conversationConte
 // matching and every other fallback has already failed to find anything —
 // see the second call site in generateAiReply.
 export async function tryStockDataAnswerDynamic(norm, langCode, rawText, conversationContext, triggerOnly){
-  const company = await resolveTickerDynamic(rawText, triggerOnly);
+  let company;
+  try{
+    company = await resolveTickerDynamic(rawText, triggerOnly);
+  }catch(e){
+    // This path's policy on an unreachable provider: treat it as no answer
+    // and let the pipeline continue. Returning null here is right because
+    // this function is one candidate answer among many — the KB topics, the
+    // follow-up paths and the honest fallback are all still ahead of it, and
+    // one of them is a better reply than an error about a lookup the visitor
+    // may not even have been asking for. The stock PAGE makes the opposite
+    // choice, because there the lookup is the whole request.
+    return null;
+  }
   if(!company) return null;
   if(company.ambiguous) return answerAmbiguousCompany(company.candidates, langCode);
   return answerForCompany(company, norm, langCode, conversationContext);

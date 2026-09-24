@@ -22,7 +22,10 @@ export function chartColors(){
     text: light ? '#57666E' : '#93A0A7',
     ema20: light ? '#A8701E' : '#E2A94E',
     sma50: light ? '#2E6FA8' : '#8FBFE8',
-    sma150: light ? '#7A4A96' : '#C594DE',
+    // Teal, not purple. Must stay in step with the lesson captions that name
+    // this line by colour (see LESSON_CHARTS in @core/charts/lessonCharts.ts)
+    // and with --advanced in tokens.css, which carries the same hue in CSS.
+    sma150: light ? '#0F6F68' : '#62C0BB',
     gold: light ? '#1D5CAD' : '#6FA8DC',
     goldDim: light ? 'rgba(29,92,173,0.10)' : 'rgba(111,168,220,0.14)',
     bull: light ? '#1E7A4C' : '#5FC28C',
@@ -78,13 +81,25 @@ export function drawChart(canvas, tipEl, candles, opts){
   const CC = chartColors();
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio||1;
-  const cssW = canvas.clientWidth || canvas.width;
-  const cssH = canvas.height / (canvas.width/cssW) || canvas.height;
-  const W = canvas.width = cssW*dpr;
-  const H = canvas.height = (opts.height||440)*dpr;
-  canvas.style.height=(opts.height||440)+'px';
+  // The canvas's RENDERED box is the source of truth for both dimensions.
+  //
+  // This used to force `canvas.height = (opts.height || 440)` and write that
+  // onto style.height as well, so the chart drew at a fixed 440px no matter
+  // what size the card gave it. Once the lesson cards started sizing
+  // themselves — half a row or a whole one, with the height following an
+  // aspect ratio — every chart overflowed its well and was clipped: a 292px
+  // card cut 172px off the bottom of the drawing, taking the volume bars and
+  // part of the price action with it.
+  //
+  // Reading the box instead means the renderer draws exactly what is visible,
+  // and `opts.height` is no longer a size at all — only the fallback used when
+  // the element has not been laid out (a detached canvas, or jsdom).
+  const cssW = canvas.clientWidth || opts.width || 800;
+  const cssH = canvas.clientHeight || opts.height || 440;
+  const W = canvas.width = Math.round(cssW*dpr);
+  const H = canvas.height = Math.round(cssH*dpr);
   ctx.setTransform(dpr,0,0,dpr,0,0); ctx.direction='ltr';
-  const w=cssW, h=opts.height||440;
+  const w=cssW, h=cssH;
   ctx.clearRect(0,0,w,h);
 
   const padL=54, padR=16, padT=16;
@@ -104,7 +119,7 @@ export function drawChart(canvas, tipEl, candles, opts){
   const yFor = p => padT + (1-(p-lo)/(hi-lo))*chartH;
 
   // grid
-  ctx.strokeStyle=CC.grid; ctx.lineWidth=1; ctx.font="11px 'JetBrains Mono','Rubik',monospace"; ctx.fillStyle=CC.text;
+  ctx.strokeStyle=CC.grid; ctx.lineWidth=1; ctx.font="11px 'Rubik',system-ui,sans-serif"; ctx.fillStyle=CC.text;
   for(let g=0; g<=4; g++){
     const p = lo + (hi-lo)*g/4;
     const y = yFor(p);
@@ -271,9 +286,13 @@ export function drawPriceRSI(canvas, tipEl, candles, opts){
   const CC = chartColors();
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio||1;
-  const cssW = canvas.clientWidth || canvas.width;
-  const H = opts.height || 320;
-  canvas.width = cssW*dpr; canvas.height = H*dpr; canvas.style.height=H+'px';
+  // Same rule as drawChart above: the rendered box decides, not opts.height.
+  // This one additionally wrote style.height, so a price+RSI chart forced its
+  // own 320px into whatever card it was in — leaving a 460px well with 140px
+  // of empty space under the drawing.
+  const cssW = canvas.clientWidth || opts.width || 800;
+  const H = canvas.clientHeight || opts.height || 320;
+  canvas.width = Math.round(cssW*dpr); canvas.height = Math.round(H*dpr);
   ctx.setTransform(dpr,0,0,dpr,0,0); ctx.direction='ltr';
   const w=cssW, h=H;
   ctx.clearRect(0,0,w,h);
@@ -293,7 +312,7 @@ export function drawPriceRSI(canvas, tipEl, candles, opts){
   const rsiTop = padT+priceH+gap;
   const yForRsi = v => rsiTop + (1-v/100)*rsiH;
 
-  ctx.strokeStyle=CC.grid; ctx.lineWidth=1; ctx.font="11px 'JetBrains Mono','Rubik',monospace"; ctx.fillStyle=CC.text;
+  ctx.strokeStyle=CC.grid; ctx.lineWidth=1; ctx.font="11px 'Rubik',system-ui,sans-serif"; ctx.fillStyle=CC.text;
   for(let g=0; g<=3; g++){
     const p = lo + (hi-lo)*g/3;
     const y = yForPrice(p);
@@ -322,7 +341,7 @@ export function drawPriceRSI(canvas, tipEl, candles, opts){
     ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
   });
   ctx.setLineDash([]);
-  ctx.font="10.5px 'JetBrains Mono','Rubik',monospace"; ctx.fillStyle=CC.text;
+  ctx.font="10.5px 'Rubik',system-ui,sans-serif"; ctx.fillStyle=CC.text;
   ctx.fillText('70', 6, yForRsi(70)+4);
   ctx.fillText('30', 6, yForRsi(30)+4);
 

@@ -31,6 +31,7 @@ import { entries as focused } from './focused.js';
 import { entries as maPeriods } from './ma-periods.js';
 import { entries as facets } from './facets.js';
 import { KB_EXAMPLES } from './examples.js';
+import { KB_TEACHING } from './teaching.js';
 
 /** Every knowledge entry, in a stable, explicit order. */
 export const KB: KbEntry[] = [
@@ -59,6 +60,14 @@ export const KB: KbEntry[] = [
 for (const [id, examples] of Object.entries(KB_EXAMPLES)) {
   const entry = KB.find((e) => e.id === id);
   if (entry && !entry.examples) entry.examples = examples as KbEntry['examples'];
+}
+
+// Same rule for the teaching blocks — the caveat and the bottom line.
+for (const [id, blocks] of Object.entries(KB_TEACHING)) {
+  const entry = KB.find((e) => e.id === id);
+  if (!entry) continue;
+  if (blocks.caveat && !entry.caveat) entry.caveat = blocks.caveat;
+  if (blocks.bottomLine && !entry.bottomLine) entry.bottomLine = blocks.bottomLine;
 }
 
 const byId = new Map<string, KbEntry>(KB.map((e) => [e.id, e]));

@@ -48,6 +48,10 @@ export interface KbEntry {
   compares?: [string, string];
   related?: string[];
   examples?: ExampleSet | string[];
+  /** The concept's most common misreading. Rendered as its own block. */
+  caveat?: Localized;
+  /** The one sentence worth keeping. Rendered as its own block. */
+  bottomLine?: Localized;
   /** Aspect-specific answers, e.g. definition vs pros vs cons. */
   facets?: Record<string, Localized>;
 }

@@ -25,7 +25,9 @@ export const entries = [
     en:`A moving average is the average closing price over a fixed number of past sessions, recalculated every day. A shorter average (e.g. 20-day) reacts faster to changes; a longer one (e.g. 200-day) describes the broader trend. When a shorter average crosses above a longer one it's called a "golden cross" and is generally seen as a bullish sign; when the opposite happens it's called a "death cross".`,
     related:['combining-indicators'] },
 
-  { id:'rsi', cat:'technical', priority:2, kw:['rsi','relative strength index','אר אס איי','מדד עוצמה יחסי'],
+  { id:'rsi', cat:'technical', priority:2, // 'רסי' is how Hebrew speakers overwhelmingly spell the acronym out loud,
+  // and 'אר אס איי' (the letter-by-letter form already here) almost never is.
+  kw:['rsi','relative strength index','רסי','אר אס איי','מדד עוצמה יחסי'],
     he:`RSI (מדד עוצמה יחסי) הוא אינדיקטור שנע בין 0 ל-100 ומודד את קצב ועוצמת תנועות המחיר האחרונות. ערך מעל 70 נחשב לרוב "קניית יתר" (overbought) — יתכן שהעלייה נמתחה יותר מדי — וערך מתחת ל-30 נחשב "מכירת יתר" (oversold). זה לא איתות "קנה/מכור" אוטומטי, אלא רמז לכך שמומלץ לבדוק את התמונה בזהירות רבה יותר — ובמגמה חזקה במיוחד, RSI יכול להישאר "קניית יתר" הרבה זמן בלי שהמחיר יורד.`,
     en:`RSI (Relative Strength Index) is an indicator that moves between 0 and 100, measuring the speed and strength of recent price moves. A value above 70 is usually considered "overbought" — the move may be stretched — and below 30 is considered "oversold". It's not an automatic buy/sell signal, just a hint that the situation may deserve a closer, more careful look — and in an especially strong trend, RSI can stay "overbought" for a long time without price actually falling.`,
     related:['divergence','breakout-volume-rsi-conflict-scenario'] },

@@ -36,7 +36,10 @@ export const entries = [
     en:`A stock exchange is an organized, regulated marketplace where buyers and sellers meet (today almost always electronically) to trade shares and other securities under clear rules. A company that wants its shares to trade on an exchange has to meet certain listing and disclosure requirements, which is part of what gives investors basic confidence in the transparency of the information available.`,
     related:['index','ipo'] },
 
-  { id:'broker', cat:'basics', kw:['broker','brokerage','ברוקר','בית השקעות','ברוקראז'],
+  { id:'broker', cat:'basics', // "How do I buy a stock?" is this entry's question, not the `stock` entry's —
+  // you buy through a broker. Without these phrasings the umbrella `stock`
+  // entry won it on the bare word "מניה" and answered with a definition.
+  kw:['broker','brokerage','how do i buy a stock','how to buy a stock','how do i buy shares','where do i buy stocks','ברוקר','בית השקעות','ברוקראז','איך קונים מניה','איך קונים מניות','איך לקנות מניה','איפה קונים מניות'],
     he:`ברוקר (בית השקעות/מתווך) הוא הגורם שדרכו משקיע פרטי בפועל שולח פקודות קנייה ומכירה לבורסה — אי אפשר לסחור בבורסה ישירות בלי מתווך מורשה. ברוקרים שונים נבדלים בעמלות מסחר, בטווח השווקים שאפשר לגשת אליהם דרכם, ובכלים שהם מציעים למשתמש.`,
     en:`A broker (brokerage) is the entity through which a private investor actually sends buy and sell orders to the exchange — you can't trade directly on an exchange without a licensed intermediary. Different brokers vary in trading fees, which markets you can access through them, and the tools they offer users.`,
     related:['how-trading-works','order-types'] },
@@ -61,7 +64,10 @@ export const entries = [
     en:`A stock's price at any moment is set by the meeting point between what buyers are willing to pay and what sellers are willing to accept. Price rises when there's more aggressive demand (buyers willing to pay more to win the trade) relative to supply, and falls when the opposite is true. What drives that demand and supply can be almost anything: earnings reports, future expectations, interest rates and the economy, company-specific news, and even general market sentiment.`,
     related:['how-trading-works','bid-ask-spread'] },
 
-  { id:'bid-ask-spread', cat:'basics', kw:['bid','ask','bid ask','spread','bid ask spread','ביד','אסק','מרווח','spread מסחר'],
+  // 'ספרד' is how the word is actually typed in Hebrew — it is also the
+  // Hebrew for "Spain", but this assistant answers stock-market questions
+  // only, so the trading sense is the only reading that can be meant here.
+  { id:'bid-ask-spread', cat:'basics', kw:['bid','ask','bid ask','spread','bid ask spread','ביד','אסק','מרווח','spread מסחר','ספרד','המרווח בין קנייה למכירה'],
     he:`Bid הוא המחיר הגבוה ביותר שמישהו מוכן כרגע לשלם כדי לקנות, ו-Ask (או Offer) הוא המחיר הנמוך ביותר שמישהו מוכן כרגע לקבל כדי למכור. Spread הוא הפער בין השניים. Spread צר מעיד בדרך כלל על מניה נזילה מאוד עם הרבה מסחר; Spread רחב מעיד על נזילות נמוכה יותר, ומשמעותו בפועל היא עלות מסחר נוספת (אתה קונה ב-Ask הגבוה יותר ומוכר ב-Bid הנמוך יותר).`,
     en:`The bid is the highest price someone is currently willing to pay to buy, and the ask (or offer) is the lowest price someone is currently willing to accept to sell. The spread is the gap between the two. A tight spread usually signals a very liquid, heavily traded stock; a wide spread signals lower liquidity, and in practice acts as an extra trading cost (you buy at the higher ask and sell at the lower bid).`,
     related:['liquidity','how-trading-works'] },
@@ -126,7 +132,7 @@ export const entries = [
     en:`A single share price (say $5 versus $500) tells you almost nothing about how "cheap" a company actually is — the share price also depends on how many shares outstanding the company has issued, which is set fairly arbitrarily. A company with a $5 share price and 1 billion shares outstanding is worth exactly the same as one with a $500 share price and 10 million shares, if their total market cap is identical. The correct way to check whether a stock is "cheap" relative to the business behind it is to look at multiples like P/E or P/S, not the sticker price alone. Low-priced "cheap" stocks (like penny stocks) are sometimes actually riskier — they often trade that low because the company did a reverse split to avoid delisting, or because it's in financial trouble.`,
     related:['market-cap','pe-ratio'] },
 
-  { id:'minimum-to-start-investing', cat:'basics', priority:2, kw:['how much money do i need to start investing','do i need to be rich to invest','minimum amount to invest','fractional shares','כמה כסף צריך כדי להתחיל להשקיע','צריך להיות עשיר כדי להשקיע','צריך להיות עשיר','עשיר כדי להשקיע','מניות שבר'],
+  { id:'minimum-to-start-investing', cat:'basics', priority:2, kw:['how much money do i need to start investing','do i need to be rich to invest','minimum amount to invest','fractional shares','כמה כסף צריך כדי להתחיל להשקיע','כמה כסף צריך כדי להתחיל','כמה כסף צריך','עם כמה כסף מתחילים','סכום מינימלי להשקעה','צריך להיות עשיר כדי להשקיע','צריך להיות עשיר','עשיר כדי להשקיע','מניות שבר'],
     he:`בעבר היה צריך לקנות מניה שלמה לפחות (מה שיכול היה לעלות מאות או אלפי דולרים למניה יקרה), אבל היום ברוקרים רבים מאפשרים לקנות "מניות שבר" (Fractional Shares) — כלומר לקנות למשל ב-50 ש"ח בלבד חלק קטן ממניה של חברה שהמחיר שלה הרבה יותר גבוה. זה הפריך במידה רבה את המיתוס שצריך להיות עשיר כדי להתחיל להשקיע. עם זאת, סכום ההשקעה עדיין משפיע: עמלות קנייה/מכירה קבועות (אם קיימות אצל הברוקר) יכולות "לאכול" אחוז גדול יותר מסכום קטן, ולכן שווה לבדוק את מבנה העמלות של הברוקר לפני שמתחילים.`,
     en:`In the past you had to buy at least one whole share (which could cost hundreds or thousands of dollars for an expensive stock), but today many brokers allow buying "fractional shares" — meaning you can invest as little as $10 to get a small slice of a much more expensive stock. This has largely debunked the myth that you need to be rich to start investing. That said, the amount still matters: flat buy/sell commissions (if the broker charges them) can eat up a much bigger percentage of a small amount, so it's worth checking a broker's fee structure before starting.`,
     related:['broker','dollar-cost-averaging'] },

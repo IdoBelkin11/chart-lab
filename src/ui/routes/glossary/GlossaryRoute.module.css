@@ -1,25 +1,14 @@
-.page { padding: var(--s-7) clamp(var(--s-4), 4vw, var(--s-7)) var(--s-8); max-width: 820px; }
-
-.head { position: relative; margin-bottom: var(--s-6); }
-/* The same single soft light source used on the home masthead and the lesson
-   head, so this page opens the way the rest of the product does. */
-.head::before {
-  content: '';
-  position: absolute;
-  /* Identical to the lesson page's version (LessonRoute.module.css) — same
-     technique, same numbers. The earlier attempt here used a different
-     technique (bottom pinned to .head's own edge instead of a fixed
-     height) to dodge the sticky search bar cutting into the glow, which is
-     exactly why it stopped looking like the same thing; the search bar's
-     extra clearance below is what actually fixes that now, not a
-     different-shaped glow. */
-  inset: -40px -8% auto -8%;
-  height: 300px;
-  background: var(--spotlight);
-  pointer-events: none;
-  z-index: 0;
+/* margin-inline: auto is load-bearing: a capped column without it hugs the
+   start edge — the right, in Hebrew — and leaves a dead band down the other
+   side of the workspace. Every capped page in the product centres. */
+.page {
+  padding: var(--s-7) clamp(var(--s-4), 4vw, var(--s-7)) var(--s-8);
+  max-width: 820px;
+  margin-inline: auto;
 }
-.title, .intro, .searchRow { position: relative; z-index: 1; }
+
+/* No hero glow here either — see the note in LessonRoute.module.css. */
+.head { margin-bottom: var(--s-6); }
 
 .title { font-size: clamp(26px, 3.4vw, 36px); font-weight: 650; letter-spacing: -0.03em; }
 .intro {
@@ -32,26 +21,48 @@
 
 /* Sticky, because the whole point of a reference page is looking something
    up while you scroll it. */
+/* Sticky, because the whole point of a reference page is looking something up
+   while you scroll it — and because the term list passes underneath, this is
+   one of the few surfaces where the glass blur has real content to work on.
+   Bled out to the page gutters so the glass spans the column edge to edge
+   rather than leaving the list visible in the margins beside it. */
+/* A rounded card that floats, NOT a full-bleed slab. Bleeding it out to the
+   page-box edges made a hard-cornered rectangle hanging in the middle of the
+   workspace — the capped column never reaches the viewport edge, so the
+   "bleed" had nothing to bleed into. Rounded on all four corners and inset
+   from the text column, it reads as a control resting on the page. */
 .searchRow {
+  composes: glass from '../../styles/glass.module.css';
+
   position: sticky;
-  top: 0;
+  top: var(--s-3);
   z-index: 2;
   display: flex; align-items: center; gap: 14px;
-  margin-top: var(--s-8);
-  padding: var(--s-3) 0;
-  background: var(--canvas);
+  margin-top: var(--s-7);
+  margin-inline: calc(-1 * var(--s-3));
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-card);
 }
+/* The recessed well every other input in the product uses — an opaque
+   bordered box sitting on glass reads as a sticker on the surface rather than
+   a slot cut into it. */
 .search {
   flex: 1; min-width: 0;
-  padding: 12px 16px;
-  border-radius: var(--r-full);
-  border: 1px solid var(--line);
-  background: var(--surface);
+  padding: 13px 17px;
+  border: none;
+  border-radius: var(--r-pill);
+  background: rgba(0, 0, 0, 0.26);
+  box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--glass-border);
   color: var(--text);
   font: inherit;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  transition: box-shadow var(--t-fast);
 }
-.search:focus { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
+:root[data-theme='light'] .search {
+  background: rgba(12, 22, 34, 0.06);
+  box-shadow: inset 0 1.5px 3px rgba(12, 22, 34, 0.1), inset 0 0 0 1px rgba(12, 22, 34, 0.07);
+}
+.search::placeholder { color: var(--text-faint); }
+.search:focus { outline: none; box-shadow: var(--ring); }
 .count {
   flex: none;
   font-family: var(--mono); font-size: var(--fs-xs); font-weight: 700;

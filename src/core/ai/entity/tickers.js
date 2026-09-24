@@ -384,7 +384,17 @@ export function transliterateHebrewToLatin(text){
   return [...new Set(variants)].filter(s => s.trim().length >= 2).slice(0, 8);
 }
 
-export const dynamicTickerCache = {}; // candidate (lowercased) -> resolved company object or null
+/**
+ * Candidate text (lowercased) -> the resolved company, or null for a
+ * confirmed miss. Both are cached: re-asking about a name that isn't a
+ * company shouldn't hit the provider again.
+ *
+ * Typed rather than left as a bare `{}` so callers can index it by string —
+ * tests clear it between cases, since a verdict reached under one provider
+ * must not leak into a case running under another.
+ * @type {Record<string, { ticker: string, exchange?: string, name: { he: string, en: string } } | { ambiguous: true, candidates: unknown[] } | null>}
+ */
+export const dynamicTickerCache = {};
 
 export async function searchAndRankSymbol(queryText){
   // Ranking/filtering is entity-resolution business logic, not a
@@ -479,10 +489,34 @@ export async function resolveTickerDynamic(rawText, triggerOnly){
         break;
       }
     }
-  }catch(e){ /* dynamic lookup failing just means we fall through to "not found" */ }
+  }catch(e){
+    // A provider that is unreachable has NOT told us this company doesn't
+    // exist — it has told us nothing at all. Those used to be collapsed into
+    // the same `null`, and worse, that null was then cached: one failed
+    // request taught the session that a real company did not exist, and it
+    // kept saying so even after the provider recovered. The stock page showed
+    // "I couldn't find a company by that name" for a backend outage, which
+    // sends the visitor off to re-check their spelling for a problem that
+    // isn't theirs.
+    //
+    // So this is raised, not swallowed, and nothing is cached. Each caller
+    // states its own policy: the stock page reports "unavailable", the chat
+    // path treats it as a miss and moves on to its other answers.
+    throw new ProviderUnavailableError(e);
+  }
 
   dynamicTickerCache[cacheKey] = resolved;
   return resolved;
+}
+
+/** Raised when a lookup could not be completed, as distinct from completing
+ *  and finding nothing. See resolveTickerDynamic. */
+export class ProviderUnavailableError extends Error {
+  constructor(cause){
+    super('market data provider unavailable');
+    this.name = 'ProviderUnavailableError';
+    this.cause = cause;
+  }
 }
 
 

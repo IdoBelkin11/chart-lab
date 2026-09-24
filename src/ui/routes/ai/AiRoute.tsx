@@ -16,6 +16,7 @@ import { originRoute } from '@ui/shell/returnTo';
 import { lessonById } from '@core/lessons/lessons';
 import { useTypewriter } from '@ui/hooks/useTypewriter';
 import { AiAnswer } from '@ui/components/learning/AiAnswer';
+import { SparkleIcon, BarChartIcon } from '@ui/components/icons/Icons';
 import styles from './AiRoute.module.css';
 
 interface Turn {
@@ -266,9 +267,10 @@ export function AiRoute() {
       )}
 
       <div className={styles.transcript} ref={transcriptRef} role="log" aria-live="polite" aria-atomic="false">
+       <div className={styles.column}>
         {turns.length === 0 && (
           <div className={styles.empty}>
-            <div className={styles.mark} aria-hidden="true">✦</div>
+            <div className={styles.mark} aria-hidden="true"><SparkleIcon className={styles.markIcon} /></div>
             <h2 className={styles.emptyTitle}>{t('aiEmptyTitle')}</h2>
             <p className={styles.emptyLead}>{t('aiEmptyBody')}</p>
             <div className={styles.examples}>
@@ -284,7 +286,7 @@ export function AiRoute() {
                 className={`${styles.example} ${styles.exampleBrowse}`}
                 onClick={() => void send(lang === 'he' ? 'רשימת נושאים' : 'list of topics')}
               >
-                <span aria-hidden="true">📊</span>&nbsp;
+                <BarChartIcon className={styles.exampleIcon} />
                 {lang === 'he' ? 'עיין בכל הנושאים' : 'Browse every topic'}
               </button>
             </div>
@@ -312,6 +314,7 @@ export function AiRoute() {
             <span /><span /><span />
           </p>
         )}
+       </div>
       </div>
 
       <form

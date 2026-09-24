@@ -38,6 +38,14 @@ export async function backendFetchJson(path, params){
     .join('&');
   const res = await fetch(base + '/' + path + (qs ? '?' + qs : ''), { cache: 'no-store' });
   if(!res.ok) throw new Error('backend_http_' + res.status);
+  // A 200 is NOT proof the backend answered. Anything that serves an SPA
+  // fallback — the Vite dev server, a misconfigured redirect, a captive
+  // portal, a CDN error page — returns 200 with an HTML body, and res.json()
+  // then fails with a parse error that reads like a bug rather than like
+  // "there is no backend here". Checking the content type turns that into an
+  // honest, catchable signal, which is what lets the caller fall back.
+  const type = res.headers.get('content-type') || '';
+  if(!type.includes('json')) throw new Error('backend_not_json');
   return res.json();
 }
 
@@ -60,10 +68,21 @@ export async function backendGetFundamentals(ticker){
 }
 
 export async function backendSearchSymbol(queryText){
-  try {
-    const json = await backendFetchJson('search', { q: queryText });
-    return Array.isArray(json) ? json : (json && json.data) || [];
-  } catch(e){ return []; }
+  // Deliberately NOT wrapped in a try/catch that returns [].
+  //
+  // An empty array means "I searched, and this is not a company." A backend
+  // that could not be reached has said no such thing, and collapsing the two
+  // is what made the stock page answer "I couldn't find a company by that
+  // name" whenever the API was down — blaming the visitor's spelling for an
+  // outage. In local dev that is the normal state (Vite serves the SPA shell
+  // for /api/market/*, so every search 200s with HTML), which is exactly how
+  // the bug stayed invisible.
+  //
+  // Fundamentals above still swallow their failure, and should: they are
+  // optional enrichment on an answer that succeeds without them. A search is
+  // not optional — it IS the answer.
+  const json = await backendFetchJson('search', { q: queryText });
+  return Array.isArray(json) ? json : (json && json.data) || [];
 }
 
 // Satisfies the MarketDataProvider contract in provider-interface.js.

@@ -67,13 +67,19 @@ describe('an unknown subject is not answered with the previous topic', () => {
     // used to assume any short unmatched message was still ABOUT the
     // previous topic, so this was answered with the full trend explanation
     // — confidently, fluently, and about something the visitor had not
-    // asked about. "gauz" is itself a real (if obscure) company this
-    // engine now resolves dynamically (see tickers.js) — the guard's job
-    // is only to stop the wrong silent re-serve, not to guarantee an
-    // off-topic message for every unmatched word.
+    // asked about.
+    //
+    // What this test asserts is only that the wrong silent re-serve does not
+    // happen. It does NOT assert what the reply becomes instead: that depends
+    // on whether the active market-data provider has heard of the name, and
+    // this suite runs against Demo Mode, which has no company database beyond
+    // the curated list and so honestly reports nothing. Both outcomes are
+    // correct; answering about trend is the one that is not.
+    // Dynamic resolution itself is covered in tickerDynamic.test.ts, against a
+    // provider that actually has a database to resolve from.
     const reply = await generateAiReply('תן לי מידע על gauz', 'he', first.topicId!, ctx);
     expect(reply.text).not.toMatch(/מגמת עלייה/);
-    expect(reply.topicId).toBe('stock-data');
+    expect(reply.topicId).not.toBe('trend');
   });
 
   it('genuine short follow-ups still resolve against the previous topic', async () => {
@@ -88,14 +94,21 @@ describe('an unknown subject is not answered with the previous topic', () => {
     const ctx = createConversationContext();
     const first = await generateAiReply('what is a trend', 'en', null, ctx);
     const reply = await generateAiReply('tell me about zorblax', 'en', first.topicId!, ctx);
-    // "zorblax" isn't a real company, so in production (a real market-data
-    // provider) this would correctly find nothing and fall to the honest
-    // off-topic message. This suite runs against Demo Mode, whose provider
-    // is documented to synthesize a clearly-fake match for any plausible-
-    // looking attempt rather than claim to have no data — so the bar here
-    // is that it's never silently presented as real, not that it's absent.
-    expect(reply.topicId).not.toBe('trend');
-    expect(reply.text).toMatch(/Demo Mode/i);
+    // "zorblax" isn't a real company, so nothing should resolve and the reply
+    // should be the honest off-topic message.
+    //
+    // This assertion used to be the opposite: it required the reply to carry a
+    // "Demo Mode" label, because DemoProvider synthesized a clearly-labelled
+    // fake match for any text rather than claim to have no data. The label was
+    // supposed to keep that honest and did not — a provider that answers for
+    // ANY text turns every unrecognised question into an invented security,
+    // and a "(Demo)" suffix does not make a made-up company less made up. The
+    // provider now returns nothing it cannot back, so the test that codified
+    // the old behaviour is inverted here rather than deleted: the name it was
+    // always given is finally what it checks.
+    expect(reply.topicId).toBeUndefined();
+    expect(reply.text).not.toMatch(/zorblax/i);
+    expect(reply.text).not.toMatch(/\$\d/);
   });
 });
 

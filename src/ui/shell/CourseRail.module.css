@@ -1,14 +1,21 @@
 /* The rail is a permanent full-height column with the brand at its top.
    No toggle, no drawer, no scrim — the roadmap is context, not a menu. */
+/* A floating sheet, not a column welded to the viewport edge — which is also
+   what lets its rim stay a closed ring, the same reasoning as the header. */
 .rail {
+  composes: glass from '../styles/glass.module.css';
+
   width: 272px;
   display: flex;
   flex-direction: column;
   min-height: 0;
   overflow-y: auto;
-  padding: 0 var(--s-4) var(--s-6);
-  background: var(--surface);
-  border-inline-end: 1px solid var(--line);
+  padding: var(--s-5) var(--s-4) var(--s-6);
+  /* Even gap on every side. The rail now sits at the inline-end edge in both
+     writing directions (see AppShell), so there is no side that needs a
+     direction-specific margin any more. */
+  margin: var(--s-3);
+  border-radius: var(--r-sheet);
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
 }
@@ -21,11 +28,14 @@
   display: flex;
   align-items: center;
   gap: 11px;
-  min-height: 62px;
-  padding: 0 var(--s-2);
-  margin-bottom: var(--s-5);
-  background: var(--surface);
-  border-bottom: 1px solid var(--line-soft);
+  min-height: 54px;
+  padding: 0 var(--s-2) var(--s-4);
+  margin-bottom: var(--s-4);
+  /* Transparent. Stacking a second glass layer on top of the rail's own
+     doubles the white-alpha and shows as a lighter slab cut out of the sheet;
+     the rail's material already sits behind this strip. */
+  background: none;
+  border-bottom: 1px solid var(--glass-border);
   text-decoration: none;
   color: inherit;
 }
@@ -62,55 +72,86 @@
 }
 .count { font-family: var(--mono); font-size: var(--fs-2xs); font-weight: 700; color: var(--text-muted); }
 
-.list { display: flex; flex-direction: column; gap: 2px; }
+/* `position: relative` is what the travelling capsule is measured against. */
+.list { position: relative; display: flex; flex-direction: column; gap: 2px; }
 
+/* Pill-shaped rows, like the header's tabs and the mockup's — the capsule that
+   travels between them is a capsule, so the target it lands on has to be one
+   too, or the shape visibly disagrees with itself on arrival.
+   z-index keeps the label above the capsule, which is painted first. */
 .item {
   position: relative;
-  display: flex; align-items: center; gap: 13px;
-  width: 100%; padding: 11px 10px;
-  border: none; background: none; border-radius: var(--r-sm);
+  z-index: 1;
+  display: flex; align-items: center; gap: 11px;
+  width: 100%; padding: 10px 11px;
+  border: none; background: none; border-radius: var(--r-pill);
   text-align: start; cursor: pointer; color: var(--text-muted);
-  transition: background var(--t-fast), color var(--t-fast), transform var(--t-fast);
+  font-size: var(--fs-sm);
+  transition: color var(--t-med) var(--ease), background var(--t-fast), box-shadow var(--t-fast);
 }
-.item:hover { background: var(--surface-2); color: var(--text); transform: translateX(2px); }
-[dir='rtl'] .item:hover { transform: translateX(-2px); }
+/* The same lit pane the header tabs use on hover — a white-alpha wash inside
+   the material, never an opaque block cut out of the glass. The row used to
+   nudge sideways on hover, which fought the capsule's own travel. */
+.item:hover {
+  color: var(--text);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.035));
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
+}
+:root[data-theme='light'] .item:hover {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.5));
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 1), inset 0 0 0 1px rgba(10, 20, 29, 0.05);
+}
 
+/* The unvisited marker's face and ring come from TOKENS, not from a
+   `:root[data-theme='light'] .marker` override.
+
+   That override was a real bug, not a style choice: at (0,3,0) it outranked
+   every state rule below it — `.completed .marker`, `.current .marker` and
+   `.learning .marker` are all (0,2,0) — so in light mode every marker was
+   painted the same blank grey and the whole roadmap lost its state. Eight
+   finished chapters read as eight untouched ones, next to a progress bar
+   saying 8/8.
+
+   Tokens carry the theme difference instead, so the base rule needs no theme
+   selector and the state rules win by ordinary source order. */
 .marker {
   flex: none;
-  width: 28px; height: 28px;
+  width: 24px; height: 24px;
   display: grid; place-items: center;
   border-radius: var(--r-full);
-  background: var(--canvas);
-  box-shadow: inset 0 0 0 2px var(--line);
+  background: var(--marker-face);
+  box-shadow: inset 0 0 0 1.5px var(--marker-ring);
   color: var(--text-faint);
-  font-family: var(--mono); font-size: var(--fs-2xs); font-weight: 700;
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700;
   transition: background var(--t-med), box-shadow var(--t-med), color var(--t-med);
 }
-.title { font-size: var(--fs-base); font-weight: 600; line-height: 1.35; }
+.title { font-size: var(--fs-sm); font-weight: 500; line-height: 1.35; }
 
 /* State is carried by the marker, not by a border drawn around each row. */
 .learning .marker { box-shadow: inset 0 0 0 2px var(--accent); color: var(--accent); }
 .learning .title { color: var(--text); }
 
+/* Lit from above like every other raised chip in the product, rather than a
+   flat fill — the mockup's numDone. */
 .completed .marker {
-  background: var(--success);
-  box-shadow: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: center; background-size: 14px 14px;
+  background: linear-gradient(to bottom, #8fdcb6, var(--success));
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.55);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306281c' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E"),
+    linear-gradient(to bottom, #8fdcb6, var(--success));
+  background-repeat: no-repeat; background-position: center; background-size: 13px 13px, cover;
 }
 
-.current { background: var(--accent-dim); }
-.current .title { color: var(--text); font-weight: 700; }
-.current .marker { background: var(--accent); color: var(--accent-ink); box-shadow: none; }
-.current::before {
-  content: '';
-  position: absolute;
-  inset-inline-start: -1px;
-  top: 14%;
-  bottom: 14%;
-  width: 3px;
-  border-radius: var(--r-full);
-  background: var(--accent);
+/* The row paints NO background and no edge marker of its own: the travelling
+   capsule is the only thing that draws one. A row that also filled itself
+   showed two selections at once for the length of the transition — which is
+   what made moving between lessons blink rather than flow. */
+.current, .current:hover { background: none; box-shadow: none; }
+.current .title { color: var(--text); font-weight: 650; }
+.current .marker {
+  color: var(--accent-ink);
+  background: linear-gradient(to bottom, var(--accent-strong), var(--accent));
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
 }
 
 /* Narrow screens: the rail becomes a horizontal strip above the workspace —
@@ -124,15 +165,20 @@
     overflow-x: auto;
     overflow-y: hidden;
     padding: var(--s-2) var(--s-3);
-    border-inline-end: none;
-    border-bottom: 1px solid var(--line);
+    margin: var(--s-2) var(--s-2) 0;
+    border-radius: var(--r-pill);
   }
-  .brand { position: static; min-height: 0; margin: 0; padding: 0; border: none; }
+  .rail::-webkit-scrollbar { display: none; }
+  .brand { position: static; min-height: 0; margin: 0; padding: 0 var(--s-2) 0 0; border: none; flex: none; }
   .brandName { display: none; }
   .head { display: none; }
-  .list { flex-direction: row; gap: 4px; }
-  .item { padding: 6px 8px; }
-  .title { display: none; }
+  .list { flex-direction: row; gap: 2px; }
+  /* Titles STAY. Hiding them left eight numbered dots with nothing to say
+     which chapter each one was — a roadmap that no longer maps anything. The
+     strip scrolls instead, and CourseRail keeps the current chapter scrolled
+     into view, so the label you most need is the one you can always see. */
+  .item { padding: 8px 12px; white-space: nowrap; }
+  .title { font-size: var(--fs-xs); }
 }
 
 /* base.css zeroes transition duration, not displacement — a hover transform

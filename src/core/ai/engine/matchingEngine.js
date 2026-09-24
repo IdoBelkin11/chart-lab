@@ -125,6 +125,45 @@ export function kbTextFor(id, langCode){
 }
 
 // ---------------------------------------------------------------------------
+// The Hebrew half of the short-token boundary rule.
+//
+// Hebrew attaches its prepositions and article to the FRONT of a word
+// (ב/ה/ו/כ/ל/מ/ש — "המדד", "בתיק", "שבתיק") and its plural and possessive
+// endings to the BACK ("מדדים", "נרות"). That is why Hebrew keywords are
+// substring-matched at all: requiring whitespace on both sides, the way short
+// ASCII acronyms are handled in scoreAllEntries, would miss every inflected
+// form and there are a lot of them.
+//
+// What substring matching must NOT do is match in the middle of an unrelated
+// word. "רסי" (how RSI is spelled in Hebrew) sits inside "דיברסיפיקציה"
+// (diversification) — the exact same hazard as "rsi" inside
+// "diveRSIfication", which the ASCII rule already guards, just in the other
+// script. Hebrew had no equivalent guard, so adding "רסי" as a keyword
+// silently handed every diversification question to the RSI entry.
+//
+// So: a short Hebrew keyword has to START a word, optionally after attached
+// prefix letters. The ending stays free, which keeps the inflections working.
+// ---------------------------------------------------------------------------
+const HEB_PREFIX_LETTERS = 'בהוכלמש';
+const MAX_HEB_PREFIX = 2; // "שבתיק" — two stacked prefixes is the practical limit
+
+export function matchesAtHebrewWordStart(norm, k){
+  for(let from = 0;;){
+    const at = norm.indexOf(k, from);
+    if(at < 0) return false;
+    // Walk back to the start of this word. Every letter stepped over has to
+    // be an attachable prefix, or the keyword is buried mid-word.
+    let i = at, ok = true;
+    while(i > 0 && norm[i-1] !== ' '){
+      i--;
+      if(at - i > MAX_HEB_PREFIX || !HEB_PREFIX_LETTERS.includes(norm[i])){ ok = false; break; }
+    }
+    if(ok) return true;
+    from = at + 1;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Scoring: every KB entry against the normalized question. Longer / more
 // specific keyword phrases score higher than short generic ones.
 // ---------------------------------------------------------------------------
@@ -145,7 +184,12 @@ export function scoreAllEntries(norm){
       // keywords, which legitimately need substring matching to work with
       // Hebrew's attached prefixes (e.g. "gap" found inside "בגאפ").
       const isRiskyAsciiToken = /^[a-z]{1,3}$/i.test(raw);
-      const matched = isRiskyAsciiToken ? padded.includes(' ' + k + ' ') : norm.includes(k);
+      // The Hebrew counterpart — same hazard, looser rule, because Hebrew
+      // inflects by attachment. See matchesAtHebrewWordStart above.
+      const isRiskyHebrewToken = /^[֐-׿]{1,3}$/.test(raw);
+      const matched = isRiskyAsciiToken ? padded.includes(' ' + k + ' ')
+                    : isRiskyHebrewToken ? matchesAtHebrewWordStart(norm, k)
+                    : norm.includes(k);
       if(matched){
         score += k.split(' ').length + (k.length > 3 ? 1 : 0);
         // Short jargon acronyms (P/E, ROE, RSI, EPS, PEG, ETF, IPO...) are
@@ -244,6 +288,50 @@ export function exampleTargetEntry(norm, lastTopicId){
   const prev = lastTopicId ? kbById(lastTopicId) : null;
   if(prev && (examplesFor(prev,'he').length || examplesFor(prev,'en').length)) return prev;
   return scored.length ? scored[0].entry : null;
+}
+
+/**
+ * Appends the topic's first authored example to an explanation, labelled so
+ * the UI can set it as its own block (see AiAnswer's classify()).
+ *
+ * The examples in kb/examples.js already open by naming themselves
+ * ("דוגמה היפותטית:", "Hypothetical example:"), which is what the renderer
+ * keys on, so NOTHING is prefixed here — an added "Example:" in front of text
+ * that already says it produced "Example · Hypothetical example: ...". If the
+ * entry has no example, or its explanation already carries one inline, the
+ * answer is returned untouched.
+ */
+const EXAMPLE_OPENER = /(^|\n)\s*(דוגמה|דוגמא|example|hypothetical)/i;
+
+export function withWorkedExample(entry, text, langCode){
+  const list = examplesFor(entry, langCode);
+  if(!list.length || EXAMPLE_OPENER.test(text)) return text;
+  return text + '\n\n' + list[0];
+}
+
+/**
+ * The full teaching shape of an answer: the explanation, then a worked
+ * example, then the caveat, then the bottom line — each already opening with
+ * the words the renderer turns into its own coloured block.
+ *
+ * The order is the order they are useful in. The explanation says what the
+ * thing is; the example makes it concrete; the caveat is the part a definition
+ * always leaves out and the reason most people misread the concept; the bottom
+ * line is what survives if only one sentence does.
+ *
+ * Every block is authored content (kb/examples.js, kb/teaching.js) and most
+ * topics have none — nothing here generates text, so a topic without a written
+ * caveat simply gets a shorter answer rather than an invented one.
+ */
+export function withTeachingBlocks(entry, text, langCode){
+  let out = withWorkedExample(entry, text, langCode);
+  for(const block of [entry.caveat, entry.bottomLine]){
+    const line = block && block[langCode];
+    // Skip anything the explanation already says — an entry that wrote its own
+    // bottom line inline should not get a second copy in a box underneath it.
+    if(line && !out.includes(line)) out += '\n\n' + line;
+  }
+  return out;
 }
 
 export function looksCompound(norm){
@@ -888,6 +976,25 @@ export async function generateAiReply(userText, langCode, lastTopicId, conversat
     const composed = facetText
       ? { text: facetText, relatedIds: (scored[0].entry.related||[]).slice(0,2) }
       : (compound ? composeAnswer(scored, langCode) : { text: scored[0].entry[langCode], relatedIds: (scored[0].entry.related||[]).slice(0,2) });
+    // A worked example, where the topic has one, appended to the explanation.
+    //
+    // These were already authored (kb/examples.js covers the lesson-core
+    // topics: support and resistance, breakout, moving averages, candles,
+    // Fibonacci, RSI, stop loss...) but were only ever served if the visitor
+    // knew to ask "give me an example" — so a plain "what is support?" got the
+    // definition and nothing to picture it with. The definition is the part
+    // that is hard to hold on to without one.
+    //
+    // Only when the answer IS one topic: a facet request is already narrow, and
+    // an answer carrying two or three merged topics does not need a fourth
+    // block. The test is the composed text itself rather than the `compound`
+    // flag — "what's the difference between support and resistance?" trips that
+    // flag but is answered by the single entry that covers both, and that
+    // answer wants its example as much as any other. Nothing is generated
+    // here; this is authored text that was sitting unused.
+    if(!facetText && composed.text === scored[0].entry[langCode]){
+      composed.text = withTeachingBlocks(scored[0].entry, composed.text, langCode);
+    }
     composed.topicId = scored[0].entry.id;
     return composed;
   }

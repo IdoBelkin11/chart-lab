@@ -1,9 +1,13 @@
 /* The frame. The page itself never scrolls — only .workspace does.
    100dvh so collapsing mobile browser chrome cannot clip the shell. */
+/* Workspace first, rail second — the rail lands at the inline-end edge, which
+   is the left in Hebrew and the right in English. Because grid follows
+   document order here, no explicit placement is needed and the DOM order
+   already matches the visual one. */
 .shell {
   height: 100dvh;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   overflow: hidden;
 }
 
@@ -39,4 +43,12 @@
    narrow screens it becomes a horizontal strip above the workspace. */
 @media (max-width: 900px) {
   .shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  /* The rail is SECOND in the DOM — which is what puts it at the inline-end
+     edge on a wide screen, and what keeps tab order following the eye. Left to
+     auto-placement in a two-row grid that same order dropped it into row 2,
+     below a workspace that fills the viewport: the course roadmap was not a
+     strip above the page, it was off the bottom of the screen entirely, on
+     every narrow window. Pinning the workspace to row 2 hands the rail row 1
+     without reordering the markup. */
+  .main { grid-row: 2; }
 }

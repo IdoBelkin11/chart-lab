@@ -30,6 +30,9 @@ export declare function sma(vals: number[], period: number): Array<number | null
 export declare function computeRSI(closes: number[], period?: number): Array<number | null>;
 
 export declare const L1: Candle[] & { supportZone: [number, number]; resistZone: [number, number] };
+/** The "area, not a line" illustration: the band price respects, and the exact
+ *  line it pierces on every turn. */
+export declare const L1_ZONE: Candle[] & { band: [number, number]; exactLine: number };
 
 export declare const L2: Candle[] & { resistZone: [number, number]; breakIdx: number; retestIdx: number };
 export declare const l2BreakIdx: number;
@@ -38,14 +41,19 @@ export declare const L2_REAL: Candle[] & { resistZone: [number, number] };
 export declare const L2_FALSE: Candle[] & { resistZone: [number, number] };
 
 export declare const L3: Candle[];
+/** A market with no trend, where the same average crosses price endlessly. */
+export declare const L3_CHOP: Candle[];
 
-export declare const L5: Candle[] & {
+interface FibSeries {
   lowIdx: number;
   highIdx: number;
   swingLow: number;
   swingHigh: number;
   fibLevels: Array<{ ratio: number; price: number }>;
-};
+}
+export declare const L5: Candle[] & FibSeries;
+/** The same construction, on a pullback that goes through every level. */
+export declare const L5_FAIL: Candle[] & FibSeries;
 
 export declare const RSI_OB: Candle[] & { rsi: Array<number | null> };
 export declare const RSI_OS: Candle[] & { rsi: Array<number | null> };

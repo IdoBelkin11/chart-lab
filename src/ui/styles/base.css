@@ -3,13 +3,23 @@
 html, body { height: 100%; margin: 0; }
 
 body {
-  background: var(--canvas);
+  /* The ambient field over the flat canvas, pinned to the viewport. `fixed` is
+     the load-bearing part: content slides across a stationary field, so a
+     glass surface samples different colour as the page scrolls instead of
+     blurring one unchanging pixel value. */
+  background: var(--ambient), var(--canvas);
+  background-attachment: fixed;
   color: var(--text);
   font-family: var(--sans);
   font-size: var(--fs-base);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* Tabular figures product-wide. With one typeface everywhere (see the type
+     note in tokens.css) this is what keeps a column of prices, scores or
+     metrics from shifting sideways as its digits change — the job the
+     monospaced face used to do, without a second font. */
+  font-variant-numeric: tabular-nums;
 }
 
 #root { height: 100%; }

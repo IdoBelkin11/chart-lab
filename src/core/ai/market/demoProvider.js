@@ -22,8 +22,12 @@
 // rather than jumping around on every reload.
 // ---------------------------------------------------------------------------
 
-import { looksLikeEntityComparison, looksLikeEntityPronounReference } from '../context/conversationContext.js';
-import { normalizeText } from '../engine/text.js';
+// Nothing is imported from the conversation-context or text layers any more:
+// the guards that needed them are gone, because demoSearchSymbol no longer
+// decides whether a query "looks like" a company name — it has no database to
+// answer with either way. That also takes this file out of the
+// conversationContext → stockIntent → tickers → market → demoProvider import
+// cycle the graph flagged.
 import { setActiveMarketDataProvider } from './index.js';
 import { TwelveDataProvider } from './twelveDataProvider.js';
 export function demoSeedFromString(str){
@@ -105,35 +109,30 @@ export async function demoGetFundamentals(ticker){
   };
 }
 
-export async function demoSearchSymbol(queryText){
-  // No real database in Demo Mode — synthesize one clearly-fake match so the
-  // rest of the resolution pipeline (which expects a symbol_search shape)
-  // still has something to rank, without ever claiming this is a real
-  // company. The synthesized ticker is deterministic per query.
+export async function demoSearchSymbol(){
+  // Demo Mode has NO company database, so the only honest answer to "does a
+  // company by this name exist?" is "I have no idea" — which, in this
+  // contract, is an empty result.
   //
-  // Critical guard: only do this for something that's actually shaped like
-  // a company-name attempt. A real provider naturally returns no match for
-  // an ordinary question ("who is more profitable?") because no company is
-  // named "who is more profitable" — but this function used to fabricate a
-  // plausible-looking match for ANY non-empty string, including exactly
-  // that kind of natural-language question when it reached here as a
-  // (wrongly) extracted "candidate". Reuses the same comparison/pronoun
-  // pattern detection the AI's entity-context layer already relies on
-  // (conversation-context.js) rather than inventing a second, parallel
-  // keyword list — a query that reads as a comparison or pronoun reference
-  // is by definition not someone naming a company.
-  const norm = normalizeText(queryText);
-  if(looksLikeEntityComparison(norm) || looksLikeEntityPronounReference(norm)) return [];
-  const cleaned = queryText.trim().replace(/\s+/g, ' ');
-  if(!cleaned) return [];
-  const fakeTicker = ('DEMO' + demoSeedFromString(cleaned.toUpperCase()).toString(36).slice(0,4)).toUpperCase();
-  return [{
-    symbol: fakeTicker,
-    instrument_name: `${cleaned} (Demo)`,
-    exchange: 'DEMO',
-    instrument_type: 'Common Stock',
-    isDemo: true
-  }];
+  // This used to synthesize a clearly-labelled fake match instead, on the
+  // theory that the "(Demo)" suffix kept it honest. It did not. Because this
+  // function answered for ANY text, every unrecognised question reaching the
+  // entity path minted a company out of it: "מה מזג האוויר היום?" became
+  // ticker DEMO1854 at $62.03, "what does P/E mean?" became a company called
+  // "E mean" with a P/E of 33.0. The reply then carried a real-looking price,
+  // a real-looking date and a topicId of 'stock-data', so the engine stopped
+  // falling back honestly and started confidently answering off-topic
+  // questions with invented securities. Two earlier guards (comparison
+  // phrasing, pronoun reference) narrowed that blast radius without closing
+  // it, because the underlying premise — that a provider with no data should
+  // still return a match — is what was wrong.
+  //
+  // The 73 curated companies in entity/tickers.js are unaffected: they
+  // resolve through resolveTicker BEFORE any provider search, so Demo Mode
+  // still answers about Apple, Microsoft and the rest. Anything outside that
+  // list now reports "not found", which is exactly what a real provider does
+  // for a name that is not a company.
+  return [];
 }
 
 // Satisfies the MarketDataProvider contract in provider-interface.js.

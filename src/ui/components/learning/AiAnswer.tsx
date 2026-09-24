@@ -17,13 +17,38 @@ import styles from './AiAnswer.module.css';
  */
 type Kind = 'text' | 'example' | 'note' | 'takeaway' | 'list';
 
-function classify(p: string): Kind {
+/**
+ * The openers that mark a paragraph's kind, in both languages.
+ *
+ * The opener is also SPLIT OFF from the body and rendered as the block's
+ * label, so a block announces what it is before it is read — "Example ·" set
+ * in the full text colour, the rest of it quieter. Leaving it inline meant the
+ * word "Example" was just the first word of a paragraph, which is the same
+ * information doing none of the work.
+ */
+const OPENERS: Array<{ kind: Exclude<Kind, 'text' | 'list'>; re: RegExp }> = [
+  // "Hypothetical" is matched as part of the opener, not stripped from it: the
+  // worked examples in kb/examples.js all open that way, and the word is the
+  // honesty marker on their numbers — these are illustrations, not quotes from
+  // the market. Promoting it into the block's label makes it MORE visible than
+  // it was buried in the first line, which is the right direction for it.
+  { kind: 'example', re: /^(דוגמה היפותטית(?: של [^:]{1,30})?|דוגמה נוספת|דוגמה|דוגמא|Hypothetical example(?: of [^:]{1,30})?|Hypothetical calculation|Another example|Example)\s*[:·—-]?\s*/i },
+  { kind: 'note', re: /^(חשוב לדעת|שים לב|שימו לב|הערה|Important|Caveat|Note)\s*[:·—-]?\s*/i },
+  { kind: 'takeaway', re: /^(בשורה התחתונה|המסקנה|לסיכום|Key takeaway|Bottom line|In short)\s*[:·—-]?\s*/i }
+];
+
+function classify(p: string): { kind: Kind; lead: string; body: string } {
   const s = p.trim();
-  if (/^(דוגמה|דוגמא|Example|Another example|דוגמה נוספת)\s*:?/i.test(s)) return 'example';
-  if (/^(שים לב|חשוב לדעת|הערה|Note|Important|Caveat)\s*:?/i.test(s)) return 'note';
-  if (/^(המסקנה|בשורה התחתונה|לסיכום|Key takeaway|Bottom line|In short)\s*:?/i.test(s)) return 'takeaway';
-  if (/^[·•\-–]\s/m.test(s)) return 'list';
-  return 'text';
+  for (const { kind, re } of OPENERS) {
+    const m = re.exec(s);
+    // Only when something follows it: a paragraph that IS the word "Example"
+    // has no body to label.
+    if (m && s.length > m[0].length) {
+      return { kind, lead: m[1]!, body: s.slice(m[0].length) };
+    }
+  }
+  if (/^[·•\-–]\s/m.test(s)) return { kind: 'list', lead: '', body: s };
+  return { kind: 'text', lead: '', body: s };
 }
 
 export function AiAnswer({ text }: { text: string }) {
@@ -35,12 +60,12 @@ export function AiAnswer({ text }: { text: string }) {
   const { blocks, segmentsFor } = useMemo(() => {
     const paragraphs = text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
     const parsed = paragraphs.map((p) => {
-      const kind = classify(p);
+      const { kind, lead, body } = classify(p);
       const items =
         kind === 'list'
-          ? p.split('\n').map((l) => l.replace(/^[·•\-–]\s*/, '').trim()).filter(Boolean)
-          : [p];
-      return { kind, items };
+          ? body.split('\n').map((l) => l.replace(/^[·•\-–]\s*/, '').trim()).filter(Boolean)
+          : [body];
+      return { kind, lead, items };
     });
     // Flatten to a single ordered list of strings, segment together, then
     // hand each block back its own slice by running index.
@@ -75,6 +100,7 @@ export function AiAnswer({ text }: { text: string }) {
         }
         return (
           <p key={i} className={`${styles.p} ${styles[block.kind]}`}>
+            {block.lead && <b className={styles.lead}>{block.lead} · </b>}
             <GlossarySegments segments={segmentsFor(i, 0)} />
           </p>
         );

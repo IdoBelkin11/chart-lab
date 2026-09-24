@@ -1,6 +1,10 @@
 
 export const entries = [
-  { id:'how-to-analyze', cat:'meta', kw:['how do you analyze a stock','how to analyze a stock','analyze a stock','לנתח מניה','איך מנתחים מניה','איך לנתח מניה'],
+  { id:'how-to-analyze', cat:'meta', // "Choosing" and "analyzing" are the same question asked by someone who
+    // does not yet know the word for it — and the plain phrasing is the
+    // common one. Without these, the umbrella `stock` entry won on the bare
+    // word "מניה" and answered "a stock is a piece of ownership".
+    kw:['how do you analyze a stock','how to analyze a stock','analyze a stock','how do i pick a stock','how to pick a stock','how do i choose a stock','choosing a stock','לנתח מניה','איך מנתחים מניה','איך לנתח מניה','איך בוחרים מניה','איך בוחרים מניות','איך לבחור מניה','לפי מה בוחרים מניה'],
     he:`יש שתי גישות עיקריות, ולרוב הכי טוב לשלב ביניהן: ניתוח פונדמנטלי (בודק את הבריאות הכלכלית של החברה — הכנסות, רווחים, שולי רווח, יחסי מינוף, תזרים מזומנים) וניתוח טכני (בודק את התנהגות המחיר על הגרף — מגמות, תמיכה/התנגדות, נפח, אינדיקטורים). משקיעים לטווח ארוך נוטים להטות יותר לכיוון הפונדמנטלי; סוחרים לטווח קצר נוטים להטות יותר לכיוון הטכני. תוכל לשאול אותי על כל אחד מהמדדים או המושגים בנפרד — למשל P/E, ROIC, RSI או תבניות גרף — ואני אסביר מה הוא אומר ולמה הוא חשוב.`,
     en:`There are two main approaches, and it's usually best to combine them: fundamental analysis (examines the company's financial health — revenue, profit, margins, leverage ratios, cash flow) and technical analysis (examines the price behavior on the chart — trends, support/resistance, volume, indicators). Long-term investors tend to lean more on fundamentals; short-term traders tend to lean more on technicals. You can ask me about any individual metric or concept — for example P/E, ROIC, RSI, or chart patterns — and I'll explain what it means and why it matters.`,
     related:['fundamental','technical'] },

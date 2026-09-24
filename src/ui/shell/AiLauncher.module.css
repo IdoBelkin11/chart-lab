@@ -6,7 +6,10 @@
 .launcher {
   position: fixed;
   inset-block-end: var(--s-5);
-  inset-inline-end: var(--s-5);
+  /* Inline-START, opposite the course rail. The rail moved to the inline-end
+     edge (see AppShell), and a launcher pinned to that same edge lands on top
+     of the lesson list. */
+  inset-inline-start: var(--s-5);
   z-index: 40;
 
   display: inline-flex;
@@ -14,35 +17,76 @@
   gap: var(--s-2);
   padding: 12px 20px;
   border: 1px solid transparent;
-  border-radius: var(--r-full);
+  border-radius: var(--r-btn);
 
-  /* Gradient fill, matching the header's AI entry so the two read as the
-     same feature rather than as two different buttons that both say AI.
-     Deliberately NOT the yellow action token: yellow marks the one primary
-     learning action on the page, and this is a persistent global shortcut
-     that must never outrank it. */
-  background: linear-gradient(120deg, var(--accent), var(--advanced));
-  color: var(--accent-ink);
+  /* Glass, tinted with the informational accent — deliberately NOT the action
+     fill. The sapphire marks the one primary action on a page, and this is a
+     persistent global shortcut that must never outrank it. Sharing the
+     shell's material is also what makes it read as part of the product rather
+     than a widget dropped on top of it. (It was a blue-to-teal gradient, left
+     over from the palette before the sapphire.) */
+  background:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05)),
+    var(--accent-dim);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  color: var(--text);
 
   font-family: inherit;
   font-size: var(--fs-sm);
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
 
-  box-shadow: var(--e-3), 0 0 28px -8px var(--accent-glow);
-  transition: transform var(--t-med) var(--ease-out), box-shadow var(--t-med) var(--ease),
+  box-shadow:
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.38),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.10),
+    inset 0 0 0 1px var(--glass-border),
+    var(--glass-shadow);
+  transition: transform var(--t-med) var(--ease-spring),
+              box-shadow var(--t-med) var(--ease),
               filter var(--t-fast);
-  animation: launcherIn var(--t-slow) var(--ease-out) both;
+  animation: launcherIn var(--t-slow) var(--ease-spring) both;
 }
+
+/* The sheen rides on top of the tinted fill. */
+.launcher::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(to bottom,
+    rgba(255, 255, 255, 0.20),
+    rgba(255, 255, 255, 0) 58%);
+  pointer-events: none;
+}
+.glyph, .text { position: relative; z-index: 1; }
 
 .launcher:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.06);
-  box-shadow: var(--e-3), 0 0 38px -6px var(--accent-glow);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.10),
+    inset 0 0 0 1px var(--glass-border),
+    var(--glass-shadow),
+    0 0 34px -10px var(--accent-glow);
 }
+.launcher:active { transform: translateY(0) scale(0.97); }
 .launcher:focus-visible { outline: none; box-shadow: var(--ring), var(--e-3); }
 
-.glyph { font-size: 13px; line-height: 1; }
+/* This button's background is its own accent-tinted mix rather than
+   --glass-bg (see the comment above it), so the global --glass-bg override in
+   tokens.css does not reach it — the central fix zeroes --glass-blur, which
+   already stops the button from sampling the field behind it, but the fill
+   itself is still low-alpha. Opaque it explicitly. */
+@media (prefers-reduced-transparency: reduce) {
+  .launcher {
+    background: linear-gradient(to bottom,
+      color-mix(in srgb, var(--accent) 22%, var(--surface-2)),
+      color-mix(in srgb, var(--accent) 14%, var(--surface)));
+  }
+}
+
+.glyph { flex: none; width: 15px; height: 15px; }
 .text { white-space: nowrap; }
 
 @keyframes launcherIn {
@@ -55,7 +99,7 @@
 @media (max-width: 620px) {
   .launcher { padding: 13px; }
   .text { display: none; }
-  .glyph { font-size: 16px; }
+  .glyph { width: 18px; height: 18px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

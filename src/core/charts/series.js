@@ -65,6 +65,46 @@ export const l2RetestIdx = Math.round(130*0.665);
 if(L2[l2BreakIdx]) L2[l2BreakIdx].v *= 2.4;
 L2.breakIdx = l2BreakIdx; L2.retestIdx = l2RetestIdx;
 
+/* Lesson 1, second chart: a zone, not a line.
+   The lesson's own subcaption says "an area, not a single line" — this is the
+   chart that demonstrates it. Price turns near 150 five times and overshoots
+   an exact 150 line on every one of them, while staying inside a ~147-153
+   band. Someone who drew the thin line would read five failures; someone who
+   drew the band would read five holds, from identical price action. */
+// The five turn targets are deliberately SPREAD (147.5 … 154): a band derived
+// from lows that all land within a point of each other is three pixels tall,
+// and the whole comparison it exists to draw — a line you can pierce versus an
+// area you cannot — has nothing to show.
+export const L1_ZONE = genCandles(17, [
+  {f:0,p:170,t:'2024-02-01'},{f:0.10,p:147.5,t:''},{f:0.20,p:164,t:''},
+  {f:0.32,p:154.0,t:''},{f:0.44,p:167,t:''},{f:0.56,p:148.5,t:''},
+  {f:0.68,p:162,t:''},{f:0.80,p:153.5,t:''},{f:0.90,p:160,t:''},
+  {f:1,p:150.5,t:''}
+], 96, 42000000);
+(function(){
+  // The band is DERIVED from the turns, never typed in by hand.
+  //
+  // First attempt hard-coded [147, 153] and the generated series put wicks
+  // below 145 — so the caption said "price never left the band" over a chart
+  // where it plainly did. A caption that contradicts its own picture is worse
+  // than no second chart at all, and it is not the kind of thing eyeballing
+  // catches reliably. Computing the band from the lows it is meant to contain
+  // makes the claim true by construction: every turn is inside it because the
+  // turns are what defined it.
+  const lows = [];
+  for(let i = 3; i < L1_ZONE.length - 3; i++){
+    const l = L1_ZONE[i].l;
+    let isMin = true;
+    for(let k = i - 3; k <= i + 3; k++){ if(L1_ZONE[k].l < l){ isMin = false; break; } }
+    if(isMin && l < 158) lows.push(l);
+  }
+  L1_ZONE.band = [Math.floor(Math.min(...lows)), Math.ceil(Math.max(...lows))];
+  // The line someone would have drawn instead: the middle of that same band,
+  // rounded — so it necessarily sits between turns that fell short of it and
+  // turns that overshot it, which is the entire point being made.
+  L1_ZONE.exactLine = Math.round((L1_ZONE.band[0] + L1_ZONE.band[1]) / 2);
+})();
+
 /* Comparison mini-charts */
 export const L2_REAL = genCandles(31, [
   {f:0,p:128,t:'2023-04-01'},{f:0.4,p:139,t:''},{f:0.55,p:137,t:''},
@@ -107,6 +147,39 @@ L5.highIdx = findExtreme(L5, 0.42, 0.58, 'high');
   L5.swingLow = lowP; L5.swingHigh = highP;
   const range = highP - lowP;
   L5.fibLevels = [0.236, 0.382, 0.5, 0.618, 0.786].map(r => ({ ratio:r, price: highP - range*r }));
+})();
+
+/* Lesson 3, second chart: the average is LATE, and in a range that costs you.
+   A moving average is an average of the past, so it can only turn after price
+   has already turned. In a trend that lag is harmless. In a sideways market it
+   is the whole story: price crosses back and forth over the line again and
+   again, and every crossing looks exactly like the signal that works in a
+   trend. The lesson teaches what an average is; without this it does not teach
+   when it stops meaning anything. */
+export const L3_CHOP = genCandles(67, [
+  {f:0,p:100,t:'2023-05-01'},{f:0.09,p:112,t:''},{f:0.18,p:99,t:''},
+  {f:0.27,p:111,t:''},{f:0.36,p:98,t:''},{f:0.45,p:110,t:''},
+  {f:0.54,p:100,t:''},{f:0.63,p:112,t:''},{f:0.72,p:99,t:''},
+  {f:0.81,p:110,t:''},{f:0.90,p:101,t:''},{f:1,p:108,t:''}
+], 120, 38000000);
+
+/* Lesson 5, second chart: a retracement that did not hold.
+   Every Fibonacci illustration ever drawn is one where the level worked, which
+   is how a measuring tool gets mistaken for a floor. Same construction as L5 —
+   a move up, levels drawn from its low to its high — except price cuts through
+   all of them and closes below the swing low it started from. The lesson's KB
+   entry already covers these limitations in words; this is the picture. */
+export const L5_FAIL = genCandles(73, [
+  {f:0,p:120,t:'2023-06-01'},{f:0.10,p:114,t:''},{f:0.44,p:206,t:''},
+  {f:0.60,p:172,t:''},{f:0.72,p:150,t:''},{f:0.86,p:126,t:''},{f:1,p:106,t:''}
+], 120, 90000000);
+L5_FAIL.lowIdx = findExtreme(L5_FAIL, 0.03, 0.18, 'low');
+L5_FAIL.highIdx = findExtreme(L5_FAIL, 0.38, 0.52, 'high');
+(function(){
+  const lowP = L5_FAIL[L5_FAIL.lowIdx].l, highP = L5_FAIL[L5_FAIL.highIdx].h;
+  L5_FAIL.swingLow = lowP; L5_FAIL.swingHigh = highP;
+  const range = highP - lowP;
+  L5_FAIL.fibLevels = [0.382, 0.5, 0.618].map(r => ({ ratio:r, price: highP - range*r }));
 })();
 
 /* Lesson 6: RSI examples */

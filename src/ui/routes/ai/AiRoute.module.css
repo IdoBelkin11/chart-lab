@@ -9,40 +9,85 @@
      explicit, larger top value, the transcript's first line renders
      directly behind them. */
   padding: 84px clamp(var(--s-4), 4vw, var(--s-7)) var(--s-6);
+}
+/* A centred reading column, not a stripe pinned to one edge. The turns used to
+   be direct children of the scroller, which stretched them the full width of
+   the workspace while their text wrapped at 74ch — leaving half the screen as
+   dead space beside every answer. The column is its own element so the
+   question bubble can still align to the start of IT rather than of the
+   window. */
+.column {
+  max-width: 900px; margin-inline: auto;
   display: flex; flex-direction: column; gap: var(--s-5);
 }
 
+/* The question, in the product's own action colour.
+ *
+ * Start-aligned, like the answer below it — the transcript reads as one column
+ * of a conversation rather than two columns of chat bubbles, which is what
+ * suits a tutor working through a subject with you. What separates the
+ * question from the answer is its material, not which wall it is pinned to:
+ * the question is a solid, lit object, the answer is text on the page.
+ *
+ * It used to be a flat grey box on the opposite edge, which made the two turns
+ * look like two anonymous parties rather than your question and its answer. */
 .user {
-  align-self: flex-end;
-  max-width: 48ch;
-  padding: 10px 16px;
-  border-radius: var(--r-lg);
-  border-end-end-radius: var(--r-xs);
-  background: var(--surface-2);
+  align-self: flex-start;
+  max-width: min(62%, 52ch);
+  padding: 13px 19px;
+  border-radius: var(--r-card);
+  border-end-end-radius: 10px;
+  background: var(--action-fill);
+  color: var(--action-ink);
   font-size: var(--fs-sm);
+  line-height: 1.55;
+  box-shadow:
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.42),
+    inset 0 -1.5px 0 0 rgba(0, 18, 44, 0.34),
+    0 10px 26px -14px var(--action-glow);
 }
 /* Assistant turns are speech on the page, not boxed cards — long teaching
    text reads better without a container around it. */
-.assistant { border-inline-start: 2px solid var(--line); padding-inline-start: 16px; }
+.assistant {
+  border-inline-start: 2px solid var(--glass-border);
+  padding-inline-start: 18px;
+  max-width: 74ch;
+}
 
+/* Real glass here: the conversation scrolls underneath this bar, so the blur
+   has something to actually refract. */
 .composer {
+  composes: glass from '../../styles/glass.module.css';
+
   display: flex; gap: 10px;
   padding: var(--s-4) clamp(var(--s-4), 4vw, var(--s-7));
-  border-top: 1px solid var(--line-soft); background: var(--surface);
+  border-top: 1px solid var(--line-soft);
   transition: border-color var(--t-fast);
+}
+/* The shared rim is a closed ring; on a bar welded to the bottom of the
+   column only the upper edge catches light. The mask is cleared with it —
+   a 1px strip has no padding box for the ring's mask to cut against. */
+.composer::before {
+  inset: 0 0 auto 0;
+  height: 1px;
+  padding: 0;
+  -webkit-mask: none;
+  mask: none;
+  background: linear-gradient(to right,
+    transparent, var(--glass-border) 18%, var(--glass-border) 82%, transparent);
 }
 /* The whole bar acknowledges focus, not just the input's own outline — this
    is the one control the entire route exists for. */
 .composer:focus-within { border-top-color: var(--accent); }
 .input {
   flex: 1; min-width: 0;
-  padding: 12px 16px; border-radius: var(--r-full);
+  padding: 12px 16px; border-radius: var(--r-btn);
   border: 1px solid var(--line); background: var(--well); color: var(--text);
   font: inherit;
 }
 .input:focus { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
 .send {
-  flex: none; width: 44px; height: 44px; border-radius: var(--r-full);
+  flex: none; width: 44px; height: 44px; border-radius: var(--r-btn);
   border: none; background: var(--accent); color: var(--accent-ink);
   font-size: var(--fs-lg); cursor: pointer;
   transition: filter var(--t-fast), box-shadow var(--t-fast);
@@ -76,7 +121,7 @@
 .thinking { display: flex; gap: 5px; padding: var(--s-3) 0; }
 .thinking span {
   width: 6px; height: 6px;
-  border-radius: var(--r-full);
+  border-radius: var(--r-full);   /* a dot, not a control */
   background: var(--text-faint);
   animation: bounce 1.2s var(--ease) infinite;
 }
@@ -101,23 +146,30 @@
 }
 .chipRow { display: flex; flex-wrap: wrap; gap: var(--s-2); }
 
+/* Glass chips, like every other raised control: a white-alpha pane with a
+   specular top edge, not a bordered grey box sitting on the page. */
 .chip {
-  padding: 7px 14px;
-  border-radius: var(--r-full);
-  border: 1px solid var(--line);
-  background: var(--surface);
+  padding: 9px 16px;
+  border: none;
+  border-radius: var(--r-pill);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.035));
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.09);
   color: var(--text-muted);
   font-family: inherit;
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: border-color var(--t-fast), color var(--t-fast),
-              background var(--t-fast), transform var(--t-fast);
+  transition: color var(--t-fast), background var(--t-fast),
+              box-shadow var(--t-fast), transform var(--t-fast);
+}
+:root[data-theme='light'] .chip {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.6));
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 1), inset 0 0 0 1px rgba(12, 22, 34, 0.09);
 }
 .chip:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-dim);
+  color: var(--text);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.07)), var(--accent-dim);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.14);
   transform: translateY(-1px);
 }
 .chipOpen {
@@ -166,7 +218,7 @@
   place-items: center;
   width: 46px;
   height: 46px;
-  border-radius: var(--r-full);
+  border-radius: var(--r-btn);
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--text);
@@ -194,7 +246,7 @@
   align-items: center;
   gap: 6px;
   padding: 10px 16px;
-  border-radius: var(--r-full);
+  border-radius: var(--r-btn);
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--text-muted);
@@ -223,13 +275,24 @@
   margin: 0 auto var(--s-5);
   display: grid;
   place-items: center;
-  border-radius: var(--r-lg);
-  background: linear-gradient(140deg, var(--accent), var(--advanced));
-  color: var(--accent-ink);
-  font-size: 30px;
-  line-height: 1;
-  box-shadow: 0 0 40px -10px var(--accent-glow);
+  border-radius: var(--r-card);
+  /* Glass, tinted with the accent — same material and reasoning as the AI
+     launcher (same feature, same mark), not the flat two-colour gradient
+     this carried before (a --advanced gradient partner left over from
+     before the palette rewrite). */
+  background:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0.06)),
+    var(--accent-dim);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  color: var(--accent-strong);
+  box-shadow:
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px var(--glass-border),
+    0 0 36px -12px var(--accent-glow);
 }
+.markIcon { width: 30px; height: 30px; }
 .emptyTitle {
   font-size: var(--fs-xl);
   font-weight: 700;
@@ -241,7 +304,9 @@
 .exampleBrowse {
   border-style: dashed;
   color: var(--text);
+  gap: var(--s-2);
 }
+.exampleIcon { flex: none; width: 17px; height: 17px; }
 
 
 /* The empty state is vertically centred in the transcript area and its
