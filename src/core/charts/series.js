@@ -922,3 +922,7 @@ export const R5_PLAN = pinned(1612, '2024-04-01', [{f:0,p:44},{f:0.4,p:52.8},{f:
 export const R7_CRASH = pinned(1621, '2024-01-02', [{f:0,p:100},{f:0.3,p:125},{f:0.5,p:87.5},{f:1,p:121}], [[0.3,'high'],[0.5,'low']], 160, [125, 87.5]);
 // R7 · a bubble: a steady rise, a near-vertical one, and the collapse.
 export const R7_BUBBLE = pinned(1622, '2024-01-02', [{f:0,p:20},{f:0.45,p:26},{f:0.62,p:40},{f:0.75,p:70},{f:0.85,p:40},{f:1,p:28}], [[0.75,'high']], 120, [70]);
+// M7 · "priced in": a climb into good results everyone expected, and a fall on the day they came out.
+export const M7_NEWS = pinned(1701, '2024-03-01', [{f:0,p:40},{f:0.7,p:52},{f:1,p:47}], [[0.7,'high']], 80, [52]);
+// M7 · a slide into a rate decision, then a relief rally once it came exactly as expected.
+export const M7_RATE = pinned(1702, '2024-06-03', [{f:0,p:100},{f:0.6,p:90},{f:1,p:98}], [[0.6,'low']], 70, [90]);

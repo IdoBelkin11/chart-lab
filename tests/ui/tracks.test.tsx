@@ -39,9 +39,11 @@ describe('track page', () => {
   });
 
   it('a track still being written marks every unwritten lesson as coming soon', () => {
-    location.hash = '#/track/M';
+    // Derivatives, the last unwritten track, opens once Risk is complete.
+    localStorage.setItem('chartlab.learning.v2', JSON.stringify({ v: 2, lessons: Object.fromEntries(lessonsOf('R').map((l) => [l.id, { step: 6, completed: true }])), practice: { R: { attempts: 1, best: 8, passed: true, total: 8 } }, onboarding: null, lastLesson: null }));
+    location.hash = '#/track/D';
     render(<App />);
-    expect(within(screen.getByRole('main')).getAllByText('בקרוב').length).toBe(lessonsOf('M').length);
+    expect(within(screen.getByRole('main')).getAllByText('בקרוב').length).toBe(lessonsOf('D').length);
   });
 
   it('its main action opens the first lesson that can actually be learned', () => {
@@ -52,7 +54,7 @@ describe('track page', () => {
   });
 
   it('a track with nothing written yet offers a preview, never a fake start', () => {
-    location.hash = '#/track/M';
+    location.hash = '#/track/D';
     render(<App />);
     const page = within(screen.getByRole('main'));
     expect(page.queryByRole('button', { name: /להתחיל/ })).toBeNull();
@@ -70,11 +72,11 @@ describe('track page', () => {
 
 describe('a lesson not written yet', () => {
   it('says so honestly, shows what it will teach, and points to a lesson that is ready', () => {
-    location.hash = '#/lesson/M2';
+    location.hash = '#/lesson/D2';
     render(<App />);
     const page = within(screen.getByRole('main'));
     expect(page.getByText(/השיעור הזה עוד נכתב/)).toBeTruthy();
-    // Nothing in Macro is written yet, so there is no lesson to point to — only the tutor.
+    // Nothing in Derivatives is written yet, so there is no lesson to point to — only the tutor.
     expect(page.queryByRole('button', { name: /^לשיעור \d+:/ })).toBeNull();
     // And every TA lesson opens as a lesson, not a preview.
     cleanup();

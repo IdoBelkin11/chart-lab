@@ -21,7 +21,7 @@ import type { Localized } from '@core/types/kb';
 
 /** Which part of the subject a term belongs to. Drives grouping on the
  *  glossary page; has no effect on in-prose highlighting. */
-export type GlossaryCategory = 'basics' | 'technical' | 'fundamentals' | 'risk';
+export type GlossaryCategory = 'basics' | 'technical' | 'fundamentals' | 'risk' | 'macro';
 
 export interface GlossaryTerm {
   id: string;
@@ -620,6 +620,106 @@ export const GLOSSARY: GlossaryTerm[] = [
       en: 'Prices rising far beyond what earnings can justify, driven by the expectation that someone will pay even more. It ends with a sharp fall.',
       he: 'מחירים שעולים הרבה מעבר למה שהרווחים מצדיקים, מתוך ציפייה שמישהו ישלם עוד יותר. זה נגמר בנפילה חדה.'
     }
+  },
+  {
+    id: 'interest-rate',
+    cat: 'macro',
+    he: ['ריבית', 'הריבית', 'בריבית', 'לריבית', 'שהריבית', 'והריבית'],
+    en: ['interest rate', 'interest rates'],
+    def: {
+      en: 'The price of using money over time: what a borrower pays and a saver earns. The central bank sets the base; everything else is priced off it.',
+      he: 'המחיר של שימוש בכסף לאורך זמן: מה שלווה משלם וחוסך מקבל. הבנק המרכזי קובע את הבסיס, וכל השאר מתומחר לפיו.'
+    }
+  },
+  {
+    id: 'inflation',
+    cat: 'macro',
+    he: ['אינפלציה', 'האינפלציה', 'באינפלציה', 'לאינפלציה', 'שהאינפלציה', 'והאינפלציה'],
+    en: ['inflation'],
+    def: {
+      en: 'A general rise in prices, measured by the consumer price index. The same money buys less; most central banks aim for about 2% a year.',
+      he: 'עלייה כללית במחירים, שנמדדת במדד המחירים לצרכן. אותו כסף קונה פחות; רוב הבנקים המרכזיים מכוונים לכ־2% בשנה.'
+    }
+  },
+  {
+    id: 'gdp',
+    cat: 'macro',
+    he: ['תמ״ג', 'התמ״ג', 'תוצר', 'התוצר', 'בתוצר'],
+    en: ['GDP'],
+    def: {
+      en: 'Gross domestic product: the value of everything an economy produces. How fast it grows is the economy’s growth rate.',
+      he: 'התוצר המקומי הגולמי: הערך של כל מה שהמשק מייצר. הקצב שבו הוא גדל הוא קצב הצמיחה.'
+    }
+  },
+  {
+    id: 'recession',
+    cat: 'macro',
+    he: ['מיתון', 'המיתון', 'במיתון', 'למיתון', 'ממיתון', 'שהמיתון'],
+    en: ['recession', 'recessions'],
+    def: {
+      en: 'A significant, broad contraction of the economy. Rule of thumb: two quarters in a row of negative growth; officially dated only in hindsight.',
+      he: 'התכווצות משמעותית ורחבה של המשק. כלל אצבע: שני רבעונים רצופים של צמיחה שלילית; התאריך הרשמי נקבע רק בדיעבד.'
+    }
+  },
+  {
+    id: 'central-bank',
+    cat: 'macro',
+    he: ['בנק מרכזי', 'הבנק המרכזי', 'בנקים מרכזיים', 'לבנק המרכזי', 'שהבנק המרכזי', 'והבנק המרכזי'],
+    en: ['central bank', 'central banks'],
+    def: {
+      en: 'The institution that sets a country’s base interest rate (the Bank of Israel, the Fed) to keep prices stable — raising it to cool inflation, cutting it in a slump.',
+      he: 'המוסד שקובע את ריבית הבסיס של המדינה (בנק ישראל, הפד) כדי לשמור על יציבות מחירים — מעלה אותה לקירור אינפלציה ומוריד בשפל.'
+    }
+  },
+  {
+    id: 'coupon',
+    cat: 'macro',
+    he: ['קופון', 'הקופון', 'בקופון', 'שהקופון', 'והקופון'],
+    en: ['coupon'],
+    def: {
+      en: 'The fixed yearly interest a bond pays on its face value. The coupon never changes; the bond’s price does.',
+      he: 'הריבית השנתית הקבועה שאג״ח משלמת על הערך הנקוב. הקופון לא משתנה — המחיר של האג״ח כן.'
+    }
+  },
+  {
+    id: 'ytm',
+    cat: 'macro',
+    he: ['תשואה לפדיון', 'התשואה לפדיון', 'בתשואה לפדיון'],
+    en: ['yield to maturity', 'YTM'],
+    def: {
+      en: 'A bond’s total yearly return if bought at today’s price and held to the end, including the gap between that price and the face value.',
+      he: 'התשואה השנתית הכוללת של אג״ח אם קונים במחיר של היום ומחזיקים עד הסוף, כולל הפער בין המחיר לערך הנקוב.'
+    }
+  },
+  {
+    id: 'yield-curve',
+    cat: 'macro',
+    he: ['עקום תשואות', 'עקום התשואות', 'בעקום התשואות'],
+    en: ['yield curve'],
+    def: {
+      en: 'Government bond yields by time to maturity. It usually slopes up; when short yields rise above long ones it is "inverted", a sign the market expects slower growth.',
+      he: 'תשואות אג״ח ממשלתיות לפי זמן לפדיון. בדרך כלל הוא עולה; כשהקצר גבוה מהארוך הוא "הפוך" — סימן שהשוק מצפה להאטה.'
+    }
+  },
+  {
+    id: 'market-maker',
+    cat: 'macro',
+    he: ['עושה שוק', 'עושי שוק', 'עושי השוק', 'עושה השוק'],
+    en: ['market maker', 'market makers'],
+    def: {
+      en: 'A firm that always quotes both a buying and a selling price, earning the spread between them. It gives the market liquidity.',
+      he: 'גוף שמציע כל הזמן גם מחיר קנייה וגם מחיר מכירה, ומרוויח מהמרווח ביניהם. הוא מספק לשוק נזילות.'
+    }
+  },
+  {
+    id: 'priced-in',
+    cat: 'macro',
+    he: ['מגולם במחיר', 'מגולמות במחיר', 'גולמה במחיר', 'גולמו במחיר'],
+    en: ['priced in'],
+    def: {
+      en: 'Already reflected in the price, because the market expected it. What moves a price is the surprise — the gap between what happened and what was expected.',
+      he: 'כבר משתקף במחיר, כי השוק ציפה לזה. מה שמזיז מחיר הוא ההפתעה — הפער בין מה שקרה לבין מה שציפו לו.'
+    }
   }
 ];
 
@@ -629,19 +729,21 @@ export function glossaryTerm(id: string): GlossaryTerm | undefined {
 
 /** Display order of the categories on the glossary page: what a beginner
  *  needs first, then the two analytical lenses, then the part that keeps
- *  them solvent. */
+ *  them solvent, then the economy around it all — the curriculum's order. */
 export const GLOSSARY_CATEGORY_ORDER: GlossaryCategory[] = [
   'basics',
   'technical',
   'fundamentals',
-  'risk'
+  'risk',
+  'macro'
 ];
 
 export const GLOSSARY_CATEGORY_LABELS: Record<GlossaryCategory, Localized> = {
   basics: { en: 'Market basics', he: 'יסודות השוק' },
   technical: { en: 'Technical analysis', he: 'ניתוח טכני' },
   fundamentals: { en: 'Company fundamentals', he: 'ניתוח פונדמנטלי' },
-  risk: { en: 'Risk and money management', he: 'סיכון וניהול כסף' }
+  risk: { en: 'Risk and money management', he: 'סיכון וניהול כסף' },
+  macro: { en: 'Macro and the market', he: 'מאקרו והשוק' }
 };
 
 /** The term's primary display name in one language — the first surface form,

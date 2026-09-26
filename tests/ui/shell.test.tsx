@@ -24,10 +24,10 @@ describe('global shell', () => {
   // A written lesson opens full screen (its own lesson bar, no rail); an
   // unwritten one's preview sits in the shell with the track's lesson list.
   it("beside a lesson preview, the rail lists that track's lessons", () => {
-    location.hash = '#/lesson/M2';
+    location.hash = '#/lesson/D2';
     render(<App />);
     const rail = within(screen.getByRole('navigation', { name: 'שיעורי המסלול' }));
-    expect(rail.getAllByRole('button').length).toBe(lessonsOf('M').length);
+    expect(rail.getAllByRole('button').length).toBe(lessonsOf('D').length);
     expect(rail.getByRole('button', { current: true })).toBeTruthy();
   });
 
@@ -80,14 +80,28 @@ describe('progress', () => {
     expect(stored.completed ?? []).not.toContain('l1');
   });
 
-  it('finishing a lesson persists, and can be undone', () => {
+  it('finishing a lesson persists, and completion toggles both ways', () => {
     location.hash = '#/lesson/l1';
     render(<App />);
+    const done = () => JSON.parse(localStorage.getItem('chartlab.learning.v2')!).lessons.T4?.completed;
     fireEvent.click(within(screen.getByRole('navigation', { name: 'שלבי השיעור' })).getByRole('button', { name: '3 דברים לזכור' }));
     fireEvent.click(screen.getByRole('button', { name: /סיום השיעור/ }));
     expect(JSON.parse(localStorage.getItem('chartlab.lessonProgress')!).completed).toContain('l1');
-    fireEvent.click(screen.getByRole('button', { name: 'ביטול סימון ההשלמה' }));
+    expect(screen.getByText('השיעור הושלם')).toBeTruthy();
+    // Completed → incomplete: the page stops claiming it is done, and offers the way back.
+    const toggle = screen.getByRole('button', { name: 'סימון השיעור כלא הושלם' });
+    fireEvent.click(toggle);
     expect(JSON.parse(localStorage.getItem('chartlab.lessonProgress')!).completed).not.toContain('l1');
+    expect(done()).toBe(false);
+    expect(screen.queryByText('השיעור הושלם')).toBeNull();
+    expect(screen.getByText('השיעור לא מסומן כהושלם')).toBeTruthy();
+    // Incomplete → completed, from the same button (so keyboard focus stays put).
+    const again = screen.getByRole('button', { name: 'סימון השיעור כהושלם' });
+    expect(again).toBe(toggle);
+    fireEvent.click(again);
+    expect(done()).toBe(true);
+    expect(JSON.parse(localStorage.getItem('chartlab.lessonProgress')!).completed).toContain('l1');
+    expect(screen.getByRole('button', { name: 'סימון השיעור כלא הושלם' })).toBe(toggle);
   });
 });
 

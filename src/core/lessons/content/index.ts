@@ -23,13 +23,16 @@ import { FUNDAMENTALS_3 } from './p7to9';
 import { RISK_1 } from './r1to3';
 import { RISK_2 } from './r4to6';
 import { RISK_3 } from './r7to8';
+import { MACRO_1 } from './m1to3';
+import { MACRO_2 } from './m4to6';
+import { MACRO_3 } from './m7';
 import { TECHNICAL } from './technical';
 import type { LessonContent } from './types';
 
 export type * from './types';
 
 /** Lessons written in the content model. They take precedence over the previous build's adapter. */
-const WRITTEN: ReadonlyMap<string, LessonContent> = new Map([...FOUNDATIONS, T1, ...TECHNICAL, T6, T7, T8, T9, T10, T11, T12, ...FUNDAMENTALS_1, ...FUNDAMENTALS_2, ...FUNDAMENTALS_3, ...RISK_1, ...RISK_2, ...RISK_3].map((c) => [c.id, c]));
+const WRITTEN: ReadonlyMap<string, LessonContent> = new Map([...FOUNDATIONS, T1, ...TECHNICAL, T6, T7, T8, T9, T10, T11, T12, ...FUNDAMENTALS_1, ...FUNDAMENTALS_2, ...FUNDAMENTALS_3, ...RISK_1, ...RISK_2, ...RISK_3, ...MACRO_1, ...MACRO_2, ...MACRO_3].map((c) => [c.id, c]));
 const cache = new Map<string, LessonContent | null>();
 
 export function lessonContent(id: string): LessonContent | null {

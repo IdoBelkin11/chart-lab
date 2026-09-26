@@ -193,4 +193,12 @@ describe('the glossary keeps up with the curriculum', () => {
     // "מרווח ביטחון" is its own idea, not the bid–ask spread.
     expect(highlightGlossary('ומשאירים מרווח ביטחון', 'he').find((s) => s.termId)?.termId).toBe('margin-of-safety');
   });
+
+  it("Macro's terms do not swallow the longer ones they sit inside", () => {
+    // "ריבית" (interest rate) is Macro's; "ריבית דריבית" stays compound interest.
+    expect(highlightGlossary('כוחה של ריבית דריבית', 'he').find((s) => s.termId)?.termId).toBe('compound-interest');
+    expect(highlightGlossary('הריבית עלתה', 'he')[0]?.termId).toBe('interest-rate');
+    expect(highlightGlossary('The yield curve inverted', 'en').find((s) => s.termId)?.termId).toBe('yield-curve');
+    expect(highlightGlossary('the news was priced in', 'en').find((s) => s.termId)?.termId).toBe('priced-in');
+  });
 });

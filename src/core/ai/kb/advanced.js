@@ -55,7 +55,7 @@ export const entries = [
     en:`Institutional investors are large entities managing enormous sums of money — pension funds, mutual funds, investment firms, hedge funds, and so on — as distinct from individual retail investors. Because of their size, they account for a significant share of daily trading volume and can meaningfully move a stock's price when they buy or sell large quantities at once.`,
     related:['market-makers','options-flow'] },
 
-  { id:'market-makers', cat:'advanced', kw:['market maker','market makers','עושי שוק'],
+  { id:'market-makers', cat:'advanced', kw:['market maker','market makers','עושי שוק','עושה שוק','עושה השוק','עושי השוק'],
     he:`עושה שוק (Market Maker) הוא גורם (בדרך כלל חברה מקצועית) שמתחייב לספק באופן רציף גם הצעות קנייה (Bid) וגם הצעות מכירה (Ask) עבור מניה מסוימת, כדי להבטיח שתמיד יהיה אפשר לסחור בה במהירות. עושי שוק מרוויחים מה-Spread הקטן שבין ה-Bid ל-Ask, ובכך תורמים לנזילות השוק — במיוחד חשוב עבור מניות שבלעדיהם היו סובלות ממסחר דליל ותנודתי במיוחד.`,
     en:`A market maker is an entity (usually a professional firm) that commits to continuously providing both buy quotes (bid) and sell quotes (ask) for a given stock, ensuring it can always be traded quickly. Market makers profit from the small spread between the bid and ask, and in doing so contribute to market liquidity — especially important for stocks that would otherwise suffer from thin, especially volatile trading.`,
     related:['bid-ask-spread','liquidity'] },

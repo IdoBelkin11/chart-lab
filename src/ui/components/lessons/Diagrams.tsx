@@ -47,6 +47,7 @@ export function DiagramView({ d, lang, compact }: { d: Diagram; lang: Lang; comp
   else if (d.type === 'stacks') body = <Stacks d={d} lang={lang} />;
   else if (d.type === 'waterfall') body = <Waterfall d={d} lang={lang} />;
   else if (d.type === 'grouped') body = <Grouped d={d} lang={lang} />;
+  else if (d.type === 'lines') body = <Lines d={d} lang={lang} />;
   else {
     const max = Math.max(...d.bars.map((b) => b.value));
     body = (
@@ -63,7 +64,7 @@ export function DiagramView({ d, lang, compact }: { d: Diagram; lang: Lang; comp
   }
   return (
     <figure className={`${styles.frame}${compact ? ` ${styles.compact}` : ''}`}>
-      <div className={styles.head}><figcaption className="chip">{d.title[lang]}</figcaption><span className="demo">{lang === 'he' ? 'דוגמה להמחשה' : 'Illustration'}</span></div>
+      <div className={styles.head}><figcaption className="chip">{d.title[lang]}</figcaption><span className="demo">{d.type === 'table' && d.badge ? d.badge[lang] : lang === 'he' ? 'דוגמה להמחשה' : 'Illustration'}</span></div>
       <div className={styles.body}>{body}</div>
       {d.caption && <p className={`small ${styles.caption}`}>{d.caption[lang]}</p>}
     </figure>
@@ -276,6 +277,67 @@ function Grouped({ d, lang }: { d: Extract<Diagram, { type: 'grouped' }>; lang: 
         ))}
       </div>
       <ul className={styles.legend}>{d.series.map((s, k) => <li key={k}><span className={styles.swatch} data-tone={s.tone} />{s.label[lang]}</li>)}</ul>
+    </div>
+  );
+}
+
+/** Round steps for an axis: 1, 2, 2.5 or 5 times a power of ten, about four of them. */
+function axis(lo: number, hi: number): number[] {
+  const raw = (hi - lo) / 4 || 1, mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].find((k) => k * mag >= raw)! * mag;
+  const out: number[] = [];
+  for (let v = Math.floor(lo / step) * step; v <= Math.ceil(hi / step) * step + step / 1e6; v += step) out.push(+v.toFixed(6));
+  return out;
+}
+
+/**
+ * Values over time on one scale (M2: inflation against the policy rate; M5: a
+ * spread crossing zero). The plot is an SVG stretched to its box — strokes keep
+ * their width — and every label is HTML placed by percentage, so text stays
+ * readable at any width. Time runs left to right in both languages, as on the
+ * price charts. A percentage scale always shows zero; a plain one fits the data.
+ */
+function Lines({ d, lang }: { d: Extract<Diagram, { type: 'lines' }>; lang: Lang }) {
+  const vals = [...d.series.flatMap((s) => s.values), ...(d.ref ? [d.ref.value] : [])];
+  const grid = axis(d.unit === '%' ? Math.min(0, ...vals) : Math.min(...vals), Math.max(...vals));
+  const lo = grid[0]!, hi = grid[grid.length - 1]!, n = d.x.length;
+  const X = (i: number) => (i / (n - 1)) * 100, Y = (v: number) => ((hi - v) / (hi - lo)) * 100;
+  const fmt = (v: number) => `${v < 0 ? '−' : ''}${+Math.abs(v).toFixed(2)}${d.unit}`;
+  const at = (i: number) => `${d.xTitle[lang]} ${d.x[i]}`;
+  const summary = [
+    ...d.series.map((s) => { const k = s.values.indexOf(Math.max(...s.values)), m = s.values.indexOf(Math.min(...s.values));
+      return `${s.label[lang]}: ${fmt(s.values[0]!)} → ${fmt(s.values[n - 1]!)}; max ${fmt(s.values[k]!)} (${at(k)}), min ${fmt(s.values[m]!)} (${at(m)})`; }),
+    ...(d.bands ?? []).map((b) => `${b.label[lang]}: ${at(b.from)}–${d.x[b.to]}`),
+    ...(d.marks ?? []).map((m) => `${m.label[lang]} (${at(m.at)})`)
+  ].join(' · ');
+  return (
+    <div className={styles.lines}>
+      <div className={styles.lPlot} dir="ltr" role="img" aria-label={summary}>
+        <div className={styles.lAxis} aria-hidden="true">{grid.map((v) => <span key={v} className="n" style={{ top: `${Y(v)}%` }}>{fmt(v)}</span>)}</div>
+        <div className={styles.lArea} aria-hidden="true">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+            {d.bands?.map((b, i) => <rect key={i} className={styles.lBand} x={X(b.from)} width={Math.max(0.8, X(b.to) - X(b.from))} y={0} height={100} />)}
+            {grid.map((v) => <line key={v} className={v === 0 ? styles.lZero : styles.lGrid} x1={0} x2={100} y1={Y(v)} y2={Y(v)} />)}
+            {d.ref && <line className={styles.lRef} x1={0} x2={100} y1={Y(d.ref.value)} y2={Y(d.ref.value)} />}
+            {d.series.map((s, k) => <polyline key={k} className={styles.lLine} data-tone={s.tone} points={s.values.map((v, i) => `${X(i)},${Y(v)}`).join(' ')} />)}
+          </svg>
+          {d.bands?.map((b, i) => <span key={i} dir="auto" className={styles.lBandLabel} style={{ left: `${X((b.from + b.to) / 2)}%` }}>{b.label[lang]}</span>)}
+          {d.ref && <span dir="auto" className={styles.lRefLabel} style={{ top: `${Y(d.ref.value)}%` }}>{d.ref.label[lang]}</span>}
+          {d.marks?.map((m, i) => {
+            const x = X(m.at), y = Y(d.series[m.series]!.values[m.at]!);
+            return (
+              <span key={i} className={styles.lMark} data-tone={d.series[m.series]!.tone} data-edge={x > 78 ? 'end' : x < 22 ? 'start' : undefined} data-below={y < 22 || undefined} style={{ left: `${x}%`, top: `${y}%` }}>
+                <i /><b dir="auto">{m.label[lang]}</b>
+              </span>
+            );
+          })}
+          {d.ticks.map((i) => <span key={i} className={`n ${styles.lTick}`} style={{ left: `${X(i)}%` }}>{d.x[i]}</span>)}
+        </div>
+      </div>
+      <ul className={styles.legend}>
+        {d.series.map((s, k) => <li key={k}><span className={styles.swatch} data-tone={s.tone} />{s.label[lang]}</li>)}
+        <li className={styles.lXTitle}>{d.xTitle[lang]} →</li>
+      </ul>
     </div>
   );
 }

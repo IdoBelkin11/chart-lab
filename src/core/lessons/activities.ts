@@ -209,6 +209,8 @@ export interface ExploreActivity {
   task: Localized;
   title: Localized;
   datasets: Array<{ key: string; label: Localized }>;
+  /** What the datasets are, for the switch's accessible name (default: companies — P2). */
+  datasetsLabel?: Localized;
   rows: Array<{ id: string; label: Localized; term?: string; kind?: 'sub' | 'total'; values: Record<string, string>; why: Localized; formula?: Record<string, string>; share?: Record<string, number> }>;
   /** Heading of the "share of the first line" bars (rows with a `share`). */
   sharesTitle?: Localized;

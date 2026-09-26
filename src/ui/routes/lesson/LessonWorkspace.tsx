@@ -40,7 +40,7 @@ const TX = {
     curious: 'רוצים להמשיך לחקור? · ', curiousBody: 'המורה מכיר את השיעור הזה ויכול להסביר אותו אחרת או לתת עוד דוגמה.',
     explain: 'הסבר לי את הנושא', example: 'דוגמה נוספת', explainAsk: (t: string) => `הסבר לי על ${t}`, exampleAsk: (t: string) => `תן לי דוגמה נוספת על ${t}`,
     takeTitle: 'מה לקחת מהשיעור', bottom: 'בשורה התחתונה', caveat: 'שימו לב', inNext: 'בשיעור הבא', endOfTrack: 'זה השיעור האחרון במסלול — הצעד הבא הוא תרגול המסלול.',
-    done: 'השיעור הושלם', inTrack: 'במסלול', attempts: 'ניסיונות', total: 'בסך הכול', upNext: 'השיעור הבא', soon: 'בקרוב', practice: 'תרגול על השיעור', practiceOpenLead: 'התרגול המסכם נפתח', practiceOpenBody: 'סיימתם את כל השיעורים הכתובים במסלול.', toPractice: 'לתרגול המסכם', undo: 'ביטול סימון ההשלמה',
+    done: 'השיעור הושלם', inTrack: 'במסלול', attempts: 'ניסיונות', total: 'בסך הכול', upNext: 'השיעור הבא', soon: 'בקרוב', practice: 'תרגול על השיעור', practiceOpenLead: 'התרגול המסכם נפתח', practiceOpenBody: 'סיימתם את כל השיעורים הכתובים במסלול.', toPractice: 'לתרגול המסכם', undo: 'סימון השיעור כלא הושלם', redo: 'סימון השיעור כהושלם', notDone: 'השיעור לא מסומן כהושלם',
     nextTeaser: (t: string) => `בשיעור הבא: ${t}`
   },
   en: {
@@ -55,7 +55,7 @@ const TX = {
     curious: 'Want to dig further? · ', curiousBody: 'The tutor knows this lesson and can explain it another way or give another example.',
     explain: 'Explain this concept', example: 'Another example', explainAsk: (t: string) => `Explain ${t}`, exampleAsk: (t: string) => `Give me another example of ${t}`,
     takeTitle: 'What to take from this lesson', bottom: 'The bottom line', caveat: 'Watch out', inNext: 'Next lesson', endOfTrack: "This is the track's last lesson — track practice comes next.",
-    done: 'Lesson complete', inTrack: 'in the track', attempts: 'attempts', total: 'overall', upNext: 'Up next', soon: 'Coming soon', practice: 'Practice this lesson', practiceOpenLead: 'Track practice is open', practiceOpenBody: 'You have finished every written lesson in the track.', toPractice: 'Go to the practice', undo: 'Unmark as complete',
+    done: 'Lesson complete', inTrack: 'in the track', attempts: 'attempts', total: 'overall', upNext: 'Up next', soon: 'Coming soon', practice: 'Practice this lesson', practiceOpenLead: 'Track practice is open', practiceOpenBody: 'You have finished every written lesson in the track.', toPractice: 'Go to the practice', undo: 'Mark lesson as incomplete', redo: 'Mark lesson as complete', notDone: 'Lesson not marked complete',
     nextTeaser: (t: string) => `Next lesson: ${t}`
   }
 } as const;
@@ -99,7 +99,7 @@ export function LessonWorkspace({ lessonId }: { lessonId: string }) {
   const [verdict, setVerdict] = useState<Verdict>(null);
   const [attempts, setAttempts] = useState(0);
   const [revealed, setRevealed] = useState(false);
-  const paneRef = useRef<HTMLElement>(null);
+  const paneRef = useRef<HTMLDivElement>(null);
   // The tutor beside the lesson (Artifact 14): open or not, what to do on open,
   // the one-time offer after a wrong answer (14.1), and the return toast (14.7).
   const [drawer, setDrawer] = useState(false);
@@ -249,8 +249,9 @@ export function LessonWorkspace({ lessonId }: { lessonId: string }) {
     pane = (
       <>
         <div className={styles.doneHead}>
-          <span className={styles.doneMark}><Icon name="check" size={26} /></span>
-          <span className={`eyebrow ${styles.okEyebrow}`}>{tx.done}</span>
+          {record?.completed
+            ? <><span className={styles.doneMark}><Icon name="check" size={26} /></span><span className={`eyebrow ${styles.okEyebrow}`}>{tx.done}</span></>
+            : <span className="eyebrow">{tx.notDone}</span>}
           <h2 className={`h1 ${styles.paneTitle}`}>{lesson.title[lang]}</h2>
         </div>
         <div className={styles.stats}>
@@ -265,8 +266,9 @@ export function LessonWorkspace({ lessonId }: { lessonId: string }) {
         )}
         <NextCard next={next} lang={lang} onOpen={(id) => go('lesson', { lessonId: id })} onTrack={() => go('track', { trackId: lesson.track })} />
         <button type="button" className={`btnText ${styles.selfCenter}`} onClick={() => go('quiz', { lessonId: content.legacyId ?? lessonId })}><Icon name="target" size={14} />{tx.practice}</button>
-        {/* The previous build's completion was a toggle; undoing it stays possible. */}
-        {record?.completed && <button type="button" className={`btnText ${styles.selfCenter} ${styles.undo}`} onClick={() => toggleLessonComplete(lessonId)}>{tx.undo}</button>}
+        {/* Completion is a toggle both ways: one button whose label follows the state, so
+            focus stays on it after each press and "incomplete" is never a dead end. */}
+        <button type="button" className={record?.completed ? `btnText ${styles.selfCenter} ${styles.undo}` : `btn2 sm ${styles.selfCenter}`} onClick={() => toggleLessonComplete(lessonId)}>{record?.completed ? tx.undo : tx.redo}</button>
       </>
     );
   }
@@ -390,7 +392,11 @@ export function LessonWorkspace({ lessonId }: { lessonId: string }) {
         {/* Phone: the answer's feedback rises as a sheet over the chart (Artifact 15.3). */}
         {phone && step === 4 && verdict && <div className={styles.scrim} aria-hidden="true" />}
         {/* Focusable and named: a long step scrolls inside the pane, and a keyboard has to be able to reach it. */}
-        <section className={`glass ${styles.lpane}`} ref={paneRef} tabIndex={0} aria-label={steps[step]} data-sheet={phone && step === 4 && verdict ? true : undefined}>{pane}</section>
+        {/* The glass is the frame; the text scrolls inside it. When the glass element itself
+            scrolled, its edge ring and sheen (absolutely placed) scrolled with the text and cut across it. */}
+        <section className={`glass ${styles.lpane}`} aria-label={steps[step]} data-sheet={phone && step === 4 && verdict ? true : undefined}>
+          <div className={styles.paneScroll} ref={paneRef} tabIndex={0}>{pane}</div>
+        </section>
         <section className={`well ${styles.lwork}`} data-step={step}>{work}</section>
         {drawer && (
           <div className={sheetFull ? `${styles.drawerSlot} ${styles.sheetFull}` : styles.drawerSlot}>

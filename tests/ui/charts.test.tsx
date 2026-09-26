@@ -16,6 +16,7 @@ import { P8 } from '@core/lessons/content/p7to9';
 import { RISK_1 } from '@core/lessons/content/r1to3';
 import { RISK_2 } from '@core/lessons/content/r4to6';
 import { RISK_3 } from '@core/lessons/content/r7to8';
+import { MACRO_3 } from '@core/lessons/content/m7';
 const RISK = [...RISK_1, ...RISK_2, ...RISK_3];
 import * as series from '@core/charts/series.js';
 import { chartsForLesson, LESSON_CHARTS } from '@core/charts/lessonCharts';
@@ -131,7 +132,7 @@ describe('lesson chart mapping', () => {
     // Lessons written in the content model (Phase 8): their charts, and their comparison lines.
     // A chart cut before its outcome (T11's questions) is a slice: it starts on the series' own first candle.
     const firstCandles = new Set<unknown>();
-    for (const s of [...FOUNDATIONS, T1, ...TECHNICAL, T6, T7, T8, T9, T10, T11, T12, P8, ...RISK].flatMap((c) => c.charts)) {
+    for (const s of [...FOUNDATIONS, T1, ...TECHNICAL, T6, T7, T8, T9, T10, T11, T12, P8, ...RISK, ...MACRO_3].flatMap((c) => c.charts)) {
       wiredCandles.add(s.candles);
       firstCandles.add((s.candles as unknown[])[0]);
       for (const l of (s.options?.extraLines as Array<{ values: unknown }> | undefined) ?? []) wiredCandles.add(l.values);

@@ -212,3 +212,5 @@ export declare const R5_TRADE: WithSwings & { entryIdx: number };
 export declare const R5_PLAN: WithSwings;
 export declare const R7_CRASH: WithSwings;
 export declare const R7_BUBBLE: WithSwings;
+export declare const M7_NEWS: WithSwings;
+export declare const M7_RATE: WithSwings;

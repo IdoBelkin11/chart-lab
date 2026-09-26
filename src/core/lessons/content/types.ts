@@ -38,6 +38,10 @@ export interface ConceptCard { id: string; tone: string; name: Localized; what: 
  *            market cap + net debt = enterprise value)
  *   waterfall a running total, step by step (profit → cash; revenue → net income)
  *   grouped  bars grouped by period, one bar per series (margins year by year)
+ *   lines    values over time, on a % (or plain) scale: inflation against the
+ *            policy rate, a spread crossing zero; shaded bands, a reference
+ *            line and named points. Not a price chart — no candles, no $ axis.
+ * A table can carry a `badge` in place of "Illustration" (history, rounded).
  * Numbers arrive formatted (`shown`), computed by the lesson from its data.
  */
 export type Tone = 'ok' | 'err' | 'info' | 'learn' | 'adv' | 'risk' | 'muted';
@@ -47,10 +51,11 @@ export type Diagram =
   | { type: 'book'; title: Localized; asks: Array<[number, number]>; bids: Array<[number, number]>; highlight: 'none' | 'best' | 'spread'; caption?: Localized }
   | { type: 'bars'; title: Localized; bars: Array<{ label: Localized; value: number; tone: 'ok' | 'err' | 'info' | 'learn' | 'muted'; shown: Localized }>; caption?: Localized }
   | { type: 'candles'; title: Localized; candles: Array<{ o: number; h: number; l: number; c: number; name: Localized; note: Localized }>; caption?: Localized }
-  | { type: 'table'; title: Localized; columns: Localized[]; rows: Array<{ label: Localized; cells: Array<string | Localized>; kind?: 'sub' | 'total'; mark?: number[] }>; caption?: Localized }
+  | { type: 'table'; title: Localized; columns: Localized[]; rows: Array<{ label: Localized; cells: Array<string | Localized>; kind?: 'sub' | 'total'; mark?: number[] }>; caption?: Localized; badge?: Localized }
   | { type: 'stacks'; title: Localized; columns: Array<{ label: Localized; total: string; parts: Array<{ label: Localized; value: number; shown: string; tone: Tone; mark?: boolean }> }>; caption?: Localized }
   | { type: 'waterfall'; title: Localized; steps: Array<{ label: Localized; value: number; shown: string; total?: boolean }>; caption?: Localized }
-  | { type: 'grouped'; title: Localized; groups: string[]; series: Array<{ label: Localized; tone: Tone; values: number[]; shown: string[] }>; caption?: Localized };
+  | { type: 'grouped'; title: Localized; groups: string[]; series: Array<{ label: Localized; tone: Tone; values: number[]; shown: string[] }>; caption?: Localized }
+  | { type: 'lines'; title: Localized; x: string[]; xTitle: Localized; unit: '%' | ''; series: Array<{ label: Localized; tone: Tone; values: number[] }>; ticks: number[]; bands?: Array<{ from: number; to: number; label: Localized }>; ref?: { value: number; label: Localized }; marks?: Array<{ at: number; series: number; label: Localized }>; caption?: Localized };
 
 /** What the work area shows on a teaching step. */
 export type Work =

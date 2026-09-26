@@ -90,6 +90,21 @@ describe('lesson transitions are pure and only move forward', () => {
     expect(lessonStatus(p, 'T4')).toBe('in-progress');
   });
 
+  it('un-completing and re-completing a lesson round-trips everything derived from it', () => {
+    const done = recordPractice(all(EMPTY_LEARNING, 'R'), 'R', 8, 8);
+    const before = { status: trackStatus(done, 'D'), total: totalCompleted(done), inR: completedIn(done, 'R') };
+    expect(trackDone(done, 'R')).toBe(true);
+    const undone = uncompleteLesson(done, 'R3');
+    expect(trackDone(undone, 'R')).toBe(false);
+    expect(completedIn(undone, 'R')).toBe(before.inR - 1);
+    expect(totalCompleted(undone)).toBe(before.total - 1);
+    expect(practiceOpen(undone, 'R')).toBe(false);
+    expect(undone.practice.R?.passed).toBe(true); // a passed practice is never taken back
+    const redone = completeLesson(undone, 'R3');
+    expect(trackDone(redone, 'R')).toBe(true);
+    expect({ status: trackStatus(redone, 'D'), total: totalCompleted(redone), inR: completedIn(redone, 'R') }).toEqual(before);
+  });
+
   it('unknown lesson ids change nothing', () => {
     expect(openLesson(EMPTY_LEARNING, 'Z9')).toBe(EMPTY_LEARNING);
     expect(completeLesson(EMPTY_LEARNING, 'l1')).toBe(EMPTY_LEARNING);
@@ -112,7 +127,7 @@ describe('practice, tracks and resume', () => {
     expect(practiceOpen(almost, 'T')).toBe(false);
     expect(practiceOpen(completeLesson(almost, 'T12'), 'T')).toBe(true);
     // A track with nothing written has no practice yet.
-    expect(practiceOpen(all(EMPTY_LEARNING, 'M'), 'M')).toBe(false);
+    expect(practiceOpen(all(EMPTY_LEARNING, 'D'), 'D')).toBe(false);
   });
 
   it('a track is done only with all lessons AND a passed practice', () => {

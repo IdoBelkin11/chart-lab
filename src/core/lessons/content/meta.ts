@@ -43,7 +43,14 @@ export const LESSON_META: Readonly<Record<string, LessonMeta>> = {
   R5: { topic: 'risk-reward-ratio' },
   R6: { topic: 'behavioral-biases' },
   R7: { topic: 'market-bubbles-crashes' },
-  R8: { topic: 'portfolio' }
+  R8: { topic: 'portfolio' },
+  M1: { topic: 'interest-rate' },
+  M2: { topic: 'inflation' },
+  M3: { topic: 'recession' },
+  M4: { topic: 'bond' },
+  M5: { topic: 'yield-curve' },
+  M6: { topic: 'dollar-strength' },
+  M7: { topic: 'efficient-markets-priced-in' }
 };
 
 /** Whether a lesson is written (has content to open). */

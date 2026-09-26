@@ -370,6 +370,28 @@ Do NOT start Macro/Derivatives until the user says so.**
 - Verified: 630 tests, tsc, build; matrix TA+F+P+R × 1440/390 × dark/light × he/en with axe = 0;
   35 route checks clean; production preview clean on 20 routes incl. R and the glossary.
 
+**Phase 8 — Macro M1–M7: WRITTEN (2026-09-26), AWAITING USER REVIEW. Not committed.
+Do NOT start Derivatives until the user says so.**
+- Data: `core/macro/scenarios.ts` — every figure, all illustrative except `HISTORY_2022` (rounded,
+  well-documented US facts, shown under a "Historical, rounded" badge instead of "Illustration").
+  Finance helpers live there too: `pv`, `bondPrice`, `ytm` (bisection), `duration` (measured),
+  `monthlyPayment`, `realValue`, `inShekels`. M7's two price series are in `charts/series.js`.
+  `tests/ui/macroTrack.test.tsx` checks every claim, the Try flows, the tutor and the practice.
+- Content: `content/m1to3.ts`, `m4to6.ts`, `m7.ts` (+ `macroKit.ts`, whose `pc`/`sp` isolate
+  negative numbers LTR — a bare "−1.5%" reads "1.5%−" in Hebrew). New step titles for M4, M6, M7.
+- Tries: M1 explore (move the rate across 1/3/5%) · M2, M5, M6 checklist · M3, M7 sort · M4 calculate.
+- New shared pieces: the `lines` diagram (values over time on a % or plain scale: bands, a
+  reference line, named points; HTML labels over a stretched SVG, LTR time axis); `table.badge`;
+  `ExploreActivity.datasetsLabel` (the switch's accessible name; P2 keeps "company").
+- Practice: 7 questions, pass 6. Macro is open from the start (soft prereq F). Bundle `lessons-macro`.
+- Tutor: KB keywords added for "priced in" / "מגולם במחיר" and "עושה שוק" (they missed before).
+- Glossary: 10 Macro terms in a new `macro` category (interest rate, inflation, GDP, recession,
+  central bank, coupon, YTM, yield curve, market maker, priced in).
+- UX fixes: the lesson pane's glass is now a frame with an inner scroller (`.paneScroll`) — the
+  glass edge ring/sheen scrolled with the text and drew a strip across it; completion is a real
+  toggle on step 7 ("Mark lesson as complete" ⇄ "Mark lesson as incomplete", same button).
+- Tests that used Macro as "the unwritten track" now use Derivatives (unlocking it where needed).
+
 ## Backlog (user, 2026-09-26: a small shared UX fix, later — not now)
 - ~~After a wrong answer, the AI tutor's help-offer card can cover part of the Apply check on phones.~~
   Fixed in the consolidation pass (2026-09-26).

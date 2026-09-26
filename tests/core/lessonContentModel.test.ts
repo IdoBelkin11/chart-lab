@@ -18,9 +18,12 @@ import { FUNDAMENTALS_3 } from '@core/lessons/content/p7to9';
 import { RISK_1 } from '@core/lessons/content/r1to3';
 import { RISK_2 } from '@core/lessons/content/r4to6';
 import { RISK_3 } from '@core/lessons/content/r7to8';
+import { MACRO_1 } from '@core/lessons/content/m1to3';
+import { MACRO_2 } from '@core/lessons/content/m4to6';
+import { MACRO_3 } from '@core/lessons/content/m7';
 
 const TECHNICAL = [T1, ...T2_T5, T6, T7, T8, T9, T10, T11, T12];
-const FUNDAMENTALS = [...FUNDAMENTALS_1, ...FUNDAMENTALS_2, ...FUNDAMENTALS_3, ...RISK_1, ...RISK_2, ...RISK_3];
+const FUNDAMENTALS = [...FUNDAMENTALS_1, ...FUNDAMENTALS_2, ...FUNDAMENTALS_3, ...RISK_1, ...RISK_2, ...RISK_3, ...MACRO_1, ...MACRO_2, ...MACRO_3];
 import { sketchSwings } from '@core/lessons/activities';
 import { executeBuy, tasksMet } from '@core/lessons/orderBook';
 import * as series from '@core/charts/series.js';
@@ -41,8 +44,8 @@ function localized(v: unknown, path: string, out: Array<[string, { he: unknown; 
 }
 
 describe('the lesson content model', () => {
-  it('covers Foundations and the whole TA, Fundamentals and Risk tracks', () => {
-    expect(written.map((l) => l.id)).toEqual(['F1', 'F2', 'F3', 'F4', 'F5', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8']);
+  it('covers Foundations and the whole TA, Fundamentals, Risk and Macro tracks', () => {
+    expect(written.map((l) => l.id)).toEqual(['F1', 'F2', 'F3', 'F4', 'F5', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7']);
     // Every TA lesson is in the content model; T9 and T10 keep their old ids only for #/quiz/l5 and l7.
     for (const t of TECHNICAL) expect(lessonContent(t.id)).toBe(t);
     expect(lessonContent('T9')!.legacyId).toBe('l5');

@@ -22,7 +22,8 @@
 .loop > button[data-state='cur'] .lt { max-width: none; }
 
 .lbody { flex-grow: 1; min-height: 0; display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 10px; padding: 10px; }
-.lpane { border-radius: var(--r-xl); padding: 24px 24px 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+.lpane { border-radius: var(--r-xl); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.paneScroll { flex: 1; min-height: 0; overflow-y: auto; border-radius: inherit; padding: 24px 24px 20px; display: flex; flex-direction: column; gap: 16px; }
 .lwork { border-radius: var(--r-xl); position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
 .lfoot { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 0 10px 10px; padding: 10px 12px; border-radius: var(--r-pill); min-height: 64px; }
 
@@ -112,7 +113,7 @@
   .lesson { height: auto; min-height: 100dvh; }
   .lbody, .withDrawer { grid-template-columns: minmax(0, 1fr); }
   .lwork { order: -1; min-height: 360px; }
-  .lpane { overflow: visible; }
+  .lpane, .paneScroll { overflow: visible; }
   .lfoot { position: sticky; bottom: 10px; z-index: 5; }
 }
 /* phone (Artifact 15.2/15.3): top row, a segmented step bar, chart then text, glass bottom nav */
@@ -131,7 +132,8 @@
   .wsHead { top: 10px; inset-inline-start: 10px; }
   .gallery { grid-template-columns: minmax(0, 1fr); padding: 10px; }
   .art, .teaser { padding: 16px; }
-  .lpane { padding: 4px 0 0; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; border-radius: 0; }
+  .paneScroll { padding: 4px 0 0; }
+  .lpane { background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; border-radius: 0; }
   /* Flat on a phone means flat: without this the glass edge ring and sheen still draw a square frame hugging the text. */
   .lpane:not([data-sheet])::before, .lpane:not([data-sheet])::after { display: none; }
   .paneTitle { font-size: 22px; }
@@ -141,11 +143,12 @@
   .lfoot { z-index: 26; }
   .scrim { display: block; position: fixed; inset: 0; z-index: 19; background: color-mix(in srgb, var(--bg) 55%, transparent); }
   .lpane[data-sheet] {
-    position: fixed; z-index: 20; inset-inline: 0; bottom: 0; max-height: 66vh; overflow-y: auto;
-    padding: 24px 16px 100px; border-radius: 28px 28px 0 0;
+    position: fixed; z-index: 20; inset-inline: 0; bottom: 0; max-height: 66vh; overflow: hidden;
+    border-radius: 28px 28px 0 0;
     background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
     box-shadow: var(--glass-inset), var(--glass-shadow);
   }
+  .lpane[data-sheet] > .paneScroll { overflow-y: auto; padding: 24px 16px 100px; }
   .lpane[data-sheet]::before { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 40px; height: 5px; border-radius: 99px; background: var(--wash-2); }
   /* 15.10: a sheet over the lesson's lower half — the chart stays in view above it. */
   .drawerSlot { top: 40vh; bottom: 0; inset-inline: 0; width: auto; }

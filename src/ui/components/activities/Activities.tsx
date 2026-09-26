@@ -695,7 +695,7 @@ function ExploreBoard({ a, s, set, verdict, lang }: { a: ExploreActivity; s: Exp
       <div className={`solid ${styles.exTable}`}>
         <div className={styles.rowBetween}>
           <b className={styles.exTitle}>{a.title[lang]}</b>
-          <div className="seg" role="group" aria-label={tx.company}>
+          <div className="seg" role="group" aria-label={a.datasetsLabel?.[lang] ?? tx.company}>
             {a.datasets.map((d) => <button key={d.key} type="button" className={s.dataset === d.key ? 'on' : ''} aria-pressed={s.dataset === d.key} disabled={locked} onClick={() => set({ ...s, dataset: d.key })}>{d.label[lang]}</button>)}
           </div>
         </div>
