@@ -103,6 +103,13 @@ export interface QuizQuestion {
   options: QuizOption[];
   correctKey: string;
   explanation: Localized;
+  /**
+   * A visual question: the index of the chart (in its lesson's content) it is
+   * asked about. Shown with the question wherever the question is asked.
+   */
+  chart?: number;
+  /** A visual question asked about a figure that is not a price chart (a statement, a comparison…). */
+  figure?: import('@core/lessons/content/types').Diagram;
 }
 
 /** A normalized market quote. Shape owned by Chart Lab, not by a vendor. */

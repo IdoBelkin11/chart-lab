@@ -1,0 +1,26 @@
+/* The tutor's conversation parts (Artifact 14): bubbles, quiz, browser, composer. */
+.aiRow { display: flex; gap: 8px; align-items: flex-end; max-width: 100%; }
+.markSm { width: 26px; height: 26px; }
+.aiBub { max-width: 94%; }
+.aiBubWide { max-width: min(94%, 74ch); }
+.revealing { cursor: pointer; }
+.caret { display: inline-block; width: 2px; height: 1em; margin-inline-start: 2px; vertical-align: text-bottom; background: var(--ai); animation: blink 1s steps(2, start) infinite; }
+@keyframes blink { to { visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+
+.quiz { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.quizQ { font-size: 13.5px; color: var(--text); }
+.quizOpt { min-height: 40px; padding: 8px 12px; font-size: 13px; }
+.quizOpt :global(.key) { width: 22px; height: 22px; }
+
+.browser, .followups { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.chipRow { display: flex; flex-wrap: wrap; gap: 6px; }
+.suggOn { background: var(--ai); color: #06222b; }
+.topicList { display: flex; flex-direction: column; gap: 2px; }
+.topic { border: 0; background: none; padding: 7px 8px; border-radius: 10px; font: inherit; font-size: 13px; color: var(--text); text-align: start; cursor: pointer; }
+.topic:hover { background: var(--wash); }
+
+.composer { min-height: 52px; padding-inline-end: 7px; }
+.send { width: 38px; height: 38px; background: var(--ai-grad); color: #06222b; }
+.send:disabled { opacity: 0.45; cursor: not-allowed; }
+:root[data-theme='light'] .send { color: #fff; }

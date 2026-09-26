@@ -1,10 +1,11 @@
 import { lazy, Suspense, useEffect, useRef } from 'react';
 import { useRoute } from '@ui/hooks/useRoute';
+import type { ToolId } from '@ui/hooks/useRoute';
 import { rememberOrigin } from '@ui/shell/returnTo';
 import { HomeRoute } from '@ui/routes/home/HomeRoute';
-import { LessonRoute } from '@ui/routes/lesson/LessonRoute';
-import { QuizRoute } from '@ui/routes/quiz/QuizRoute';
-import { CalculatorsRoute } from '@ui/routes/calculators/CalculatorsRoute';
+import { LessonPreview } from '@ui/routes/lesson/LessonPreview';
+import { TrackRoute } from '@ui/routes/track/TrackRoute';
+import { hasContent } from '@core/curriculum/trackInfo';
 import { GlossaryRoute } from '@ui/routes/glossary/GlossaryRoute';
 import styles from './RouteView.module.css';
 
@@ -41,6 +42,31 @@ const StockRoute = lazy(() =>
 );
 const CompareRoute = lazy(() =>
   import('@ui/routes/compare/CompareRoute').then((m) => ({ default: m.CompareRoute }))
+);
+// Track practice and completion are reached after lessons, never first.
+const PracticeRoute = lazy(() =>
+  import('@ui/routes/practice/PracticeRoute').then((m) => ({ default: m.PracticeRoute }))
+);
+const CompleteRoute = lazy(() =>
+  import('@ui/routes/complete/CompleteRoute').then((m) => ({ default: m.CompleteRoute }))
+);
+// The tools hub and calculators are opened on purpose, not on arrival.
+const ToolsRoute = lazy(() =>
+  import('@ui/routes/tools/ToolsRoute').then((m) => ({ default: m.ToolsRoute }))
+);
+// Onboarding is seen once per learner, so it stays out of the main chunk too.
+const OnboardingRoute = lazy(() =>
+  import('@ui/routes/onboarding/OnboardingRoute').then((m) => ({ default: m.OnboardingRoute }))
+);
+
+// The lesson and quiz routes carry the lesson content (prose, charts, questions:
+// ~450 kB of source). Loaded with the first lesson or quiz opened, not with the
+// shell — the shell knows which lessons exist from @core/lessons/content/meta.
+const LessonWorkspace = lazy(() =>
+  import('@ui/routes/lesson/LessonWorkspace').then((m) => ({ default: m.LessonWorkspace }))
+);
+const QuizRoute = lazy(() =>
+  import('@ui/routes/quiz/QuizRoute').then((m) => ({ default: m.QuizRoute }))
 );
 
 /** One loading state for every on-demand route, so they cannot drift apart. */
@@ -86,17 +112,34 @@ export function RouteView() {
     // `instant`, not smooth: this is a page change, and animating a long
     // lesson back to the top reads as the app losing its place.
     workspace?.scrollTo({ top: 0, behavior: 'instant' });
-  }, [route, params.lessonId]);
+  }, [route, params.lessonId, params.trackId, params.view]);
 
   switch (route) {
     case 'home':
       return <HomeRoute />;
+    case 'onboarding':
+      return (
+        <Suspense fallback={<Loading />}>
+          <OnboardingRoute />
+        </Suspense>
+      );
+    case 'practice':
+      return <Suspense fallback={<Loading />}><PracticeRoute trackId={params.trackId!} run={params.view === 'run'} /></Suspense>;
+    case 'complete':
+      return <Suspense fallback={<Loading />}><CompleteRoute key={params.view ?? 'summary'} trackId={params.trackId!} next={params.view === 'next'} /></Suspense>;
+    case 'track':
+      return <TrackRoute trackId={params.trackId!} />;
     case 'lesson':
-      return <LessonRoute lessonId={params.lessonId!} />;
+      // A written lesson opens in the 7-step workspace (keyed, so a new lesson
+      // starts with fresh exercise state); one not written yet shows its
+      // honest preview inside the shell.
+      return hasContent(params.lessonId!)
+        ? <Suspense fallback={<Loading />}><LessonWorkspace key={params.lessonId} lessonId={params.lessonId!} /></Suspense>
+        : <LessonPreview lessonId={params.lessonId!} />;
     case 'quiz':
       // The lesson scope travels in the URL, so scoped practice is
       // shareable and cannot drift onto a topic the learner already left.
-      return <QuizRoute lessonId={params.lessonId} />;
+      return <Suspense fallback={<Loading />}><QuizRoute lessonId={params.lessonId} /></Suspense>;
     case 'ai':
       return (
         <Suspense fallback={<Loading />}>
@@ -115,8 +158,8 @@ export function RouteView() {
           <CompareRoute />
         </Suspense>
       );
-    case 'calculators':
-      return <CalculatorsRoute />;
+    case 'tools':
+      return <Suspense fallback={<Loading />}><ToolsRoute tool={params.view as ToolId | undefined} /></Suspense>;
     // Eager: it is pure term data with no market or engine dependency, so it
     // costs almost nothing and is the page a stuck reader wants instantly.
     case 'glossary':

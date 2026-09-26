@@ -22,7 +22,7 @@ import * as series from './series.js';
 
 export interface LessonChartSpec {
   candles: unknown[];
-  variant: 'price' | 'price-rsi';
+  variant: 'price' | 'price-rsi' | 'price-macd';
   options?: Record<string, unknown>;
   /** Accessible description, per language. A canvas is invisible without it. */
   label: Localized;
@@ -44,14 +44,6 @@ export interface LessonChartSpec {
    * one candle they were pointing at.
    */
   height?: number;
-  /**
-   * Overrides the width this chart would otherwise be given. Left unset on
-   * every chart in the course — the default comes from the series itself (see
-   * cardLayout.ts), which is what keeps a chart the same width wherever it
-   * appears. Set it only for a chart whose right width genuinely disagrees
-   * with its candle count.
-   */
-  span?: 'full' | 'half';
 }
 
 const ma20 = series.ema(series.L3.map((c: { c: number }) => c.c), 20);
@@ -75,7 +67,7 @@ export const LESSON_CHARTS: Record<string, LessonChartSpec[]> = {
       tone: 'neutral',
       height: 440
       // No zones by default — this lesson's exercise asks the learner to
-      // guess the zone first. LessonRoute overlays the answer as zones
+      // guess the zone first. LessonWorkspace overlays the answer as zones
       // (tone: 'support' / 'resistance') only once revealed.
     },
     {

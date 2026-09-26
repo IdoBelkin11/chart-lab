@@ -1,184 +1,65 @@
-.page { padding: 0 clamp(var(--s-4), 4vw, var(--s-7)) var(--s-8); }
+/* Home (Artifact: 03 · Home & Dashboard — homeScreen). */
+.page { width: 100%; max-width: var(--content-max); margin-inline: auto; padding: 26px 36px 96px; display: flex; flex-direction: column; gap: 24px; }
+.greeting { display: flex; flex-direction: column; gap: 6px; }
 
-/* No hero glow of its own — see the note in LessonRoute.module.css. The
-   ambient field under the shell is the product's single light source. */
-.masthead {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(220px, 0.5fr);
-  gap: clamp(24px, 4vw, 56px);
-  align-items: start;
-  padding: clamp(36px, 6vh, 72px) 0 var(--s-7);
-  border-bottom: 1px solid var(--line-soft);
-}
-.kicker,
-.headline,
-.lead,
-.stat,
-.freshNote { position: relative; z-index: 1; }
-.freshNote {
-  grid-column: 1 / -1;
-  display: inline-flex;
-  align-self: start;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 15px;
-  border-radius: var(--r-btn);
-  background: var(--accent-dim);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
-  box-shadow: var(--glass-inset), inset 0 0 0 1px var(--glass-border);
-  color: var(--accent-strong);
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  margin-bottom: var(--s-4);
-}
-.kicker {
-  grid-column: 1 / -1;
-  display: flex; align-items: center; gap: 12px;
-  font-family: var(--mono);
-  font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
-  text-transform: uppercase; color: var(--text-muted);
-  margin-bottom: var(--s-5);
-}
-.kicker i {
-  font-style: normal; color: var(--text-faint); font-weight: 500;
-  padding-inline-start: 12px; border-inline-start: 1px solid var(--line);
-}
-.headline {
-  font-size: var(--fs-display);
-  font-weight: 650;
-  line-height: 1.04;
-  letter-spacing: -0.035em;
-  max-width: 16ch;
-  margin-bottom: var(--s-5);
-}
-.lead {
-  grid-column: 1;
-  font-size: clamp(15px, 1.6vw, 18px);
-  line-height: 1.65;
-  color: var(--text-muted);
-  max-width: 52ch;
-}
-.stat { grid-column: 2; display: flex; align-items: baseline; gap: 14px; align-self: center; }
-.statNum {
-  font-family: var(--mono);
-  font-size: clamp(42px, 6vw, 68px);
-  font-weight: 700; line-height: 0.9; letter-spacing: -0.045em;
-}
-.statNum i { font-style: normal; font-size: 0.42em; color: var(--text-faint); font-weight: 500; }
-.statLabel {
-  font-family: var(--mono); font-size: 10px; font-weight: 700;
-  letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--text-faint); max-width: 9ch; line-height: 1.4;
-}
+.hero { border-radius: 32px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); overflow: hidden; min-height: 268px; }
+.heroText { padding: 30px 32px; display: flex; flex-direction: column; gap: 14px; }
+.heroText :global(.h1) { font-size: 30px; }
+.heroMeta { display: flex; gap: 14px; font-size: 12.5px; color: var(--text-faint); flex-wrap: wrap; }
+.heroMeta > span { display: inline-flex; gap: 5px; align-items: center; }
+.heroCta { display: flex; gap: 10px; margin-top: auto; align-items: center; flex-wrap: wrap; }
+.trackLine { display: flex; align-items: center; gap: 10px; }
+.stepBlock { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.strong { color: var(--text); }
 
-/* The single primary action. Yellow, because in this design yellow means
-   "the one thing to do next" — nothing else on the screen uses it. */
-/* Glass, with the warm corner wash kept on top of it — the tint is what marks
-   this as the primary action, the material is what lifts it off the page. */
-.resume {
-  composes: glass from '../../styles/glass.module.css';
+.thumb { position: relative; background: var(--well); box-shadow: inset 0 0 0 1px var(--sunk-ring); padding: 18px; display: flex; align-items: center; }
+.thumb > * { width: 100%; }
+.artWrap { height: 200px; }
 
-  margin-top: var(--s-7);
-  padding: var(--s-6);
-  border-radius: var(--r-xl);
-  background:
-    radial-gradient(140% 180% at 100% 0%, var(--action-dim), transparent 62%),
-    var(--glass-bg);
-  max-width: 560px;
-}
-.resumeKicker {
-  font-family: var(--mono); font-size: 10px; font-weight: 700;
-  letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--action-text); margin-bottom: var(--s-4);
-}
-.resumeTitle { font-size: clamp(21px, 2.4vw, 28px); font-weight: 700; letter-spacing: -0.025em; margin-bottom: 8px; }
-.resumeMeta { font-family: var(--mono); font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: var(--s-5); }
-/* The channel is recessed and the fill is glossy — a bar cut into the surface
-   with something luminous sitting in it, rather than two flat rectangles. */
-.track {
-  height: 6px; border-radius: var(--r-full);
-  background: var(--well); overflow: hidden; margin-bottom: var(--s-5);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
-}
-.track > span {
-  display: block; height: 100%;
-  border-radius: inherit;
-  background:
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 60%),
-    linear-gradient(90deg, var(--accent), var(--success));
-  transition: width var(--t-slow) var(--ease-out);
-}
-.cta {
-  position: relative;
-  width: 100%;
-  padding: 15px 26px;
-  border: none; border-radius: var(--r-btn);
-  /* The shared three-stop ramp, so every primary action in the product is lit
-     from the same angle by the same light. */
-  background: var(--action-fill);
-  color: var(--action-ink);
-  font-size: var(--fs-base); font-weight: 700;
-  cursor: pointer;
-  /* The bright inset is doing accessibility work, not decoration: a fill this
-     deep sits at only 2.5:1 against the canvas, below the 3:1 a control
-     boundary needs. This rim reads 3.25:1 against the fill and 8.16:1 against
-     the canvas, so the edge is defined even though the fill is not. */
-  box-shadow:
-    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.48),
-    inset 0 -1.5px 0 0 rgba(0, 18, 44, 0.38),
-    0 14px 36px -14px var(--action-glow);
-  transition: transform var(--t-med) var(--ease-spring),
-              filter var(--t-fast), box-shadow var(--t-med);
-}
-/* Same sheen as the floating launcher, so every raised control in the product
-   is lit from the same direction. */
-.cta::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 58%);
-  pointer-events: none;
-}
-.cta:hover {
-  filter: brightness(1.08);
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.58),
-    inset 0 -1.5px 0 0 rgba(0, 18, 44, 0.38),
-    0 18px 44px -14px var(--action-glow);
-}
-.cta:active { transform: translateY(0) scale(0.985); }
+.firstArt { position: relative; background: var(--well); padding: 22px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-content: center; }
+.assetTile { border-radius: 18px; padding: 16px; background: var(--surface-2); display: flex; flex-direction: column; gap: 8px; }
+.assetTile > span { height: 8px; border-radius: 99px; background: var(--wash-2); }
+.assetTile > span:first-of-type { width: 70%; }
+.assetTile > span:last-of-type { width: 45%; }
 
-.band { margin-top: var(--s-7); }
-.bandTitle {
-  font-family: var(--mono); font-size: 10px; font-weight: 700;
-  letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--text-faint); margin-bottom: var(--s-5);
-}
-.method { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-soft); max-width: 640px; }
-.method li {
-  display: flex; align-items: baseline; gap: 14px;
-  padding: 15px 12px; margin-inline: -12px; border-bottom: 1px solid var(--line-soft);
-  border-radius: var(--r-xs);
-  transition: background var(--t-fast);
-}
-/* Same treatment as the Calculators field rows: the row responds as one
-   thing, consistent with every other label+content row in the product. */
-.method li:hover { background: var(--surface); }
-.methodNum {
-  font-family: var(--mono); font-size: 10px; font-weight: 700;
-  color: var(--accent); letter-spacing: 0.06em; min-width: 20px;
-}
-.methodText { font-size: var(--fs-sm); color: var(--text-muted); }
+.whatRow, .threeCol { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.whatCard { display: flex; gap: 14px; align-items: flex-start; padding: 18px; }
+.whatIcon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--learn-dim); color: var(--learn); flex: none; }
+.whatTitle { font-size: 14.5px; }
 
-@media (max-width: 900px) {
-  .masthead { grid-template-columns: 1fr; gap: var(--s-5); padding-top: var(--s-6); }
-  .lead, .stat { grid-column: 1; }
-  .resume { max-width: none; padding: var(--s-5); }
+.section { display: flex; flex-direction: column; gap: 12px; }
+.sectionHead { display: flex; justify-content: space-between; align-items: baseline; }
+.nextCard {
+  display: flex; gap: 14px; align-items: center; padding: 16px 18px;
+  border: 0; font: inherit; color: var(--text); text-align: start; cursor: pointer;
 }
+.nextCard:hover { filter: brightness(1.06); }
+.nextIcon { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; flex: none; }
+.nextBody { flex-grow: 1; display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.aiCard { background: var(--ai-dim); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ai) 28%, transparent); }
+.aiMark { width: 42px; height: 42px; border-radius: 99px; display: grid; place-items: center; flex: none; background: var(--ai-grad); color: var(--ai-ink); }
 
-@media (prefers-reduced-motion: reduce) {
-  .cta:hover { transform: none; }
+.twoCol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.progressCard { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border: 0; font: inherit; color: var(--text); text-align: start; cursor: pointer; }
+.progressBody { flex-grow: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.progressHead { display: flex; justify-content: space-between; font-size: 15.5px; }
+
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 980px) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .whatRow, .threeCol, .twoCol { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .page { padding: 16px 16px 110px; }
+  .heroText { padding: 20px; }
+  .heroText :global(.h1) { font-size: 23px; }
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .firstArt { display: none; }
+  /* Artifact mobile home: a short chart strip above the text. */
+  .thumb { order: -1; padding: 10px; }
+  .artWrap { height: 110px; }
 }

@@ -1,5 +1,355 @@
 # Resume here
 
+## Redesign implementation — "Learning Glass" (approved 2026-09-25)
+Visual source of truth: the design Artifact (claude.ai/artifact/JgNsFp6J3rwS62C4JFL1xG).
+Phased plan: 1 foundation → 2 curriculum model + progress migration → 3 core
+learning (home, tracks, lesson workspace, practice, completion) → 4 lesson
+types → 5 tools (stock lookup = a card in Tools) → 6 AI tutor → 7 mobile →
+8 all 47 lessons. Each phase: tests + build + screenshots + axe before the next.
+
+**Phase 1 — foundation: DONE** (322/322 tests, build OK, axe 0 on 13 route/theme/width checks)
+- `ui/styles/tokens.css`: Artifact palette (gold learn, info, ok, risk, err,
+  adv, ai) for both themes; the old names (--accent, --action*, --success,
+  --danger, --advanced, --line*) are compatibility aliases onto the new roles.
+- `ui/styles/system.css` (new): the Artifact's primitives 1:1 (glass, well,
+  type, buttons, chips, seg, meter/ring/segs/num). Loaded BEFORE components in
+  main.tsx so a component module beats a global primitive on the same node.
+- Shell: topbar (brand + Tracks/Practice/Tools/Glossary + progress + lang/theme
+  switches), rail at inline-end in the Artifact style, glass AI launcher,
+  phone TabBar (mounted only at ≤760px via useMedia), interim Tools switcher
+  (calculators/stock/compare) until the Tools hub.
+- `Icon` component with the Artifact icon set; chart palette = design tokens
+  (20-avg stays orange, 150 teal — their captions name the colours).
+- Deliberate test updates: Hebrew language button is "עב"; theme is a
+  dark/light pair; sections are links; main nav is "ניווט ראשי".
+- Open: route content (home/lesson/quiz…) is still the previous layout until
+  Phase 3; brand mark ▼▲ is still a placeholder (favicon/logo deploy gate).
+
+**Phase 2 — curriculum model + progress migration: DONE** (357/357 tests, build OK)
+- `core/curriculum/data.ts`: GENERATED from the design's curriculum (6 tracks,
+  47 lessons: level, module, kind, minutes, kbTopics, prereqs, legacyId, and
+  7 content-specific step titles for 29 lessons). Every kbTopic resolves to a
+  real KB entry (tested); 'macd' joins T7 when its KB entry is written.
+- `core/curriculum/curriculum.ts`: lookups, practice rule (1 q/lesson, min 5,
+  pass 80% rounded up), legacy map l0→F1 l1→T4 l2→T5 l3→T6 l4→T2 l5→T9
+  l6→T7 l7→T10.
+- `core/curriculum/recommend.ts`: the onboarding rules (bilingual), identical
+  to the design's live prototype; profiles A/B/C → P/R/T tested.
+- `core/progress/learning.ts`: v2 record (`chartlab.learning.v2`) — furthest
+  step per lesson, completion, practice attempts/best/passed, onboarding
+  answers, last lesson. Reading UNIONS the old record in (never loses a
+  completion); writing also keeps `chartlab.lessonProgress` as a projection
+  (rollback-safe). Verified in the browser with a real legacy save.
+- AppState: `learning` is the single source of truth; the old 8-lesson API is
+  derived from it, so unrebuilt screens are unchanged.
+
+**Phase 3 — core learning: DONE**
+- 3.1 tracks: DONE. `#/track/X` page (hero, modules, aside). Context-aware rail
+  (all tracks on home, lesson list inside a track). The 39 unwritten lessons
+  show as "בקרוב" and open an honest preview (`LessonPreview`), never fake content.
+- 3.2 home + onboarding: DONE (368/368 tests, build OK, axe 0 on every
+  onboarding step × dark/light × he/en × 1440/390, plus home).
+  - Home: first visit (F1 + "לא בטוחים מאיפה להתחיל?") vs returning (resume
+    hero with the lesson's own step names, next steps, in-progress, all tracks
+    with the recommended one spotlighted).
+  - `#/onboarding`: full screen with no shell, lazy-loaded (main chunk 349 kB).
+    Welcome → 4 questions + the live "המסלול מתגבש" panel → result spotlight →
+    roadmap → first lesson. It is phone-specific at ≤760px. Answers are saved
+    on reaching the result.
+  - The skip test for experienced users currently goes to the Foundations
+    track page; point it at F's practice once 3.4 exists.
+- 3.3 lesson workspace: DONE (363/363 tests, build OK with a 358 kB main chunk, axe 0 on every
+  step of all 8 lessons × dark/light × he/en × 1440/1024/390).
+  - `LessonWorkspace` is full screen with no shell: lesson bar (back to track, the 7 named steps
+    as a free-navigation loop, AI tutor), a pane, the chart well, and a footer that names each move.
+    On phone: a segmented step bar, chart above text, and a glass bottom bar.
+  - Content mapping (user decision 2026-09-25) lives in `core/lessons/workspace.ts`. Prose
+    is verbatim across steps 1–3 (intro / deeper / extra) with the lesson's own charts (a gallery
+    when a step has several). Try/feedback is l1's chart exercise or the lesson's first
+    quiz question. Takeaway is 2 short new sentences per lesson, restating its own prose.
+    Step 7 = lesson complete (stats, next lesson, practice, undo).
+  - Step titles for the 8 lessons were adjusted to their real content in the design source
+    (scratchpad `design-src/outline.mjs`) and data.ts was regenerated. The Artifact itself
+    has NOT been republished with the new titles.
+  - Removed as superseded: LessonRoute, TryItPanel, NotesPanel, ChartCard, cardLayout,
+    CourseComplete (the old 8-chapter "finish the course"; track completion is 3.4).
+  - Open: T7's lesson TITLE still says "RSI ו־MACD" (curriculum), and MACD is not taught yet.
+    The chart toolbar from the design (cursor/line/zoom) is not rendered, because it has no function yet.
+- 3.4 practice + completion: DONE (373/373 tests, build OK with a 355 kB main chunk, axe 0 on the
+  practice walk-throughs at 1440/390 in dark/light and he/en).
+  - Rule (user decision 2026-09-25): practice covers the track's WRITTEN lessons (1 question each,
+    topped up to 5 from the same lessons' banks, pass = 80% of the questions asked rounded up,
+    unlimited retries, each attempt rotates to other questions). It opens when all written lessons
+    are done. A track is only "done" when ALL its lessons are, so the celebration is reachable once
+    Phase 8 writes them. Logic: `core/practice/trackPractice.ts`, `learning.practiceOpen`,
+    `recordPractice(track, correct, total)`.
+  - `#/practice/T`: entry, locked, retry and results pages (in the shell). `#/practice/T/run`: the
+    full-screen question view (the lesson frame, progress dots, feedback + a link to the source
+    lesson). The attempt lives in `routes/practice/session.ts` (module store, not persisted).
+  - `#/complete/T`: celebration dialog (only right after the completing attempt) + track summary.
+    `#/complete/T/next`: choose the next track. Practice and completion are lazy-loaded.
+  - Linked from: the track page's practice card, the rail's track-practice row, and the lesson
+    completion step (once the last written lesson is done).
+  - Not built: the practice "progress map" drawer (11.9) and hints (the question bank has none);
+    chart/calculation/scenario question types are Phase 4 (the bank is multiple-choice only).
+    The Foundations skip test waits for F2–F5 content.
+- Phase 3 is complete.
+
+**Phase 4 — lesson types: FIRST SET DONE** (380/380 tests, build OK with a 376 kB main chunk, axe 0
+on every activity state × dark/light × he/en × 1440/390)
+- Activities are data (`core/lessons/activities.ts`) + one UI module
+  (`ui/components/activities/Activities.tsx`: ActivityPane / ActivityWork / ConceptCards), plugged
+  into the workspace's Try + feedback steps. Four types, each on the written lesson where the design
+  shows it:
+  - `sort` F1: 8 assets into stock / bond / ETF / index. Drag, or tap an asset then a type (touch +
+    keyboard). A retry keeps the correct placements. F1's work area opens on the 4 concept cards (07.1a).
+  - `chartChoice` T2: "which marked candle is the hammer?", on a new series `C_MIX` (doji / hammer /
+    engulfing / shooting star, shapes asserted in tests).
+  - `predict` T5: the chart is cut at the breakout, the learner guesses, then the continuation is
+    revealed. Ungraded: any guess moves on.
+  - `markLevel` T4 (the previous click exercise, now on the generic path) and T10 (place the
+    neckline → measured-move target, drawn on the chart).
+- Lessons without an activity (T6, T7, T9) keep their first quiz question.
+- Not built yet (their lessons are unwritten): trend-line drawing, calculation, comparison,
+  scenario, guided practice, project; also T6/T7/T9's design interactions (MA try, RSI peaks,
+  dragging the Fibonacci tool).
+
+**Phase 5 — tools: DONE** (393/393 tests, build OK, axe 0 on every tool page, desktop + phone)
+- `#/tools`: the hub (Artifact 13.1). Cards: position size, risk/reward, compound interest, DCF,
+  compare stocks, stock analysis (the 7th card, as decided), profit & loss (the old return + P/L
+  calculators), and the glossary. Also search, and "last used" (remembered in this browser only).
+  `#/calculators` still resolves here.
+- `#/tools/position | rr | compound | dcf | pnl`: the calculators, lazy-loaded. The maths lives in
+  `core/calculators/tools.ts` (tested against the design's numbers: 100 shares, 1 : 2.5 with 29%
+  break-even, DCF ₪31.90, compounding against the closed form).
+  - Results are live: the design's "חישוב" button was left out, because the previous build's
+    tests make "no submit step" a product rule.
+  - Currency is ₪ in Hebrew and $ in English.
+- The stock and compare pages keep their live data and now sit under "כלים ›" breadcrumbs.
+  Visually they are still the previous build's layout.
+- Removed: the old tabbed CalculatorsRoute, its SlidingPill, and the interim Tools switcher. The old
+  recurring-investment calculator is covered by compound interest (initial + monthly deposit).
+- Not built: the hub's "simulators from the lessons" row (those lessons are unwritten), and the
+  design's demo comparison table with fictional companies (compare stays on real market data).
+
+**Phase 6 — AI tutor: DONE** (397/397 tests, build OK, axe 0 on every tutor state, desktop/1280/phone)
+- The engine is unchanged (user decision 2026-09-25: buy/sell questions keep today's technical read
+  + disclaimer; no refusal was added). Everything is local — no API keys.
+- `routes/ai/tutorChat.ts`: a store of conversations shared by the full page and the drawer (for the
+  page load only). "New chat" keeps the previous conversation in the history; "Delete history" clears.
+- Lesson drawer (`TutorDrawer`, lazy, 14.2–14.6): the lesson's AI button opens it beside the lesson
+  (a third column ≥1280px, an overlay below that, full screen on phone). It shows a context card
+  (track · lesson · step) and a greeting naming the step. Suggestions: explain again (the KB entry),
+  another example, and "quiz me" (the lesson's own bonus questions, never the Try-step one — practice
+  mode). Also a composer, a disclaimer, and "Full screen" → #/ai. Opening it sets the lesson's topic,
+  so "explain the chart" resolves to that lesson.
+- The feedback step's explain/example buttons open the drawer with that action.
+- After the first wrong answer: a one-time offer card (14.1) with "not now". Closing the drawer shows
+  a return toast with "reopen" (14.7).
+- Full page (14.8): history · conversation · "what the tutor knows" (lessons done, current step,
+  limits, delete history). Back still names the lesson it returns to.
+- Not built (the engine can't do these honestly): explanations drawn on the chart (14.3) and mini
+  charts inside answers (14.4).
+
+**Phase 7 — mobile: DONE** (401/401 tests, build OK with a 368 kB main chunk, axe 0 on the phone sweep)
+- `shell/PhoneBar`: at ≤760px, every route except home gets the phone bar (15.x). Section roots
+  (tools hub, tutor) show a large title. Inner pages show a named back button, a centred title and
+  the tutor. Home keeps the brand bar with language and theme; practice and glossary open on
+  their own heading. Page breadcrumbs are hidden on phone.
+- 15.1 track: a compact hero, no tabs; skills, then modules, practice, project, terms (CSS only).
+- 15.3 lesson feedback rises as a bottom sheet over a scrim. 15.4 a full-screen chart button on
+  lesson charts (close only — the design's drawing tools aren't built). 15.10 the tutor drawer is
+  a bottom sheet with a grab handle and expand; the lesson bar steps aside while it's open.
+- 15.6 practice results are centred. 15.8 the tools hub is a list. 15.9 calculators show the result
+  first. 15.11 the tutor tab has no Back, and "+" starts a new chat.
+- Tested by simulating a phone (tests/ui/phone.test.tsx stubs matchMedia).
+
+**Phase 8 — content, track by track. Foundations F2–F5: WRITTEN, AWAITING USER REVIEW**
+(433/433 tests, build OK, axe 0 on every F2–F5 step × dark/light × he/en × 1440/390, no console errors)
+- User brief: write track by track and STOP after each batch for review. **Do not start Technical
+  Analysis until the user approves Foundations.**
+- Shared content model `core/lessons/content/`: `types.ts` (LessonContent: 3 TeachSteps with
+  heading / paragraphs / callouts / notes / work = charts | cards | diagram | none, plus charts,
+  activity, takeaway, ≥3 questions), `index.ts` (registry `lessonContent(id)`, `isWritten`,
+  `allQuestions()`), `legacy.ts` (adapter for the 8 carried-over lessons), `foundations.ts` (F2–F5).
+  A new lesson = a new content entry. The workspace, tutor drawer, practice, quiz route, home hero and
+  `hasContent` read only this.
+- Generic diagrams `ui/components/lessons/Diagrams.tsx` (flow, index weights, order book, bars).
+  New activity `orderBook` (engine `core/lessons/orderBook.ts`, ported from the prototype).
+  The sort activity now serves any bins (2–4); its wording is generic ("item/group").
+- F3/F4 step titles were added in scratchpad `design-src/outline.mjs`, and data.ts was regenerated.
+- F practice now has 5 questions (one per lesson), with a pass mark of 4.
+- Open: the onboarding skip test can now point at F practice (not done, not in scope). The general
+  quiz (#/quiz) still draws only on the old bank. T5's predict chart is shown fully while it is
+  being taught (Phase 4, unchanged).
+
+- Foundations was APPROVED 2026-09-25, together with F5's step 3 title change (now "שוק או לימיט").
+
+**Phase 8 — Technical Analysis T2–T5: WRITTEN, AWAITING USER REVIEW** (464/464 tests, build OK, axe 0,
+no console errors and no horizontal overflow on every T2–T5 step and state × dark/light × he/en × 1440/390)
+- **Do not start T6+ until the user approves T2–T5.**
+- Content: `core/lessons/content/technical.ts`. T2, T4 and T5 now come from the content model (the
+  legacy adapter still serves T6, T7, T9 and T10). The previous build's authored sentences are kept
+  word for word where they appear. Every number in the prose is read from the chart data. Series:
+  `T2_*` … `T5_*` in `series.js`; swings and zones are found in the data, never typed in.
+- User decisions (2026-09-25):
+  - T5 follows the Artifact's order. Its teaching charts end before any retest, and the retest is
+    first revealed by the prediction. The prediction chart's caption and label are neutral.
+  - Visual questions: `QuizQuestion.chart` (an index into the lesson's charts, resolved by
+    `questionChart`). Shown in track practice, on the lesson's "Practice this lesson" page and in
+    the tutor's "quiz me". The general quiz is untouched.
+  - T3 has only the 4-chart drill (Artifact 3.2). Trend-line drawing is deferred.
+  - "Apply" = `LessonContent.apply`: one question on a new chart, inside the feedback step.
+- Also new and shared: the `classify` activity (board 3.2), a `candles` anatomy diagram,
+  `QuestionChart` / `ApplyCheck`, a `PredictActivity.explain` field, and a lesson pane that is
+  focusable (axe: scrolling region). Chart labels are clamped inside the canvas (in `drawChart.js`).
+- `#/quiz/T2` (and T4, T5) opens the new visual questions; `#/quiz/l4` (and l1, l2) still opens the old ones.
+  The old questions remain in each lesson's practice rotation, after the three visual ones.
+- T practice now has 8 questions (pass mark 7).
+- Not done, and left out of scope by the brief: T1 (the TA track's first lesson) is still unwritten,
+  so T2 does not rely on it. The onboarding skip flow and the general quiz were not changed. After a
+  wrong answer the tutor's help-offer card appears over the feedback step (Phase 6 behaviour).
+
+- T2–T5 were APPROVED 2026-09-26.
+
+**Phase 8 — T1 (Reading a chart: timeframes and volume): WRITTEN, AWAITING USER REVIEW**
+(475/475 tests, build OK, axe 0, no console errors and no horizontal overflow on every T1 step and state
+× dark/light × he/en × 1440/390)
+- **Do not start T6+ until the user approves T1.**
+- Content: `core/lessons/content/t1.ts` (its own file, so the approved T2–T5 file is untouched).
+  Series: `T1_*` in `series.js`; `toPeriods` builds weekly candles from daily ones. Step titles were
+  added to `design-src/outline.mjs`, and data.ts was regenerated.
+- The boundary is enforced by a test: T1 teaches no candle anatomy (that's T2) and no trend
+  structure or breakouts (T3, T5).
+- Shared, backward-compatible: `ChartChoiceActivity.showVolume` and `.target` (the target defaults
+  to "a hammer", so T2 is unchanged).
+- T practice is now 9 questions (pass mark 8).
+- Known overlap: T5 step 3 (approved text) repeats the definition of volume that T1 now gives.
+
+- T1 was APPROVED 2026-09-26. TA is approved through T5 (T1 foundations · T2 candles · T3 trends ·
+  T4 support/resistance · T5 breakout/retest).
+
+**Phase 8 — T6 (Moving averages): WRITTEN, AWAITING USER REVIEW** (486/486 tests, build OK, axe 0,
+no console errors and no horizontal overflow on every T6 step and state × dark/light × he/en ×
+1440/390. Re-verified after the change: T1–T5, Foundations, T6/l3 quiz pages, T7/T9/T10 and TA practice.)
+- **Do not start T7 until the user approves T6.**
+- User decisions (2026-09-26), taken after reporting the Artifact-vs-curriculum conflict:
+  - **Structure:** the Artifact's (20/50 chart; titles ממוצע נע / קצר מול ארוך / חציית ממוצעים /
+    מתי נחצה? / למה האיתות מאחר). The previous build's l3 text is kept where it teaches: 20 ≈ a month,
+    the 150 and Minervini, warm-up, and sideways chop (the Apply).
+  - **Naming:** the 20/50 event is a "crossover". "Golden cross" is taught as the 50/200 case, as in the tutor's KB.
+  - **Try:** a new shared `markPoint` activity ("when did it happen": click a candle, or a keyboard
+    slider that is LTR in both languages, like the chart's time axis). `Chart` gained `onIndexClick`,
+    and `drawChart` passes the clicked candle. Reusable for T8.
+  - **Kinds of average:** simple averages throughout, plus one EMA paragraph.
+- Content: `core/lessons/content/t6.ts`. Series: `T6_*`, with `crossings()` in `series.js` (the text,
+  the checks and the tests all use it).
+- Tests that used T6/l3 as "a lesson still on the old content" now use T9/l5 (same shape).
+
+- T6 was APPROVED 2026-09-26.
+
+**Phase 8 — T7 (Momentum: RSI and MACD): WRITTEN, AWAITING USER REVIEW** (495/495 tests, build OK,
+axe 0, no console errors and no horizontal overflow on every T7 step and state × dark/light × he/en ×
+1440/390. Re-verified after the change: T1–T6, Foundations, the T6/T7/l6 quiz pages, TA practice, T9, T10.)
+- **Do not start T8 until the user approves T7.**
+- User decisions (2026-09-26), taken after reporting that the Artifact contradicts itself (its
+  outline and practice board say "work out the RSI"; boards 08.2b–c draw a divergence exercise,
+  which is T8's lesson):
+  - **Try:** "work out the RSI", via a new shared `calculate` activity: a number answer with a
+    tolerance, targeted explanations for known wrong turns (dividing the wrong way round, stopping at
+    RS, dividing by the day counts), and the worked solution once right. Reusable for T9.
+  - **Divergence** belongs entirely to T8. The old question q-rsi-3 is not among T7's questions, and a
+    test enforces that T7 doesn't teach it. Known gap until T8 is written: the old `#/quiz/l6` link
+    still asks q-rsi-3.
+  - **MACD panel:** a new chart variant, `price-macd` (`drawPriceMACD`). Both panels support
+    `subMarks` (marks on the indicator line) and price `points`. `series.withRSI` and
+    `series.withMACD` compute the values.
+- Step titles are the Artifact's outline: RSI בשורה אחת / קנייה־יתר / MACD / חשבו RSI /
+  החישוב, צעד־צעד / 3 דברים לזכור / הבא: דייברג׳נס.
+- `genCandles` gained an optional noise parameter; the default is unchanged, so every existing
+  series is identical.
+- Hebrew formulas are wrapped in LTR isolation marks (U+2066 / U+2069), so bidi can't reorder them.
+  Keep doing this for formulas inside Hebrew prose.
+
+- T7 was APPROVED 2026-09-26.
+
+**Phase 8 — T8 (Divergence): approved implicitly on 2026-09-26, when the user asked for T9–T12 in one batch.**
+- Source: the Artifact's boards 08.2b–c ("price made a new high; did RSI?" — mark the peaks, compare,
+  a caveat), moved here from T7. Step titles are new (the Artifact had none for T8), and the spelling
+  follows the curriculum: דייברג׳נס.
+- New and shared:
+  - `markPoints` activity ("find these moments, then compare them": ordered marks with their own
+    tolerances, then one question; the indicator's value is shown next to each mark);
+  - `links` chart option (lines between two points on price or on the indicator panel);
+  - click support on the RSI and MACD panels;
+  - price `points` can anchor at a candle's low;
+  - `cutAfterLast` in series: a chart that stops after its last swing and keeps what came next as
+    `after` facts.
+- **The #/quiz/l6 gap is resolved:** q-rsi-3's `lesson` is now 'T8' in the old question bank, so l6's
+  quiz asks 2 questions, both about what T7 teaches. The quiz test allows 2 for l6 and pins q-rsi-3 to T8.
+  `allQuestions()` now lists written lessons' questions first, so a lesson's quiz page opens on its own.
+  Verified in the running app, walking #/quiz/l0–l7 in he and en: no divergence.
+- Not changed, and outside the brief: the general quiz (#/quiz, 8 random questions from the whole old
+  bank) can still include q-rsi-3, as it can any topic.
+
+**Phase 8 — TA T9–T12: WRITTEN IN ONE BATCH (2026-09-26), AWAITING USER REVIEW. The whole TA track
+(12/12) is now in the content model. Do NOT start Fundamentals until the user says so.**
+- Files: `content/t9.ts` … `t12.ts`, registered in `content/index.ts`; series appended to `series.js`
+  (with `pinSwings`: a swing set to an exact price, so the prose's numbers are the chart's numbers);
+  step titles in the scratchpad `outline.mjs` → `data.ts` (T9/T10 from the Artifact outline; T11/T12
+  new, the Artifact had none).
+- T9 Fibonacci (legacyId l5): Try = `calculate` on a chart ("what % did the pullback give back?"),
+  levels revealed once right; Apply = a pullback through every level. l5's 3 old questions appended.
+- T10 chart patterns (legacyId l7): double top/bottom, head and shoulders, neckline, measured move.
+  Try = `markPoints` (shoulder, head, shoulder) + "what completes it?"; the neckline and target are
+  revealed, and the explanation works the target out. l7's 3 old questions appended.
+- T11 reversal vs continuation: inverse H&S, flag, triangle, rectangle; wedges named as context-
+  dependent. Try = `classify` of 6 sketches that stop before the break. Question charts are cut
+  before their break; the outcome is only in the explanation.
+- T12 project: trend → levels → volume → momentum; a conflict is read as caution; a cancel point
+  ("stop", as an analysis point — sizing is the Risk track's) and a measured target.
+  Try = new `checklist` activity (6 questions on one chart, each locks and explains).
+- Shared changes: `calculate` can take `chart` + `reveal` instead of a diagram; `classify` has
+  `showSwings`, `ask`, `hint`; new `checklist`; the RSI chart's price panel draws `zones` and
+  `extraLines` (and fits them in its scale); the locked practice page hides "new lessons will join"
+  once every lesson is written.
+- Counts: 17 written lessons; TA practice = 12 questions, pass mark 10; passing it now completes TA.
+
+**Consolidation pass (2026-09-26, after TA was complete; not committed):**
+- Lesson content is its own chunk now (`content-*.js`, 414 kB, gzip 121 kB), loaded with the first
+  lesson / quiz / practice page (and the home page's "continue" chart, via a dynamic import). The
+  shell loads ~329 kB (gzip ~110 kB) instead of ~863 kB; Vite's 500 kB warning is gone.
+  - `content/meta.ts`: which lessons are written, their old id, their tutor topic — for trackInfo,
+    useRoute and AiLauncher. `core/practice/practiceSize.ts`: the practice size for the track page.
+  - LessonWorkspace and QuizRoute are `lazy()` in RouteView, like practice/tools already were.
+  - Guards: `tests/ui/contentSplit.test.ts` (no static path from main.tsx to the content; metadata ==
+    content; practice size == practice). Tests render lazy routes synchronously through a React.lazy
+    shim in `tests/setup.ts` (imports start at definition; a `beforeAll` waits for them).
+- The tutor's help offer after a wrong answer is in the lesson pane's flow now (under the verdict),
+  not fixed over the work area — it no longer covers the chart or, on phones, the Apply check.
+
+**Phase 8 — Fundamentals P1–P9: WRITTEN IN ONE RUN (2026-09-26), AWAITING USER REVIEW. Not committed.
+Do NOT start Macro/Risk/Derivatives until the user says so.**
+- Data: `core/fundamentals/companies.ts` — fictional companies A–E (the Artifact's page 09, reconciled:
+  A's balance sheet gives the DCF's net debt 500; the "profit ≠ cash" company is E, not B). Every
+  number in P1–P9 is computed from it; `tests/ui/fundamentalsTrack.test.tsx` checks the identities
+  and every claim the prose makes.
+- Content: `content/p1to3.ts`, `p4to6.ts`, `p7to9.ts` (+ `fundamentalsKit.ts`); step titles for P1,
+  P5, P7, P8 are new (the Artifact had none), the rest are the Artifact's.
+- Shared, generic: four diagram shapes (`table`, `stacks`, `waterfall`, `grouped`) in DiagramView,
+  with a `compact` mode; `QuizQuestion.figure` + `QuestionFigure` (quiz, practice, tutor, Apply);
+  the `explore` activity (P2's statement explorer, Artifact 09.1); checklist on a diagram;
+  `dcfBreakdown` beside `dcfPerShare` (P9 runs the tool's model); P8's price series in series.js.
+- Tries: P1 sort · P2 explore · P3/P5/P7/P9 calculate · P4/P6/P8 checklist.
+- Practice: 9 questions, pass 8; passing completes the track (tested end to end).
+- Build: lesson content is split per track by the bundler (`vite.config.ts` codeSplitting groups),
+  so no chunk passes 500 kB; the shell still loads none of it.
+
+## Backlog (user, 2026-09-26: a small shared UX fix, later — not now)
+- ~~After a wrong answer, the AI tutor's help-offer card can cover part of the Apply check on phones.~~
+  Fixed in the consolidation pass (2026-09-26).
+- On T5's prediction, which is ungraded, the offer still appears after a "wrong" guess.
+
 ## State (verified, not assumed)
 - 246 frontend + 13 function tests passing · 0 type errors · build succeeds
 - main chunk 343 kB (gzip 113 kB); engine+KB split into an on-demand chunk, now with a static test guarding the split itself

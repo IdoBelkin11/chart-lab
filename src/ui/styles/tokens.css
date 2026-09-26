@@ -1,118 +1,127 @@
 /* ===========================================================================
-   Design tokens.
+   Design tokens — "Learning Glass".
 
-   DARK MODE IS TUNED FOR COMFORT, NOT FOR MAXIMUM CONTRAST.
-   The previous ramp ran #0d1218 canvas against #e9f0f7 text — roughly 17:1,
-   which is where a dark UI starts to hurt. Near-black behind near-white makes
-   the pupil dilate for the dark field and then over-stimulates the retina with
-   the bright glyphs, so text appears to bleed or glow; readers with
-   astigmatism (about 30% of people) get it worst. Saturated accents on a very
-   dark field add optical vibration on top of that.
+   THE SOURCE OF TRUTH IS THE APPROVED ARTIFACT (Chart Lab — Liquid Glass,
+   design canvas, cl.css). Values here are copied from it, not re-derived; a
+   change in look starts there and is ported here, never the other way round.
 
-   So, deliberately:
-     · The canvas is lifted off black (#131920). The WELL is the darkest
-       surface now, because a recess should be the thing that reads as deep.
-     · Text is off-white at #dde4ec, not near-white. Body text lands near
-       13.8:1 — still comfortably AAA, without the halation.
-     · Accents are desaturated for the dark field and re-saturated for light.
-     · No pure grey anywhere: every neutral is shifted toward the product blue
-       (hue ~212), because untinted neutrals read dead on screen.
-     · Every text tier AND every accent clears WCAG AA (4.5:1) against ALL
-       THREE surfaces — canvas, surface and surface-2 — in both themes. This
-       was measured, not eyeballed: the check caught light-mode --action at
-       2.89:1 on --surface-2, i.e. failing even the 3:1 large-text floor, and
-       --success at 4.45:1. Both were darkened. Worst case in the whole system
-       is now 4.63:1. Re-measure before changing any value here.
+   One typeface (Rubik), Liquid Glass surfaces over an ambient colour field,
+   and colour that carries meaning:
 
-   ACCENT SEMANTICS — colour carries meaning, it is not decoration:
-     yellow  primary learning action (the one thing to do next)
-     blue    informational / learning context
-     green   success, completion, positive market move
-     red     risk, warning, negative market move
-     teal    advanced concepts
+     gold   --learn  the learning path / the one primary action
+     blue   --info   information and context
+     green  --ok     success, completion, a rising market
+     orange --risk   caution, risk, "demo data"
+     red    --err    an error, a wrong answer, a falling market
+     teal   --adv    advanced concepts and projects
+     cyan   --ai     the AI tutor (always with its gradient)
+
+   Every text tier and accent was checked with axe (WCAG 2.2 AA) on all 181
+   Artifact boards in both themes — 0 contrast violations. The light theme
+   splits gold in two for exactly that reason: --learn is the TEXT tone
+   (#8a6100, legible on paper) and --learn-fill the FILL tone (#f2b705, which
+   only ever carries dark --learn-ink). Re-measure before changing any value.
+
+   COMPATIBILITY NAMES. The component modules written for the previous system
+   read --accent, --action*, --success, --danger, --advanced and --line*. They
+   are kept as aliases onto the new roles (the same mapping the Artifact's own
+   cl.css uses), so every existing screen takes the new palette at once and
+   each one is then redesigned in its own phase instead of in one big bang.
    =========================================================================== */
 
 :root {
-  /* --- surfaces: elevation by lightness, not shadow --- */
-  --canvas: #131920;
-  --surface: #1a222c;
-  --surface-2: #242e3a;
-  --well: #0c1117;           /* recessed: chart displays sit BELOW the page */
+  /* --- surfaces: a deep canvas, glass floats above it, the chart well sinks
+     below it --- */
+  --canvas: #080d13;
+  --surface: #0f1620;
+  --surface-2: #151f2b;
+  --surface-3: #1c2835;
+  --well: #05090e;
 
-  --line: #2e3945;
-  --line-soft: #212a34;
-  --line-strong: #445263;
+  --text: #e9eef4;
+  --text-muted: #adb9c6;
+  --text-faint: #8391a0;
 
-  --text: #dde4ec;           /* off-white — never near-white, see header */
-  --text-muted: #b6c3d0;     /* 9.9:1 on canvas */
-  --text-faint: #8fa0b1;     /* 6.6:1 on canvas, 6.0:1 on surface */
+  /* --- semantic accents --- */
+  --learn: #f5c542;
+  --learn-strong: #ffd76a;
+  --learn-ink: #1b1402;
+  --learn-fill: #f5c542;
+  --learn-dim: rgba(245, 197, 66, 0.14);
+  --info: #7aa7ff;
+  --info-dim: rgba(122, 167, 255, 0.14);
+  --ok: #4ed18a;
+  --ok-dim: rgba(78, 209, 138, 0.14);
+  --risk: #ff9150;
+  --risk-dim: rgba(255, 145, 80, 0.14);
+  --err: #ff5c6c;
+  --err-dim: rgba(255, 92, 108, 0.14);
+  --adv: #34c6b0;
+  --adv-dim: rgba(52, 198, 176, 0.14);
+  --ai: #5ec8f2;
+  --ai-dim: rgba(94, 200, 242, 0.14);
+  --ai-grad: linear-gradient(135deg, #5ee0cf 0%, #5ec8f2 50%, #7aa7ff 100%);
+  --ai-ink: #06222b;
+  /* market direction: its own pair, so a rising candle is never "correct" */
+  --up: #3fcf8e;
+  --down: #ff5c6c;
 
-  /* --- semantic accents (desaturated for the dark field) --- */
-  --accent: #8ab6e0;         /* blue: informational — 8.3:1 on canvas */
-  --accent-strong: #a9cdef;
-  --accent-ink: #08131f;
-  --accent-dim: rgba(138, 182, 224, 0.15);
-  --accent-glow: rgba(138, 182, 224, 0.30);
+  /* --- one identifying colour per track (badges, dots, the rail) --- */
+  --mono-tint: 17%;
+  --track-F: #a7b4c2;
+  --track-T: #7aa7ff;
+  --track-P: #34c6b0;
+  --track-R: #4ed18a;
+  --track-M: #ff9150;
+  --track-D: #ff7a8a;
 
-  /* --- the primary action: deep sapphire -----------------------------------
-     Blue was already taken by --accent (informational), so the two are split
-     by SATURATION and by FORM, not by hue: information is always pale and
-     always appears as text or a thin line; the action is always a deep,
-     saturated SOLID FILL carrying white ink. That pairing holds even in light
-     mode, where the two hues sit closest together.
+  /* --- hairlines and recesses --- */
+  --wash: rgba(255, 255, 255, 0.05);
+  --wash-2: rgba(255, 255, 255, 0.09);
+  --hair: rgba(255, 255, 255, 0.09);
+  --sunk: rgba(0, 0, 0, 0.32);
+  --sunk-ring: rgba(255, 255, 255, 0.07);
+  --grid-line: rgba(173, 185, 198, 0.07);
 
-     Measured, white ink across the whole ramp: 4.94 / 7.05 / 10.17. Every
-     band clears AA — not merely the band where the label happens to sit.
+  /* --- the primary button: a lit gold capsule with dark ink --- */
+  --btn-fill: linear-gradient(to bottom, #ffdf85, #f5c542 48%, #e2ad22);
+  --btn-edge: inset 0 1px 0 0 rgba(255, 255, 255, 0.6), inset 0 -1.5px 0 0 rgba(120, 80, 0, 0.35);
+  --btn2-fill: linear-gradient(to bottom, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.04));
+  --btn2-edge: inset 0 1px 0 0 rgba(255, 255, 255, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  --seg-on: linear-gradient(to bottom, var(--learn-strong), var(--learn));
+  --brand-fill: linear-gradient(145deg, #ffe08a, #f5c542 55%, #d99a16);
 
-     A deep fill loses the 3:1 boundary against the dark canvas (2.51), so the
-     specular rim carries the edge instead: 3.25:1 against the fill, 8.16:1
-     against the canvas. The glass recipe supplies exactly what the depth
-     costs.
+  /* --- compatibility aliases (see header) --- */
+  --accent: var(--learn);
+  --accent-strong: var(--learn-strong);
+  --accent-ink: var(--learn-ink);
+  --accent-dim: var(--learn-dim);
+  --accent-glow: rgba(245, 197, 66, 0.30);
+  --action: var(--learn-fill);
+  --action-lit: #ffdf85;
+  --action-deep: #e2ad22;
+  --action-ink: var(--learn-ink);
+  --action-text: var(--learn);
+  --action-dim: var(--learn-dim);
+  --action-fill: var(--btn-fill);
+  --action-glow: rgba(245, 197, 66, 0.45);
+  --success: var(--ok);
+  --success-dim: var(--ok-dim);
+  --danger: var(--err);
+  --danger-dim: var(--err-dim);
+  --warn: var(--risk);
+  --advanced: var(--adv);
+  --advanced-dim: var(--adv-dim);
+  --bull: var(--up);
+  --bear: var(--down);
+  --line: rgba(255, 255, 255, 0.12);
+  --line-soft: var(--hair);
+  --line-strong: rgba(255, 255, 255, 0.22);
 
-     TWO tokens, because a fill and a label have different jobs. --action is a
-     FILL and WCAG measures it as a graphical object; --action-text is for the
-     rare case where the action colour is set as text, and only it has to
-     clear 4.5:1 against the surfaces. Collapsing the two is what produced the
-     muddy brown in the amber build: forcing a fill to pass as if it were text
-     darkens it into sludge. */
-  --action: #0e57ac;
-  --action-lit: #2072c2;     /* the lit top stop */
-  --action-deep: #083f86;    /* the shaded bottom stop */
-  --action-ink: #ffffff;     /* 7.05:1 on --action */
-  --action-text: #7cc0f5;    /* the action colour set AS text — 9.0:1 on canvas */
-  --action-dim: rgba(32, 114, 194, 0.18);
-  --action-fill: linear-gradient(to bottom, var(--action-lit), var(--action) 46%, var(--action-deep));
-  /* Cyan lives here, in the light under the button — every cyan-leaning FILL
-     stop measured below 4.5:1 against white, so it cannot carry ink. */
-  --action-glow: rgba(32, 170, 220, 0.55);
-
-  --success: #6cc79b;
-  --success-dim: rgba(108, 199, 155, 0.15);
-  --danger: #e88b91;
-  --danger-dim: rgba(232, 139, 145, 0.15);
-  /* Teal, not purple. Still a fifth distinct hue for "advanced", and it sits
-     clear of blue (informational) and green (success) at this lightness. */
-  --advanced: #62c0bb;
-  --advanced-dim: rgba(98, 192, 187, 0.15);
-
-  /* market direction — deliberately the same tokens as success/danger, so a
-     green candle and a correct answer never disagree about what green means */
-  --bull: var(--success);
-  --bear: var(--danger);
-  --grid-line: rgba(157, 175, 192, 0.07);
-
-  /* --- type -----------------------------------------------------------------
-     ONE typeface for the entire product. --mono and --serif are kept as names
-     rather than deleted because roughly forty rules reference them, and what
-     those rules actually want is the ROLE (a spaced small label, a numeric
-     readout), not a second face. JetBrains Mono used to sit behind --mono and
-     made labels like "נכון", "שווה לדעת" and the comparison figures read as
-     a different product from the prose beside them.
-
-     Column alignment, which is the one thing a monospaced face was really
-     buying here, is handled instead by tabular figures — see base.css. Rubik
-     ships proper `tnum` glyphs, so a changing price still cannot reflow the
-     column next to it. */
+  /* --- type ----------------------------------------------------------------
+     ONE typeface for the entire product. --mono and --serif are kept as role
+     names (a spaced label, a numeric readout) and both resolve to Rubik;
+     column alignment comes from tabular figures, set in base.css. */
   --sans: 'Rubik', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: var(--sans);
   --serif: var(--sans);
@@ -120,305 +129,178 @@
   --fs-2xs: 11px;
   --fs-xs: 12px;
   --fs-sm: 13.5px;
-  --fs-base: 14.5px;
+  --fs-base: 14px;
   --fs-md: 16px;
   --fs-lg: 19px;
-  --fs-xl: clamp(22px, 3vw, 26px);
-  --fs-2xl: clamp(30px, 5vw, 40px);
-  --fs-display: clamp(32px, 5.4vw, 58px);
+  --fs-xl: clamp(20px, 2.6vw, 22px);
+  --fs-2xl: clamp(28px, 4vw, 34px);
+  --fs-display: clamp(32px, 4.6vw, 44px);
 
-  /* --- space / radius / motion --- */
+  /* --- space --- */
   --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
   --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
+  --content-max: 1080px;
 
-  /* Shared width for a page's wider content blocks (a notes row, a card
-     grid, a section header) so they line up with each other instead of
-     each picking its own cap — see LessonRoute, where a text block capped
-     at prose width (74ch) next to a grid capped at 1100px read as
-     "half the page is empty" on anything wider than the narrower of the
-     two. Not applied to `.page` itself: a single full-width chart is a
-     deliberate exception (see .cardStackSingle) that a page-level cap
-     would silently break. */
-  --content-max: 1100px;
-
-  /* --- radius: capsule first ------------------------------------------------
-     Controls are capsules and surfaces are generously rounded. An earlier
-     build kept buttons at 10px on the theory that pills read as generated;
-     with the Apple/Dribbble references in hand that was the wrong call, and
-     the whole scale moved up with it.
-
-     The concentric rule: an inner radius equals its outer radius minus the
-     padding between them. A 28px card with 14px of padding holds a 14px
-     element. Skip it and the corners run non-parallel, which is the detail
-     that most gives away uncrafted work. */
-  --r-xs: 10px;   /* nested inside a control */
-  --r-sm: 14px;   /* nested inside a card */
-  --r-md: 20px;   /* chart wells — see --r-well */
-  --r-lg: 28px;   /* cards, panels */
-  --r-xl: 36px;   /* sheets, the rail, large surfaces */
+  /* --- radius: capsule controls, generously rounded surfaces. The concentric
+     rule holds: an inner radius equals its outer radius minus the padding
+     between them. --- */
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 28px;
   --r-full: 999px;
-
-  /* Named aliases so a rule says what it means rather than which step it is. */
   --r-pill: 999px;
-  --r-card: var(--r-lg);
-  --r-sheet: var(--r-xl);
-  /* A chart canvas is rectangular: inside a capsule frame its corners leave
-     empty wedges that read as a bug rather than a decision. */
-  --r-well: var(--r-md);
-
-  /* Every control radius goes through this one token so the rule cannot
-     drift back. */
+  --r-card: 22px;
+  --r-sheet: 30px;
+  --r-well: 18px;
+  --r-row: 14px;
   --r-btn: var(--r-pill);
 
+  /* --- motion --- */
   --t-fast: 120ms; --t-med: 240ms; --t-slow: 420ms;
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  /* Overshoots slightly on settle — the small elastic landing that makes a
-     surface feel physical rather than merely animated. */
   --ease-spring: cubic-bezier(0.34, 1.42, 0.64, 1);
 
+  /* --- elevation --- */
   --e-1: 0 1px 2px rgba(0, 0, 0, 0.26), 0 2px 6px -2px rgba(0, 0, 0, 0.28);
   --e-2: 0 2px 4px rgba(0, 0, 0, 0.28), 0 10px 24px -8px rgba(0, 0, 0, 0.38);
   --e-3: 0 4px 10px rgba(0, 0, 0, 0.30), 0 20px 44px -12px rgba(0, 0, 0, 0.45);
   --e-4: 0 8px 20px rgba(0, 0, 0, 0.32), 0 32px 64px -16px rgba(0, 0, 0, 0.50);
 
-  /* SOLID, not the glow token. ui-ux-pro-max's own liquid-glass accessibility
-     checklist requires 3:1 focus-indicator contrast (WCAG 1.4.11), and
-     --accent-glow measures at only 1.88:1 here once its 30% alpha is blended
-     against the surfaces underneath — a focus ring that was, in effect,
-     invisible to a keyboard user. --accent at full opacity clears 6.45:1+
-     against every surface in both themes. */
-  --ring: 0 0 0 3px var(--accent);
+  /* Focus: a SOLID ring in the learning gold. WCAG 1.4.11 wants 3:1 for a
+     focus indicator; gold at full opacity clears it against every surface in
+     both themes, where a translucent glow does not. */
+  --focus: var(--learn);
+  --ring: 0 0 0 3px var(--focus);
 
-  /* --- liquid glass ---------------------------------------------------------
-     Chrome that floats above content is a MATERIAL, not a flat panel. What
-     makes glass read as glass is not the blur — it is the edge: a bright
-     specular catch along the lit side, a softer one opposite, and a rim that
-     picks up light around the whole shape. Blur alone is just a translucent
-     rectangle.
-
-     The recipe, applied together in glass.module.css:
-       background      --glass-bg        a vertical gradient, not a flat alpha
-       backdrop-filter blur + saturate   saturate is what stops it going grey
-       ::before        --glass-edge      1px gradient ring (the lensed rim)
-       ::after         --glass-sheen     soft highlight down from the top edge
-       box-shadow      --glass-inset     specular catch, inset
-                       --glass-shadow    ambient drop, so it floats
-
-     Apple's own material adds refraction and chromatic aberration on top.
-     Both are available here as a progressive enhancement — see the SVG filter
-     in glass.module.css — but they are Chromium-only, so nothing structural
-     depends on them. */
-  /* Alpha is the dial that decides whether this reads as glass or as a tinted
-     panel. At 0.74 only a quarter of the field behind came through and every
-     surface looked solid; Apple's material is far more transparent than it
-     first appears and leans on heavy blur plus the specular edge to stay
-     legible. Saturate above 100% is what stops the blurred field going grey. */
-  /* CLEAR, not tinted. This is the correction that made the material finally
-     read as glass: the fill is white-alpha, so the surface takes its colour
-     from the ambient field behind it instead of carrying a colour of its own.
-     The previous value was an opaque-ish slate (rgba(40,53,68,.58)) — that is
-     a tinted panel, and no amount of rim or sheen tuning rescues one. */
-  --glass-blur: 40px;
-  --glass-sat: 190%;
-  --glass-bg: linear-gradient(to bottom, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.045));
+  /* --- liquid glass ----------------------------------------------------------
+     What makes glass read as glass is the EDGE, not the blur: a lensed 1px
+     rim (--glass-edge) with a warm stop and a cool stop for dispersion, a
+     sheen down from the top (--glass-sheen), a specular inset catch
+     (--glass-inset) and a soft ambient drop (--glass-shadow). All five are
+     applied together by .glass in system.css and by glass.module.css. */
+  --glass-blur: 36px;
+  --glass-sat: 180%;
+  --glass-bg: linear-gradient(to bottom, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.035));
   --glass-border: rgba(255, 255, 255, 0.10);
-  /* Chromatic aberration lives in these stops. Real glass disperses: the
-     boundary runs slightly cool where light enters and slightly warm where it
-     leaves, because red and blue refract at different angles. Two tinted
-     stops on opposite sides of the ring reproduce that signature without an
-     SVG filter, so it renders identically in every browser instead of only
-     in Chromium. Kept near the noise floor on purpose — dispersion you can
-     name as a colour is too strong. */
-  /* The ring never drops to nothing. Its dimmest stop used to be 0.04 alpha —
-     effectively invisible — so the far side of every panel dissolved into the
-     ambient field and the shape lost its edge exactly where it needed to hold.
-     A floor of 0.12 keeps the rim continuous the whole way round: the light
-     still travels (0.55 down to 0.12 is a strong falloff), but the boundary
-     stays a boundary. That continuity is what reads as crisp; brightening the
-     highlight alone just makes a bright spot on a soft blob. */
-  --glass-edge: linear-gradient(140deg,
-    rgba(255, 255, 255, 0.55),
-    rgba(168, 208, 255, 0.24) 26%,
-    rgba(255, 255, 255, 0.12) 50%,
-    rgba(255, 206, 186, 0.20) 74%,
-    rgba(255, 255, 255, 0.30));
-  --glass-sheen: linear-gradient(to bottom,
-    rgba(255, 255, 255, 0.10),
-    rgba(255, 255, 255, 0) 64%);
-  /* Two lines, not one: a tight specular catch on the top edge, plus a
-     hairline of the same white at very low alpha around the whole box. The
-     hairline is what separates the panel from the ambient glow behind it —
-     without it the blur bleeds outward and the panel looks like it is melting
-     into the page rather than sitting on it. */
-  --glass-inset:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.30),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.055),
-    inset 0 -1px 0 0 rgba(255, 255, 255, 0.05);
-  /* Light, wide and high up. The previous drop pooled a heavy dark mass right
-     under every panel — reported as "too much bottom shadow" on the resume
-     card. Glass catches ambient light; it does not cast a hard shadow. */
-  --glass-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.16),
-    0 8px 28px -14px rgba(0, 0, 0, 0.42);
+  --glass-edge: linear-gradient(140deg, rgba(255, 255, 255, 0.38), rgba(255, 226, 150, 0.12) 28%, rgba(255, 255, 255, 0.08) 52%, rgba(120, 220, 205, 0.12) 76%, rgba(255, 255, 255, 0.18));
+  --glass-sheen: linear-gradient(to bottom, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 70%);
+  --glass-inset: inset 0 1px 0 0 rgba(255, 255, 255, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --glass-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 12px 32px -16px rgba(0, 0, 0, 0.6);
 
-  /* The course rail's "not started yet" marker. A token rather than a
-     theme-scoped selector on the element, because a `[data-theme]` selector
-     outranks the plain class rules that carry lesson state and silently wipes
-     them — see the comment on .marker in CourseRail.module.css. */
-  --marker-face: rgba(0, 0, 0, 0.30);
-  --marker-ring: rgba(255, 255, 255, 0.10);
+  /* the chart well: recessed, with a faint horizontal ruling */
+  --well-shadow: inset 0 0 0 1px var(--sunk-ring), inset 0 3px 16px rgba(0, 0, 0, 0.35);
 
-  /* --- spotlight: a soft light source behind a hero, never a hard shape.
-     Used once per screen at most — a second one competes with the first
-     instead of adding emphasis.
-     An explicit ellipse SIZE (e.g. "60% 60%") stops the gradient short and
-     reads as a contained blob with a visible edge — reported back as "a
-     square stuck in the middle of the screen". Letting the size default
-     to farthest-corner (the CSS default when no size is given) makes the
-     gradient reach the full box smoothly instead, and centering it above
-     the container's own top edge (-15%) means only the widening lower half
-     of the glow is ever on screen — the natural look for light falling
-     from off-screen above, with no edge of its own to see. */
-  --spotlight: radial-gradient(ellipse at 30% -15%, rgba(138, 182, 224, 0.13), transparent 65%);
+  /* course-rail "not started" marker (a token, see CourseRail.module.css) */
+  --marker-face: var(--sunk);
+  --marker-ring: var(--sunk-ring);
 
-  /* --- the ambient field ----------------------------------------------------
-     THE reason the glass reads as glass. A blur over a single flat colour
-     returns that same flat colour — which is why every surface looked inert
-     no matter how the rim and sheen were tuned. Apple's material always sits
-     over a wallpaper or over rich scrolling content; this is that ground.
-
-     Three very soft, very large colour pools, fixed to the viewport so
-     scrolling content slides across them and every glass surface samples
-     something different as it moves. Blue and teal from the accent family
-     plus one warm pool so the field is not monochrome — kept low enough to
-     stay a field rather than a decoration you would name as a shape. */
+  /* One light source for the whole shell: the ambient field. Nothing paints
+     its own glow on top of it (a second, clipped gradient is what produced
+     the "weird rectangle" bug), so --spotlight is intentionally transparent. */
+  --spotlight: none;
   --ambient:
-    radial-gradient(64% 52% at 10% 2%,  rgba(96, 150, 214, 0.30), transparent 68%),
-    radial-gradient(58% 48% at 94% 16%, rgba(72, 178, 174, 0.22), transparent 70%),
-    radial-gradient(74% 58% at 60% 98%, rgba(232, 172, 92, 0.11), transparent 70%);
+    radial-gradient(52% 44% at 6% 0%, rgba(245, 197, 66, 0.13), transparent 70%),
+    radial-gradient(46% 40% at 96% 8%, rgba(52, 198, 176, 0.14), transparent 70%),
+    radial-gradient(70% 55% at 55% 105%, rgba(94, 150, 210, 0.10), transparent 70%);
+
+  color-scheme: dark;
 }
 
 /* ===========================================================================
-   Light mode is designed, not inverted.
-
-   A cool paper canvas with white teaching surfaces lifted off it, and a chart
-   well DEEPER than the canvas — so charts read as recessed instruments in
-   both themes. The canvas carries real tone rather than being white, because
-   a white page with white glass panels on it has nothing for the glass to
-   lift away from: the material needs a ground to sit above.
-
-   Halation is a dark-mode problem, so light mode keeps its crisp text
-   contrast; what it gets instead is a softer, warmer set of surfaces and
-   shadows than a clinical white-on-white admin panel.
+   Light mode is designed, not inverted: warm paper, white glass lifted off
+   it, and a chart well that stays recessed. Gold splits into a text tone and
+   a fill tone (see header).
    =========================================================================== */
 :root[data-theme='light'] {
-  --canvas: #eceff5;
+  --canvas: #f4f2ed;
   --surface: #ffffff;
-  --surface-2: #e4e9f1;
-  --well: #d9e0ea;
+  --surface-2: #f0ede6;
+  --surface-3: #e6e2d9;
+  --well: #fbfaf7;
 
-  --line: #d3dce7;
-  --line-soft: #e4eaf2;
-  --line-strong: #a7b6c7;
+  --text: #16191f;
+  --text-muted: #434b56;
+  --text-faint: #5d6672;
 
-  --text: #14202c;           /* not pure black — same reasoning, milder */
-  --text-muted: #3c4b5b;
-  --text-faint: #586878;     /* 4.70:1 on --surface-2, its worst case */
+  --learn: #8a6100;
+  --learn-strong: #6e4d00;
+  --learn-ink: #1b1402;
+  --learn-fill: #f2b705;
+  --learn-dim: rgba(242, 183, 5, 0.18);
+  --info: #2f5fd0;
+  --info-dim: rgba(47, 95, 208, 0.10);
+  --ok: #0f7a45;
+  --ok-dim: rgba(15, 122, 69, 0.10);
+  --risk: #a94a0c;
+  --risk-dim: rgba(180, 81, 15, 0.10);
+  --err: #c4283b;
+  --err-dim: rgba(196, 40, 59, 0.10);
+  --adv: #0b7f70;
+  --adv-dim: rgba(11, 127, 112, 0.10);
+  --ai: #0a74a3;
+  --ai-dim: rgba(10, 116, 163, 0.10);
+  --ai-grad: linear-gradient(135deg, #10a391 0%, #0a8fc9 50%, #2f5fd0 100%);
+  --ai-ink: #ffffff;
+  --up: #0f8a51;
+  --down: #c4283b;
 
-  --accent: #175bac;
-  --accent-strong: #0f4488;
-  --accent-ink: #ffffff;
-  --accent-dim: rgba(23, 91, 172, 0.10);
-  --accent-glow: rgba(23, 91, 172, 0.26);
+  --mono-tint: 13%;
+  --track-F: #4a5663;
+  --track-T: #2f5fd0;
+  --track-P: #0b7f70;
+  --track-R: #0f7a45;
+  --track-M: #a94a0c;
+  --track-D: #b52c43;
 
-  /* The same sapphire ramp: on a pale ground a deep fill reads as decisive,
-     and its boundary against the canvas is a comfortable 6.1:1. */
-  --action: #0e57ac;
-  --action-lit: #2072c2;
-  --action-deep: #083f86;
-  --action-ink: #ffffff;
-  --action-text: #0b63c4;    /* 4.79:1 on --surface-2, its worst case */
-  --action-dim: rgba(14, 87, 172, 0.12);
-  --action-glow: rgba(14, 87, 172, 0.48);
+  --wash: rgba(20, 25, 31, 0.04);
+  --wash-2: rgba(20, 25, 31, 0.07);
+  --hair: rgba(20, 25, 31, 0.11);
+  --sunk: rgba(20, 25, 31, 0.06);
+  --sunk-ring: rgba(20, 25, 31, 0.09);
+  --grid-line: rgba(20, 25, 31, 0.06);
 
-  --success: #136843;        /* was #16794c: 4.45:1 on --surface-2, just short */
-  --success-dim: rgba(19, 104, 67, 0.10);
-  --danger: #b3363c;
-  --danger-dim: rgba(179, 54, 60, 0.10);
-  --advanced: #0f6f68;
-  --advanced-dim: rgba(15, 111, 104, 0.10);
+  --btn-fill: linear-gradient(to bottom, #ffd24d, #f2b705 48%, #d99f00);
+  --btn2-fill: linear-gradient(to bottom, #fff, #f3f0ea);
+  --btn2-edge: inset 0 1px 0 0 #fff, inset 0 0 0 1px rgba(20, 25, 31, 0.13), 0 2px 5px -3px rgba(20, 25, 31, 0.25);
+  --seg-on: linear-gradient(to bottom, #ffd24d, #f2b705);
 
-  --grid-line: rgba(10, 20, 29, 0.06);
+  --accent-glow: rgba(180, 130, 0, 0.26);
+  --action-lit: #ffd24d;
+  --action-deep: #d99f00;
+  --action-glow: rgba(180, 130, 0, 0.35);
+  --line: rgba(20, 25, 31, 0.13);
+  --line-strong: rgba(20, 25, 31, 0.25);
 
   --e-1: 0 1px 2px rgba(22, 35, 43, 0.05), 0 2px 6px -2px rgba(22, 35, 43, 0.07);
   --e-2: 0 2px 4px rgba(22, 35, 43, 0.05), 0 10px 24px -8px rgba(22, 35, 43, 0.12);
   --e-3: 0 4px 10px rgba(22, 35, 43, 0.07), 0 20px 44px -12px rgba(22, 35, 43, 0.18);
   --e-4: 0 8px 20px rgba(22, 35, 43, 0.08), 0 32px 64px -16px rgba(22, 35, 43, 0.16);
 
-  /* Same material, lit from the same direction — on a pale canvas the
-     specular catch goes near-white and the ambient shadow turns cool. */
-  /* On a pale ground the same material needs MORE white, not less: there is
-     no dark canvas to lighten, so the fill itself carries the surface. */
-  --glass-bg: linear-gradient(to bottom, rgba(255, 255, 255, 0.80), rgba(255, 255, 255, 0.56));
-  --glass-border: rgba(10, 20, 29, 0.08);
-  /* The light-mode counterpart of the same rule. Here the ring has to close
-     with a DARK stop rather than a bright one — on a pale ground the edge is
-     legible as a shadow line, not as a highlight — so the last stop carries
-     the ink colour and is lifted from 0.07 to 0.13 to hold that boundary. */
-  --glass-edge: linear-gradient(140deg,
-    rgba(255, 255, 255, 1),
-    rgba(120, 170, 225, 0.30) 26%,
-    rgba(255, 255, 255, 0.30) 50%,
-    rgba(222, 150, 120, 0.24) 74%,
-    rgba(10, 20, 29, 0.13));
-  --glass-sheen: linear-gradient(to bottom,
-    rgba(255, 255, 255, 0.72),
-    rgba(255, 255, 255, 0) 64%);
-  --glass-inset:
-    inset 0 1px 0 0 rgba(255, 255, 255, 1),
-    inset 0 0 0 1px rgba(10, 20, 29, 0.055),
-    inset 0 -1px 0 0 rgba(10, 20, 29, 0.05);
-  --glass-shadow:
-    0 1px 2px rgba(22, 35, 43, 0.05),
-    0 8px 26px -14px rgba(22, 35, 43, 0.20);
+  --glass-bg: linear-gradient(to bottom, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.62));
+  --glass-border: rgba(20, 25, 31, 0.08);
+  --glass-edge: linear-gradient(140deg, #fff, rgba(240, 200, 110, 0.35) 28%, rgba(255, 255, 255, 0.4) 52%, rgba(90, 190, 175, 0.28) 76%, rgba(20, 25, 31, 0.12));
+  --glass-sheen: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0) 64%);
+  --glass-inset: inset 0 1px 0 0 #fff, inset 0 0 0 1px rgba(20, 25, 31, 0.06);
+  --glass-shadow: 0 1px 2px rgba(20, 25, 31, 0.06), 0 10px 28px -16px rgba(20, 25, 31, 0.25);
 
-  --marker-face: rgba(12, 22, 34, 0.07);
-  --marker-ring: rgba(12, 22, 34, 0.14);
+  --well-shadow: inset 0 0 0 1px var(--hair), inset 0 2px 6px rgba(20, 25, 31, 0.05);
 
-  --spotlight: radial-gradient(ellipse at 30% -15%, rgba(23, 91, 172, 0.07), transparent 65%);
-
-  /* Stronger than the dark field: a pale canvas swallows tint, and without
-     real colour here the light theme collapses back to white-on-white — which
-     is exactly how it looked before. */
   --ambient:
-    radial-gradient(64% 52% at 10% 2%,  rgba(88, 146, 214, 0.34), transparent 68%),
-    radial-gradient(58% 48% at 94% 16%, rgba(74, 180, 176, 0.26), transparent 70%),
-    radial-gradient(74% 58% at 60% 98%, rgba(242, 186, 118, 0.20), transparent 70%);
+    radial-gradient(52% 44% at 6% 0%, rgba(242, 183, 5, 0.20), transparent 70%),
+    radial-gradient(46% 40% at 96% 8%, rgba(20, 170, 150, 0.16), transparent 70%),
+    radial-gradient(70% 55% at 55% 105%, rgba(90, 140, 210, 0.12), transparent 70%);
 
   color-scheme: light;
 }
 
 /* ===========================================================================
-   prefers-reduced-transparency — the fallback the liquid-glass material
-   itself requires.
-
-   Flagged by cross-checking this build against the ui-ux-pro-max skill's own
-   `liquid-glass` style record: its accessibility checklist lists
-   `reduced-transparency` as a requirement and names
-   `--reduced-transparency-fallback: opaque` as the expected variable — a
-   real gap here, not present before this pass. A user who has asked their OS
-   to reduce transparency finds even light blur genuinely hard to read text
-   through; the system honours that by making glass opaque outright rather
-   than merely toning it down.
-
-   Every glass surface in this product routes through --glass-blur,
-   --glass-sat and --glass-bg (see glass.module.css and its composers), so
-   redefining those three tokens here is sufficient for all of them at once
-   — no per-component override needed except for the two surfaces that carry
-   their own hand-tinted background instead of --glass-bg directly (the AI
-   launcher's accent tint, the theme switch's lens thumb), which are handled
-   next to their own rules. */
+   prefers-reduced-transparency: glass turns opaque outright. Every glass
+   surface routes through these three tokens, so redefining them here covers
+   all of them at once.
+   =========================================================================== */
 @media (prefers-reduced-transparency: reduce) {
   :root {
     --glass-blur: 0px;

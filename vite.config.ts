@@ -18,7 +18,16 @@ export default defineConfig({
       '@ui': resolvePath('./src/ui')
     }
   },
-  build: { outDir: 'dist', sourcemap: true },
+  build: {
+    outDir: 'dist', sourcemap: true,
+    // The lesson content loads on demand (see RouteView), one chunk per track,
+    // so no single chunk grows with every track written. Same modules, same
+    // load order — only where the bundler cuts them.
+    rolldownOptions: { output: { codeSplitting: { groups: [
+      { name: 'lessons-fundamentals', test: /src[\/]core[\/](fundamentals[\/]|lessons[\/]content[\/](p\d|fundamentalsKit))/ },
+      { name: 'lessons-technical', test: /src[\/]core[\/](lessons[\/]content[\/](t\d+|technical)\.ts|charts[\/]series)/ }
+    ] } } }
+  },
   test: {
     environment: 'jsdom',
     globals: true,

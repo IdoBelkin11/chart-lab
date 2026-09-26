@@ -1,0 +1,14 @@
+/* The tutor beside the lesson (Artifact 14.2–14.6). */
+.drawer { border-radius: var(--r-xl); padding: 18px; display: flex; flex-direction: column; gap: 12px; min-height: 0; height: 100%; }
+.head { display: flex; align-items: center; gap: 10px; }
+.headText { display: flex; flex-direction: column; flex-grow: 1; min-width: 0; }
+.title { font-size: 15px; }
+.aiIc { color: var(--ai); display: inline-grid; }
+.grow { flex-grow: 1; min-width: 0; }
+.log { flex-grow: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 2px; }
+.aiRow { display: flex; gap: 8px; align-items: flex-end; }
+.markSm { width: 26px; height: 26px; }
+.suggs { display: flex; flex-wrap: wrap; gap: 6px; }
+.foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.small { font-size: 12.5px; white-space: nowrap; }
+.flip { transform: rotate(180deg); }

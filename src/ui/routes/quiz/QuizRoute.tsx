@@ -3,9 +3,12 @@ import {
   createQuizSession, createQuizSessionFromQuestions, currentQuestion,
   submitAnswer, getQuizScore
 } from '@core/quiz/engine.js';
-import { getQuizQuestions } from '@core/quiz/questions.js';
+import { allQuestions, questionChart } from '@core/lessons/content';
+import type { QuizQuestion } from '@core/types/kb';
+import { QuestionFigure } from '@ui/components/lessons/QuestionChart';
+import { lessonById as curriculumLesson } from '@core/curriculum/curriculum';
 import { questionsForLesson } from '@core/quiz/topicScoping';
-import { lessonById } from '@core/lessons/lessons';
+import { lessonById as legacyLesson } from '@core/lessons/lessons';
 import { useLang } from '@ui/hooks/useLang';
 import { useRoute } from '@ui/hooks/useRoute';
 import { GlossaryText } from '@ui/components/learning/GlossaryText';
@@ -30,10 +33,13 @@ export function QuizRoute({ lessonId }: { lessonId?: string }) {
   const { lang } = useLang();
   const { go } = useRoute();
 
-  const lesson = lessonId ? lessonById(lessonId) : undefined;
+  // A lesson from the previous build (l3) or a curriculum lesson written since (F2).
+  const legacy = lessonId ? legacyLesson(lessonId) : undefined;
+  const written = lessonId && !legacy ? curriculumLesson(lessonId) : undefined;
+  const lesson = legacy ? { id: legacy.id, navLabel: legacy.navLabel } : written ? { id: written.id, navLabel: written.title } : undefined;
 
   const build = useCallback(() => {
-    const scoped = lessonId ? questionsForLesson(lessonId, getQuizQuestions({})) : null;
+    const scoped = lessonId ? questionsForLesson(lessonId, allQuestions()) : null;
     return scoped && scoped.length
       ? createQuizSessionFromQuestions(scoped, scoped.length)
       : createQuizSession({}, 8);
@@ -102,6 +108,7 @@ export function QuizRoute({ lessonId }: { lessonId?: string }) {
   ) : null;
 
   // --- results ---
+  const chartSpec = shown ? questionChart(shown as never as QuizQuestion) : undefined;
   if (!shown) {
     const pct = score.percent;
     const perfect = score.total > 0 && score.correct === score.total;
@@ -155,6 +162,8 @@ export function QuizRoute({ lessonId }: { lessonId?: string }) {
       </div>
 
       <h1 className={styles.question}>{shown.question[lang]}</h1>
+      {/* A lesson's visual question is asked with its chart (the general bank has none). */}
+      {shown && <QuestionFigure q={shown as never as QuizQuestion} spec={chartSpec} lang={lang} />}
 
       <ul className={styles.options} aria-label={lang === 'he' ? 'תשובות' : 'Answers'}>
         {shown.options.map((opt) => {

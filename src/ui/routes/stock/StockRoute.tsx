@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { lookupStock } from '@core/ai/market/stockLookup';
 import type { StockSnapshot, LookupResult } from '@core/ai/market/stockLookup';
 import { useLang } from '@ui/hooks/useLang';
+import { ToolCrumbs } from '@ui/routes/tools/ToolCrumbs';
 import { Chart } from '@ui/components/charts';
 import { TICKER_MAP } from '@core/ai/entity/tickers.js';
 import styles from './StockRoute.module.css';
@@ -53,6 +54,7 @@ export function StockRoute() {
 
   return (
     <div className={styles.page}>
+      <ToolCrumbs here={t('navStock')} />
       <div className={styles.head}>
         <h1 className={styles.title}>{t('navStock')}</h1>
       </div>

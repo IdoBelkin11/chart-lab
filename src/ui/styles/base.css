@@ -3,22 +3,20 @@
 html, body { height: 100%; margin: 0; }
 
 body {
-  /* The ambient field over the flat canvas, pinned to the viewport. `fixed` is
-     the load-bearing part: content slides across a stationary field, so a
-     glass surface samples different colour as the page scrolls instead of
-     blurring one unchanging pixel value. */
+  /* The ambient field over the canvas, pinned to the viewport. `fixed` is the
+     load-bearing part: content slides across a stationary field, so a glass
+     surface samples different colour as the page scrolls instead of blurring
+     one unchanging pixel value. */
   background: var(--ambient), var(--canvas);
   background-attachment: fixed;
   color: var(--text);
   font-family: var(--sans);
   font-size: var(--fs-base);
-  line-height: 1.6;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  /* Tabular figures product-wide. With one typeface everywhere (see the type
-     note in tokens.css) this is what keeps a column of prices, scores or
-     metrics from shifting sideways as its digits change — the job the
-     monospaced face used to do, without a second font. */
+  /* Tabular figures product-wide: a column of prices or scores cannot shift
+     sideways as its digits change, without needing a second typeface. */
   font-variant-numeric: tabular-nums;
 }
 
@@ -29,8 +27,10 @@ p { margin: 0; }
 
 button { font: inherit; color: inherit; }
 
-/* One visible focus treatment everywhere, so keyboard users are never lost. */
-:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--r-xs); }
+/* One visible focus treatment everywhere: the Artifact's solid gold outline.
+   An outline (not a box-shadow) so it never fights a component's own shadow
+   and never overrides its radius. */
+:focus-visible { outline: 2.5px solid var(--focus); outline-offset: 3px; }
 
 /* Motion is opt-out globally rather than per-component, so a new animation
    cannot forget to honour the preference. */

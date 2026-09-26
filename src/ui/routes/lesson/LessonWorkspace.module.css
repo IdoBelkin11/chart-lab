@@ -1,0 +1,156 @@
+/* Lesson workspace (Artifact: 06 · Lesson — .lesson / .lbar / .loop / .lbody / .lpane / .lwork / .lfoot).
+   Full screen, no app shell: only the pane and the well scroll. */
+.lesson { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
+
+.lbar { flex: none; display: flex; align-items: center; gap: 14px; padding: 10px 16px; margin: 10px 10px 0; border-radius: var(--r-pill); min-height: 60px; }
+.back, .ai, .lbarTitle b { white-space: nowrap; }
+.back { min-height: 40px; padding: 0 12px; }
+.lbarTitle { display: flex; flex-direction: column; gap: 1px; min-width: 0; max-width: 250px; }
+.lbarTitle b { font-size: 14.5px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; }
+.loop { display: flex; align-items: center; gap: 4px; margin-inline: auto; min-width: 0; }
+.loop > button {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 11px; border: 0; border-radius: 99px;
+  background: none; font: inherit; font-size: 12px; font-weight: 600; color: var(--text-faint); cursor: pointer;
+  transition: color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+.loop > button:hover { color: var(--text); background: var(--wash); }
+.loop > button[data-state='done'] { color: var(--ok); }
+.loop > button[data-state='cur'] { color: var(--learn-ink); background: var(--learn-fill); }
+.ld { width: 6px; height: 6px; border-radius: 99px; background: currentColor; }
+.lt { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:lang(en) .lt { max-width: 70px; }
+.loop > button[data-state='cur'] .lt { max-width: none; }
+
+.lbody { flex-grow: 1; min-height: 0; display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 10px; padding: 10px; }
+.lpane { border-radius: var(--r-xl); padding: 24px 24px 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+.lwork { border-radius: var(--r-xl); position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+.lfoot { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 0 10px 10px; padding: 10px 12px; border-radius: var(--r-pill); min-height: 64px; }
+
+/* pane */
+.paneHead { display: flex; flex-direction: column; gap: 8px; }
+.paneTitle { font-size: 27px; }
+.prose { color: var(--text); }
+.chips { margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.notes { border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.notesHead { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; }
+.noteList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.noteList > li { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 10px; font-size: 14px; }
+.swatch { width: 16px; height: 0; margin-top: 10px; border-top: 3px solid var(--text-muted); }
+.swatch[data-tone='support'] { border-color: var(--ok); }
+.swatch[data-tone='resistance'] { border-color: var(--err); }
+.choices { display: flex; flex-direction: column; gap: 10px; }
+.grow { flex-grow: 1; }
+.fbBody { display: flex; flex-direction: column; gap: 4px; flex-grow: 1; }
+.fbBody > b { font-size: 15px; }
+.fbBody > :global(.small) { color: var(--text); }
+.selfStart { align-self: flex-start; margin-top: 4px; }
+.selfCenter { align-self: center; }
+.aiActions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
+
+.doneHead { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.doneMark { width: 56px; height: 56px; border-radius: 99px; display: grid; place-items: center; background: var(--ok); color: #062515; }
+:root[data-theme='light'] .doneMark { color: #fff; }
+.okEyebrow { color: var(--ok); }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stats > div { padding: 12px; border-radius: 16px; background: var(--wash); display: flex; flex-direction: column; gap: 2px; }
+.stats b { font-size: 20px; }
+.trackMeter { display: flex; flex-direction: column; gap: 6px; }
+.nextCard { border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
+.nextTitle { font-size: 16px; }
+.undo { color: var(--text-muted); font-size: 12.5px; }
+
+/* well */
+.single { margin: 0; flex-grow: 1; min-height: 0; display: flex; flex-direction: column; padding: 64px 10px 16px; }
+.wsHead { position: absolute; top: 16px; inset-inline-start: 18px; inset-inline-end: 18px; z-index: 3; display: flex; gap: 10px; align-items: center; }
+.wsHead > figcaption { max-width: 70%; overflow: hidden; text-overflow: ellipsis; }
+.chartBox { flex-grow: 1; min-height: 0; display: flex; flex-direction: column; }
+.chartBox > * { background: none; box-shadow: none; }
+.wsFoot { padding: 8px 10px 0; }
+.gallery { flex-grow: 1; overflow-y: auto; padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; align-content: start; }
+.card { margin: 0; border-radius: 20px; padding: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--hair); display: flex; flex-direction: column; gap: 8px; }
+.cardCap { display: flex; flex-direction: column; gap: 2px; font-size: 13.5px; padding: 2px 4px; }
+.art { flex-grow: 1; display: grid; place-items: center; padding: 40px; }
+.art > * { max-width: 520px; max-height: 360px; }
+.teaser { flex-grow: 1; display: grid; place-items: center; padding: 40px; }
+.teaserFrame { position: relative; width: min(620px, 100%); border-radius: 24px; overflow: hidden; background: var(--surface); padding: 14px; min-height: 240px; display: flex; flex-direction: column; }
+.teaserDim > :first-child { opacity: 0.62; }
+.teaserChip { position: absolute; top: 14px; inset-inline-start: 14px; z-index: 2; }
+
+.mLoop { display: none; }
+.scrim { display: none; }
+.fullBtn { width: 36px; height: 36px; margin-inline-start: auto; background: var(--wash); }
+.fullChart { position: fixed; inset: 0; z-index: 50; background: var(--bg); display: flex; flex-direction: column; gap: 8px; padding: 8px; }
+.fullHead { display: flex; align-items: center; gap: 12px; padding: 6px 10px; border-radius: 16px; font-size: 13px; }
+.fullClose { margin-inline-start: auto; }
+.fullBody { flex-grow: 1; min-height: 0; display: flex; flex-direction: column; }
+.fullHint { text-align: center; }
+@media (orientation: landscape) { .fullHint { display: none; } }
+
+/* the tutor beside the lesson: a third column that pushes the chart (14.2), not a cover */
+.withDrawer { grid-template-columns: 360px minmax(0, 1fr) 400px; }
+.drawerSlot { min-height: 0; display: flex; flex-direction: column; }
+.drawerLoading { border-radius: var(--r-xl); flex-grow: 1; display: grid; place-items: center; }
+.offer { border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.offer > :global(.small) { color: var(--text); }
+.offerHead { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.offerSuggs { display: flex; flex-wrap: wrap; gap: 6px; }
+.offerFoot { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.toast { position: fixed; z-index: 30; bottom: 92px; left: 50%; transform: translateX(-50%); min-width: min(520px, calc(100vw - 32px)); }
+.toast > b { flex-grow: 1; font-size: 14px; }
+.okIc { color: var(--ok); display: inline-grid; }
+
+@media (max-width: 1280px) {
+  /* Too narrow for three columns: the drawer lies over the chart instead. */
+  .withDrawer { grid-template-columns: 360px minmax(0, 1fr); }
+  .drawerSlot { position: fixed; z-index: 25; top: 80px; bottom: 90px; inset-inline-end: 10px; width: min(420px, calc(100vw - 20px)); }
+}
+@media (max-width: 1100px) {
+  .lbody, .withDrawer { grid-template-columns: 340px minmax(0, 1fr); }
+  .loop > button:not([data-state='cur']) .lt { display: none; }
+}
+@media (max-width: 900px) {
+  .lesson { height: auto; min-height: 100dvh; }
+  .lbody, .withDrawer { grid-template-columns: minmax(0, 1fr); }
+  .lwork { order: -1; min-height: 360px; }
+  .lpane { overflow: visible; }
+  .lfoot { position: sticky; bottom: 10px; z-index: 5; }
+}
+/* phone (Artifact 15.2/15.3): top row, a segmented step bar, chart then text, glass bottom nav */
+@media (max-width: 760px) {
+  .lbar { margin: 8px 8px 0; padding: 6px 8px; min-height: 52px; gap: 8px; }
+  .lbarTitle { flex-grow: 1; align-items: center; text-align: center; }
+  .lbarTitle > :global(.meta) { display: none; }
+  .lbarTitle b { font-size: 14px; max-width: 100%; }
+  .loop { display: none; }
+  .ai { width: 40px; height: 40px; min-height: 0; padding: 0; }
+  .mLoop { display: flex; flex-direction: column; gap: 6px; padding: 12px 16px 0; }
+  .mLoopHead { display: flex; justify-content: space-between; }
+  .lbody { padding: 12px 16px 100px; gap: 14px; }
+  .lwork { min-height: 0; border-radius: 20px; }
+  .single { padding: 52px 6px 10px; height: 330px; flex: none; }
+  .wsHead { top: 10px; inset-inline-start: 10px; }
+  .gallery { grid-template-columns: minmax(0, 1fr); padding: 10px; }
+  .art, .teaser { padding: 16px; }
+  .lpane { padding: 4px 0 0; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; border-radius: 0; }
+  .paneTitle { font-size: 22px; }
+  .lfoot { position: fixed; bottom: 12px; inset-inline: 12px; margin: 0; padding: 6px; border-radius: 26px; }
+  .lfoot > * { flex: 0 0 auto; }
+  .lfoot > :last-child { flex: 1 1 auto; min-width: 0; }
+  .lfoot { z-index: 26; }
+  .scrim { display: block; position: fixed; inset: 0; z-index: 19; background: color-mix(in srgb, var(--bg) 55%, transparent); }
+  .lpane[data-sheet] {
+    position: fixed; z-index: 20; inset-inline: 0; bottom: 0; max-height: 66vh; overflow-y: auto;
+    padding: 24px 16px 100px; border-radius: 28px 28px 0 0;
+    background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    box-shadow: var(--glass-inset), var(--glass-shadow);
+  }
+  .lpane[data-sheet]::before { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 40px; height: 5px; border-radius: 99px; background: var(--wash-2); }
+  /* 15.10: a sheet over the lesson's lower half — the chart stays in view above it. */
+  .drawerSlot { top: 40vh; bottom: 0; inset-inline: 0; width: auto; }
+  .drawerSlot > * { border-end-start-radius: 0; border-end-end-radius: 0; }
+  .drawerSlot::before { content: ''; position: absolute; top: 7px; left: 50%; transform: translateX(-50%); width: 40px; height: 5px; border-radius: 99px; background: var(--wash-2); z-index: 2; }
+  .sheetFull { top: 8px; }
+  /* While the tutor sheet is up, the lesson's own bar steps aside for it. */
+  .withDrawer + .lfoot { display: none; }
+  .toast { bottom: 88px; }
+}

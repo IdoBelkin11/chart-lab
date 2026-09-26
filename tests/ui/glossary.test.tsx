@@ -9,9 +9,10 @@ beforeEach(() => {
   location.hash = '#/lesson/l1';
 });
 
-/** Every interactive glossary term currently on screen. */
+/** Every interactive glossary term currently on screen — in the lesson's
+ *  content, not its bar (whose tutor toggle is also an aria-expanded button). */
 function terms() {
-  return Array.from(document.querySelectorAll('button[aria-expanded]')).filter(
+  return Array.from(document.querySelectorAll('main button[aria-expanded]')).filter(
     (b) => !b.hasAttribute('aria-current')
   );
 }
@@ -29,8 +30,10 @@ describe('glossary terms in a lesson', () => {
     render(<App />);
     const before = terms().length;
     expect(before).toBeGreaterThan(0);
-    // Marking the lesson complete re-renders the whole route.
-    fireEvent.click(screen.getByRole('button', { name: 'סמן כהושלם' }));
+    // Paging to the next step and back re-renders the whole lesson.
+    const loop = document.querySelector('nav[aria-label="שלבי השיעור"]')!;
+    fireEvent.click(loop.querySelectorAll('button')[1]!);
+    fireEvent.click(loop.querySelectorAll('button')[0]!);
     expect(terms().length).toBe(before);
   });
 

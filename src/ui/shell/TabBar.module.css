@@ -1,0 +1,19 @@
+/* Phone bottom navigation (Artifact: .tabbar / .tabItem). */
+.bar {
+  display: grid;
+  position: fixed;
+  inset-block-end: 12px;
+  inset-inline: 12px;
+  z-index: 40;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 6px;
+  border-radius: 26px;
+}
+.item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  min-height: 52px; border: 0; border-radius: 20px; background: none;
+  font: inherit; font-size: 11px; color: var(--text-faint); cursor: pointer;
+}
+.on { color: var(--text); font-weight: 650; background: var(--wash-2); }
+.on svg { color: var(--learn); }
+

@@ -1,121 +1,121 @@
-import { SlidingPill, useSlidingPill } from '@ui/components/nav/SlidingPill';
+import { TOTAL_LESSONS } from '@core/curriculum/curriculum';
+import { useAppState } from '@ui/app/AppState';
 import { useLang } from '@ui/hooks/useLang';
 import { useTheme } from '@ui/hooks/useTheme';
 import { useRoute } from '@ui/hooks/useRoute';
 import type { RouteName } from '@ui/hooks/useRoute';
+import type { TranslationKey } from '@core/i18n/strings';
+import { Icon } from '@ui/components/icons/Icons';
+import { useMedia, PHONE } from '@ui/hooks/useMedia';
+import { PhoneBar } from './PhoneBar';
 import styles from './Header.module.css';
 
-type ToolKey = 'navStock' | 'navCompare' | 'navCalculators' | 'navQuiz' | 'navGlossary';
-
 /**
- * Tools only. The AI tutor is deliberately NOT here: it has its own fixed
- * launcher (see AiLauncher), which is present on every route and never
- * competes for room in a nav that scrolls horizontally — being first in that
- * scrolling row is exactly how the header entry ended up clipped at the
- * viewport edge.
+ * The top-level sections, as the approved design names them. A section owns
+ * several routes: Tools covers the calculators AND the stock lookup and the
+ * comparison (decided 2026-09-25 — the stock page is a card in Tools), so the
+ * tab stays lit on all three.
  */
-const TOOLS: Array<{ route: RouteName; key: ToolKey }> = [
-  { route: 'stock', key: 'navStock' },
-  { route: 'compare', key: 'navCompare' },
-  { route: 'calculators', key: 'navCalculators' },
-  { route: 'quiz', key: 'navQuiz' },
-  // Last in the row: a reference page is something you reach for when stuck,
-  // not a step in the course.
-  { route: 'glossary', key: 'navGlossary' }
+export const SECTIONS: Array<{ key: TranslationKey; route: RouteName; owns: RouteName[] }> = [
+  { key: 'navTracks', route: 'home', owns: ['home', 'track', 'lesson', 'complete'] },
+  { key: 'navPractice', route: 'quiz', owns: ['quiz', 'practice'] },
+  { key: 'navTools', route: 'tools', owns: ['tools', 'stock', 'compare'] },
+  { key: 'navGlossary', route: 'glossary', owns: ['glossary'] }
 ];
 
-/* Inline stroke SVG rather than the ☀ / ☾ characters these replaced: those
-   render as colour emoji on several platforms, at a size and weight nothing
-   in the CSS can reach. currentColor keeps them in step with the switch. */
-function SunIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"
-         strokeLinecap="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="4.2" />
-      <path d="M12 2.4v2.4M12 19.2v2.4M4.2 12H1.8M22.2 12h-2.4M6.5 6.5 4.8 4.8M19.2 19.2l-1.7-1.7M17.5 6.5l1.7-1.7M4.8 19.2l1.7-1.7" />
-    </svg>
-  );
-}
-
-function MoonIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"
-         strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M20.5 14.3A8.6 8.6 0 1 1 9.7 3.5a6.9 6.9 0 0 0 10.8 10.8Z" />
-    </svg>
-  );
-}
-
 /**
- * The global header. Present on every route by construction — it is part of
- * the shell, not rendered per page, so it cannot go missing the way it did
- * when feature views were full-screen overlays.
+ * The global topbar — a glass capsule present on every route, because it is
+ * part of the shell rather than of a page.
  *
- * It carries only global controls: tools, theme, language. Navigation home
- * belongs to the brand in the rail.
+ * It carries the brand (the one way home), the four sections, and the global
+ * controls: progress, language, theme. The AI tutor is NOT a tab here: it has
+ * its own launcher, reachable from every screen (see AiLauncher).
  */
 export function Header() {
   const { t, lang, setLang } = useLang();
   const { theme, toggleTheme } = useTheme();
+  const { learningCompleted: completedCount } = useAppState();
   const { route, go } = useRoute();
+  const total = TOTAL_LESSONS;
+  const pct = Math.round((completedCount / total) * 100);
+  const phone = useMedia(PHONE);
 
-  // The travelling capsule this header introduced now lives in
-  // @ui/components/nav/SlidingPill, so the calculator segments, the lesson
-  // rail and the language switch move the same way instead of blinking.
-  const tools = useSlidingPill<HTMLElement>([route, lang]);
-  const langs = useSlidingPill<HTMLDivElement>([lang]);
+  // Phone: home keeps this brand bar; every other screen gets its own bar (Artifact 15).
+  if (phone && route !== 'home') return <PhoneBar />;
 
   return (
-    <header className={styles.header}>
-      <nav className={styles.tools} aria-label={t('navMenuLabel')} ref={tools.ref}>
-        <SlidingPill rect={tools.rect} instant={tools.placed} />
-        {TOOLS.map((tool) => (
-          <button
-            key={tool.route}
-            type="button"
-            className={route === tool.route ? `${styles.tool} ${styles.toolActive}` : styles.tool}
-            data-active={route === tool.route ? 'true' : undefined}
-            aria-current={route === tool.route ? 'page' : undefined}
-            onClick={() => go(tool.route)}
-          >
-            {t(tool.key)}
-          </button>
-        ))}
+    <header className={`${styles.topbar} glass`}>
+      <nav className={styles.nav} aria-label={t('navMainAria')}>
+        <a
+          className={styles.brand}
+          href="#/"
+          onClick={(e) => {
+            e.preventDefault();
+            go('home');
+          }}
+          aria-label={t('brandHomeAria')}
+        >
+          <span className={styles.brandMark} aria-hidden="true">▼▲</span>
+          <span className={styles.brandName}>{t('brandName')}</span>
+        </a>
+        <span className={styles.sep} aria-hidden="true" />
+        {SECTIONS.map((s) => {
+          const on = s.owns.includes(route);
+          return (
+            <a
+              key={s.key}
+              className={on ? `${styles.tab} ${styles.tabOn}` : styles.tab}
+              href={`#/${s.route === 'home' ? '' : s.route}`}
+              aria-current={on ? 'page' : undefined}
+              onClick={(e) => {
+                e.preventDefault();
+                go(s.route);
+              }}
+            >
+              {t(s.key)}
+            </a>
+          );
+        })}
       </nav>
 
-      <div className={styles.controls}>
-        {/* Shaped like a switch, but semantically a button: "switch" announces
-            on/off, and light-vs-dark is a choice between two things rather
-            than a state being enabled. The aria-label already says what
-            pressing it does. */}
-        <button
-          type="button"
-          className={styles.theme}
-          data-on={theme === 'light' ? 'true' : undefined}
-          onClick={toggleTheme}
-          aria-label={t('themeToggleLabel')}
-          title={t('themeToggleLabel')}
-        >
-          <span className={styles.themeThumb} aria-hidden="true">
-            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+      <div className={styles.ctrls}>
+        <span className={styles.progress} title={t('progressChipAria')}>
+          <span className="ring" style={{ ['--p' as string]: pct, width: 28, height: 28 }} aria-hidden="true">
+            <span style={{ width: 20, height: 20 }} />
           </span>
-        </button>
+          <b className="n">{completedCount}/{total}</b>
+          <span>{t('progressChipLessons')}</span>
+        </span>
 
-        {/* The language switch travels too. It is only two items, which is
-            exactly where a blink is most noticeable — there is nowhere else for
-            the eye to be looking. */}
-        <div className={styles.langGroup} role="group" aria-label="Language" ref={langs.ref}>
-          <SlidingPill rect={langs.rect} instant={langs.placed} tone="accent" />
+        {/* Two languages, two buttons — the one in use is pressed. Each label is
+            the language's own short name, marked with its own `lang`. */}
+        <div className="seg" role="group" aria-label={t('langGroupAria')}>
           {(['he', 'en'] as const).map((code) => (
             <button
               key={code}
               type="button"
-              className={lang === code ? `${styles.lang} ${styles.langActive}` : styles.lang}
-              data-active={lang === code ? 'true' : undefined}
+              lang={code}
               aria-pressed={lang === code}
               onClick={() => setLang(code)}
             >
-              {code.toUpperCase()}
+              {code === 'he' ? 'עב' : 'EN'}
+            </button>
+          ))}
+        </div>
+
+        <div className="seg" role="group" aria-label={t('themeGroupAria')}>
+          {(['dark', 'light'] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              aria-pressed={theme === mode}
+              aria-label={t(mode === 'dark' ? 'themeDark' : 'themeLight')}
+              title={t(mode === 'dark' ? 'themeDark' : 'themeLight')}
+              onClick={() => {
+                if (theme !== mode) toggleTheme();
+              }}
+            >
+              <Icon name={mode === 'dark' ? 'moon' : 'sun'} size={15} />
             </button>
           ))}
         </div>

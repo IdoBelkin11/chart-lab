@@ -1,0 +1,143 @@
+/* Lesson activities (Artifact 07 · lesson types). */
+.selfStart { align-self: flex-start; margin-top: 4px; }
+.grow { flex-grow: 1; }
+.choices { display: flex; flex-direction: column; gap: 8px; }
+.fbBody { display: flex; flex-direction: column; gap: 4px; flex-grow: 1; }
+.fbBody > b { font-size: 15px; }
+.fbBody > :global(.small) { color: var(--text); }
+.noteList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.noteList > li { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 10px; font-size: 14px; }
+.swatch { width: 16px; height: 0; margin-top: 10px; border-top: 3px solid var(--text-muted); }
+.swatch[data-tone='support'] { border-color: var(--ok); }
+.swatch[data-tone='resistance'] { border-color: var(--err); }
+
+/* chart well (same frame as the lesson's single chart) */
+.single { margin: 0; flex-grow: 1; min-height: 0; display: flex; flex-direction: column; padding: 64px 10px 16px; }
+.wsHead { position: absolute; top: 16px; inset-inline-start: 18px; inset-inline-end: 18px; z-index: 3; display: flex; gap: 10px; align-items: center; }
+.chartBox { flex-grow: 1; min-height: 0; display: flex; flex-direction: column; }
+.chartBox > * { background: none; box-shadow: none; }
+
+/* sort + concept stage */
+.sortStage { flex-grow: 1; overflow-y: auto; padding: 72px 28px 28px; display: flex; flex-direction: column; gap: 16px; }
+.wsHeadStatic { position: absolute; top: 16px; inset-inline-start: 18px; display: flex; gap: 10px; align-items: center; z-index: 3; }
+.bins { display: grid; grid-template-columns: repeat(var(--bins, 4), minmax(0, 1fr)); gap: 12px; flex-grow: 1; }
+.bin { border-radius: 22px; border: 1.5px dashed; padding: 14px; display: flex; flex-direction: column; gap: 8px; min-height: 180px; }
+.binHead { border: 0; background: none; padding: 4px 0; font: inherit; font-size: 16px; font-weight: 700; text-align: start; cursor: pointer; border-radius: 8px; }
+.binHead:disabled { cursor: default; }
+.binHead:not(:disabled):hover { text-decoration: underline; }
+.placed {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px; border: 0; border-radius: 14px;
+  background: var(--surface-2); box-shadow: inset 0 0 0 1.5px var(--hair); font: inherit; font-size: 13.5px; color: var(--text); text-align: start; cursor: pointer;
+}
+.placed:disabled { cursor: default; }
+.placed[data-state='ok'] { background: var(--ok-dim); box-shadow: inset 0 0 0 1.5px var(--ok); }
+.placed[data-state='ok'] > svg { color: var(--ok); }
+.placed[data-state='err'] { background: var(--err-dim); box-shadow: inset 0 0 0 1.5px var(--err); }
+.placed[data-state='err'] > svg { color: var(--err); }
+.dropHint { padding: 12px; border-radius: 14px; border: 1.5px dashed var(--hair); font-size: 13.5px; color: var(--text-faint); }
+.pool { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.item {
+  padding: 9px 14px; border: 0; border-radius: var(--r-pill); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--hair);
+  font: inherit; font-size: 13px; font-weight: 620; color: var(--text); cursor: grab;
+}
+.item[aria-pressed='true'] { background: var(--learn-dim); box-shadow: inset 0 0 0 2px var(--learn); }
+
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; flex-grow: 1; align-content: start; }
+.card {
+  border: 0; border-radius: 24px; padding: 22px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--hair);
+  display: flex; flex-direction: column; gap: 10px; font: inherit; color: var(--text); text-align: start; cursor: pointer;
+}
+.cardHead { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.cardHead > b { font-size: 22px; }
+.cardWhat { font-size: 15px; }
+
+@media (max-width: 1100px) {
+  .bins { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .single { padding: 52px 6px 10px; height: 330px; flex: none; }
+  .wsHead, .wsHeadStatic { top: 10px; inset-inline-start: 10px; }
+  .sortStage { padding: 52px 12px 14px; }
+  .bin { min-height: 0; }
+  .cards { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* order desk (F5) */
+.desk { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 22px; }
+.segFull { display: flex; }
+.segFull > button { flex: 1 1 0; min-height: 40px; }
+.rowBetween { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.deskActions { display: flex; gap: 10px; flex-wrap: wrap; }
+.fill { display: flex; justify-content: space-between; font-size: 13.5px; }
+.fillTop { border-top: 1px solid var(--hair); padding-top: 8px; }
+.taskList { display: flex; flex-direction: column; gap: 8px; }
+.taskList > :global(.task) { padding: 10px 12px; font-size: 13.5px; }
+
+/* chart-sorting drill (T3 · Artifact 3.2) */
+.rules { display: flex; gap: 8px; flex-wrap: wrap; }
+.rules > :global(.chip) { font-size: 12.5px; padding: 7px 12px; white-space: normal; }
+.cgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.ccard { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 22px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--hair); }
+.ccard[data-state='right'] { box-shadow: inset 0 0 0 2px var(--ok); }
+.ccard[data-state='wrong'] { box-shadow: inset 0 0 0 2px var(--err); }
+.sketch { padding: 10px; border-radius: 16px; }
+.sketch > svg { display: block; width: 100%; height: 150px; overflow: visible; }
+.sketchLine { fill: none; stroke: var(--text); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.bandLine { stroke: var(--text-faint); stroke-dasharray: 5 5; }
+.bandText { font-size: 11px; fill: var(--text-faint); font-family: inherit; }
+.swingMark > circle { fill: var(--learn); }
+.swingMark > text { font-size: 10.5px; font-weight: 650; fill: var(--learn); font-family: inherit; }
+.swingMark[data-kind='low'] > circle { fill: var(--risk); }
+.swingMark[data-kind='low'] > text { fill: var(--risk); }
+.ans { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 8px; }
+.ans > :global(.choice) { justify-content: center; min-height: 42px; padding: 8px; font-size: 13.5px; }
+@media (max-width: 1100px) { .cgrid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) { .sketch > svg { height: 110px; } .ccard { padding: 12px; gap: 8px; } }
+
+/* "when did it happen" (markPoint): the keyboard way to pick a candle */
+.slider { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px 0; }
+.slider > input { width: 100%; accent-color: var(--learn); }
+
+/* "work it out" (calculate) */
+.calcField { max-width: 220px; }
+.calcWork { flex-grow: 1; min-height: 0; display: flex; flex-direction: column; }
+.solution { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 18px; }
+.solution > ol { margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+
+/* "find these moments, then compare" (markPoints) */
+.pickList { display: flex; flex-direction: column; gap: 8px; }
+.pickList > :global(.task) { border: 0; font: inherit; text-align: start; cursor: pointer; width: 100%; }
+.activePick { box-shadow: inset 0 0 0 2px var(--learn) !important; }
+.compareQ { font-size: 14.5px; line-height: 1.5; }
+
+/* "read the whole chart" (checklist): the questions, answered in turn */
+.checklist { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.checkItem { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 18px; box-shadow: inset 0 0 0 1.5px var(--hair); }
+.checkItem[data-state='right'] { box-shadow: inset 0 0 0 2px var(--ok); }
+.checkItem[data-state='wrong'] { box-shadow: inset 0 0 0 2px var(--err); }
+
+/* "explore, then find it" (explore · Artifact 09.1): the statement, what the picked line is, what is left */
+.explore { flex-grow: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; padding: 16px; align-content: start; }
+.exTable { border-radius: 22px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.exTitle { font-size: 14.5px; }
+.exRows { display: flex; flex-direction: column; }
+.exRow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; min-height: 38px; padding: 0 14px; border: 0; border-radius: 12px; background: none; color: var(--text); font: inherit; font-size: 14px; text-align: start; cursor: pointer; }
+.exRow:hover:not(:disabled) { background: var(--wash); }
+.exRow:disabled { cursor: default; }
+.exRow[data-kind='sub'] > span:first-child { padding-inline-start: 16px; color: var(--text-muted); font-size: 13.5px; }
+.exRow[data-kind='total'] { font-weight: 700; box-shadow: inset 0 1px 0 var(--hair); border-radius: 0 0 12px 12px; }
+.exRow[data-on] { background: var(--adv-dim); box-shadow: inset 0 0 0 1.5px var(--adv); border-radius: 12px; }
+.exSide { display: flex; flex-direction: column; gap: 12px; }
+.exDetail { border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+.exDetail > :global(.label) { color: var(--adv); }
+.exDetail > :global(.small) { color: var(--text); }
+.exDetail > :global(.sunk) { padding: 10px 12px; font-weight: 650; }
+.exName { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.exShares { border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; }
+.exShare { display: grid; grid-template-columns: 7.5em minmax(0, 1fr) 4em; gap: 10px; align-items: center; font-size: 12.5px; }
+.exShare > :global(.n) { text-align: end; }
+.exTrack { height: 12px; border-radius: 99px; background: var(--sunk); overflow: hidden; }
+.exTrack > span { display: block; height: 100%; border-radius: 99px; background: var(--text-faint); }
+.exShare[data-on] .exTrack > span { background: var(--adv); }
+@media (max-width: 1100px) { .explore { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) { .explore { padding: 10px; gap: 10px; } .exRow { min-height: 34px; padding: 0 10px; font-size: 13.5px; } }

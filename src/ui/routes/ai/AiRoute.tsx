@@ -1,448 +1,141 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  createConversationContext,
-  generateAiReply,
-  followupChipsFor,
-  kbById,
-  CATEGORY_LABELS,
-  CATEGORY_ORDER,
-  topicsInCategory
-} from '@core/ai/index';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { takePendingTutorAction } from '@core/ai/pendingTutorAction';
-import type { AiReply } from '@core/types/kb';
+import { lessonById } from '@core/lessons/lessons';
+import { LESSON_TO_LEGACY, TOTAL_LESSONS, lessonById as curriculumLesson, lessonsOf, trackById } from '@core/curriculum/curriculum';
 import { useLang } from '@ui/hooks/useLang';
 import { useRoute } from '@ui/hooks/useRoute';
+import { useAppState } from '@ui/app/AppState';
 import { originRoute } from '@ui/shell/returnTo';
-import { lessonById } from '@core/lessons/lessons';
-import { useTypewriter } from '@ui/hooks/useTypewriter';
-import { AiAnswer } from '@ui/components/learning/AiAnswer';
-import { SparkleIcon, BarChartIcon } from '@ui/components/icons/Icons';
+import { Icon } from '@ui/components/icons/Icons';
+import { BarChartIcon } from '@ui/components/icons/Icons';
+import { useTutorChat } from './tutorChat';
+import { Composer, Transcript } from './TutorParts';
 import styles from './AiRoute.module.css';
 
-interface Turn {
-  role: 'user' | 'assistant';
-  text: string;
-  /** Follow-up suggestions derived from the answer's related entries. */
-  chips?: Array<{ id: string; label: string }>;
-  /** True when this reply is the topic browser rather than an answer. */
-  browse?: boolean;
-  /** Reveal progressively only for the turn that just arrived. */
-  fresh?: boolean;
-}
+export { __resetChatSessionForTests } from './tutorChat';
 
-// Module-level, not component state: this is what makes the conversation
-// survive leaving the AI page and coming back. A route component unmounts
-// on navigation (this one is even lazy-loaded — see the bundle-split note
-// above), so anything kept only in useState/useRef inside AiRoute is gone
-// the moment the visitor leaves, no matter how they got here. Living here
-// instead means the transcript, entity memory and last topic all persist
-// for the lifetime of the page load, and only the explicit "New chat"
-// button (reset(), below) clears it — exactly the one exception asked for.
-const chatSession: {
-  turns: Turn[];
-  context: ReturnType<typeof createConversationContext>;
-  lastTopic: string | null;
-} = {
-  turns: [],
-  context: createConversationContext(),
-  lastTopic: null
-};
-
-/** Test-only: the module stays loaded across test cases (unlike a real
- *  page load, which starts fresh every time), so tests restore that
- *  isolation explicitly by calling this in beforeEach. */
-export function __resetChatSessionForTests(){
-  chatSession.turns = [];
-  chatSession.context = createConversationContext();
-  chatSession.lastTopic = null;
-}
+const TX = {
+  he: {
+    region: 'עוזר שוק ההון', newChat: 'שיחה חדשה', today: 'היום', general: 'שאלה כללית', talking: 'על מה מדברים', knows: 'מה המורה יודע',
+    done: 'השיעורים שסיימתם', of: 'מתוך', curStep: 'השלב הנוכחי', none: 'עוד לא התחלתם שיעור',
+    limits: 'גבולות', limitsBody: 'המורה מסביר ומתרגל. הוא לא ממליץ על קנייה או מכירה, ונתוני מניות שהוא מציג עשויים להגיע באיחור.',
+    clear: 'מחיקת היסטוריית השיחות', lessonN: (t: string, n: number) => `${t} · שיעור ${n}`, browse: 'עיין בכל הנושאים', history: 'היסטוריית שיחות',
+    back: (name: string) => `חזרה לשיעור: ${name}`, backCourse: 'חזרה לקורס', tutor: 'מורה AI'
+  },
+  en: {
+    region: 'Market tutor', newChat: 'New chat', today: 'Today', general: 'General question', talking: "What we're talking about", knows: 'What the tutor knows',
+    done: 'Lessons completed', of: 'of', curStep: 'Current step', none: "You haven't started a lesson yet",
+    limits: 'Limits', limitsBody: "The tutor explains and quizzes. It doesn't recommend buying or selling, and stock data it shows may be delayed.",
+    clear: 'Delete conversation history', lessonN: (t: string, n: number) => `${t} · Lesson ${n}`, browse: 'Browse every topic', history: 'Conversation history',
+    back: (name: string) => `Back to lesson: ${name}`, backCourse: 'Back to the course', tutor: 'AI Tutor'
+  }
+} as const;
 
 /**
- * The AI tutor.
+ * The AI tutor, full page (Artifact 14.8): past conversations, the
+ * conversation, and what the tutor knows about where you are.
  *
- * A workspace panel, not a modal: the global header, brand and course rail
- * stay visible and usable beside it. The previous build exposed this as
- * `role="dialog" aria-modal="true"`, which told assistive tech that
- * everything outside was unavailable — false then, and plainly false now.
- * It is a labelled region whose transcript is an aria-live log.
- *
- * Two things the engine had always computed and this view discarded are now
- * on screen. Both were dead weight before — cost paid every turn, nothing
- * shown for it:
- *
- *   · `relatedIds` → follow-up chips. An answer now ends by offering the
- *     next question rather than leaving the reader to guess what else the
- *     tutor knows, which is the hardest part of using a matcher: phrasing.
- *   · `browse: true` → the topic browser. Asking for "a list of topics"
- *     returned prose saying to pick a category, and then showed no
- *     categories at all.
+ * A labelled region, not a modal: the shell stays visible and usable beside
+ * it. The transcript is an aria-live log. The same conversations appear in
+ * the lesson drawer (TutorDrawer) — both read tutorChat's store.
  */
 export function AiRoute() {
   const { t, lang } = useLang();
   const { go } = useRoute();
-  const [turns, setTurnsState] = useState<Turn[]>(chatSession.turns);
-  const [pending, setPending] = useState(false);
+  const { learning, learningCompleted } = useAppState();
+  const tx = TX[lang];
+  const chat = useTutorChat(lang, t('aiError'));
   const [draft, setDraft] = useState('');
-  const [openCategory, setOpenCategory] = useState<{ index: number; cat: string } | null>(null);
-
-  // Every update also writes through to the module-level store, so the
-  // next mount (after navigating away and back) picks up exactly where
-  // this one left off.
-  const setTurns = useCallback((updater: Turn[] | ((prev: Turn[]) => Turn[])) => {
-    setTurnsState((prev) => {
-      const next = typeof updater === 'function' ? (updater as (prev: Turn[]) => Turn[])(prev) : updater;
-      chatSession.turns = next;
-      return next;
-    });
-  }, []);
-
   const transcriptRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // Keep the newest turn in view. Without this a long answer pushes the
-  // question that prompted it off the top and the reader lands mid-reply.
+  // Keep the newest turn in view.
   useEffect(() => {
     const el = transcriptRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [turns, pending]);
+  }, [chat.turns, chat.pending]);
+  useEffect(() => { if (!chat.pending) inputRef.current?.focus({ preventScroll: true }); }, [chat.pending]);
 
-  const send = useCallback(
-    async (question: string) => {
-      const q = question.trim();
-      if (!q || pending) return;
-      setDraft('');
-      setOpenCategory(null);
-      // Mark every existing turn stale first: only the incoming answer
-      // should animate, or the whole transcript would re-reveal each time.
-      setTurns((prev) => [...prev.map((tn) => ({ ...tn, fresh: false })), { role: 'user', text: q }]);
-      setPending(true);
-      try {
-        const reply: AiReply = await generateAiReply(q, lang, chatSession.lastTopic, chatSession.context);
-        chatSession.lastTopic = reply.topicId ?? chatSession.lastTopic;
-
-        const chips = (reply.relatedIds ?? [])
-          .map((id) => {
-            const label = followupChipsFor(id, lang) as string | null;
-            return label ? { id, label } : null;
-          })
-          .filter((c): c is { id: string; label: string } => c !== null);
-
-        // A live-data stock answer has no KB relatedIds (there's no KB
-        // entry for "NVDA"), so the loop above always produces zero chips
-        // for it — the reader got a price/technical/fundamental snapshot
-        // and then saw no suggested next question at all. Named by ticker
-        // rather than a pronoun ("its technical analysis"): resolveTicker
-        // matches the ticker directly, so the chip works even if pronoun
-        // resolution ever has a gap. Skip whichever facet was just
-        // answered — offering "technical analysis" again right after
-        // showing it is a chip nobody taps.
-        if (reply.topicId === 'stock-data' && reply.entityContext) {
-          const { ticker, facet } = reply.entityContext;
-          const he = lang === 'he';
-          const stockChips: Array<{ id: string; label: string }> = [];
-          if (facet !== 'technical') {
-            stockChips.push({
-              id: `stock-technical-${ticker}`,
-              label: he ? `ניתוח טכני של ${ticker}` : `Technical analysis of ${ticker}`
-            });
-          }
-          if (facet !== 'fundamental') {
-            stockChips.push({
-              id: `stock-fundamental-${ticker}`,
-              label: he ? `ניתוח פונדמנטלי של ${ticker}` : `Fundamental analysis of ${ticker}`
-            });
-          }
-          chips.push(...stockChips);
-        }
-
-        setTurns((prev) => [
-          ...prev,
-          { role: 'assistant', text: reply.text, chips, browse: reply.browse, fresh: true }
-        ]);
-      } catch {
-        setTurns((prev) => [...prev, { role: 'assistant', text: t('aiError'), fresh: true }]);
-      } finally {
-        setPending(false);
-        inputRef.current?.focus();
-      }
-    },
-    [lang, pending, t]
-  );
-
-  const reset = useCallback(() => {
-    chatSession.context = createConversationContext();
-    chatSession.lastTopic = null;
-    chatSession.turns = [];
-    setOpenCategory(null);
-    setTurns([]);
-  }, [setTurns]);
-
-  // One-shot: a lesson's "Explain this concept" / "Another example" button
-  // set this right before navigating here (see pendingTutorAction.js).
-  // Runs once per mount, which is exactly the point — arriving this way
-  // should immediately show the answer instead of landing on the empty
-  // composer and making the reader ask it themselves.
+  // One-shot hand-off from a lesson's "Explain this concept" / "Another example".
   useEffect(() => {
-    const pending = takePendingTutorAction();
-    if (!pending) return;
-    chatSession.lastTopic = pending.topicId;
-    if (pending.action === 'explain') {
-      const entry = kbById(pending.topicId);
-      if (!entry) return;
-      const chips = (entry.related ?? [])
-        .slice(0, 2)
-        .map((id) => {
-          const label = followupChipsFor(id, lang) as string | null;
-          return label ? { id, label } : null;
-        })
-        .filter((c): c is { id: string; label: string } => c !== null);
-      setTurns((prev) => [
-        ...prev.map((tn) => ({ ...tn, fresh: false })),
-        { role: 'user', text: pending.questionLabel },
-        { role: 'assistant', text: entry[lang], chips, fresh: true }
-      ]);
-    } else if (pending.action === 'example') {
-      void send(pending.questionLabel);
-    }
-    // Deliberately once per mount: this is a one-shot handoff consumed by
-    // takePendingTutorAction(), not a value that should re-fire on every
-    // lang/send identity change.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const p = takePendingTutorAction();
+    if (!p) return;
+    if (p.action === 'explain') chat.explain(p.topicId, p.questionLabel);
+    else if (p.action === 'example') void chat.send(p.questionLabel);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Six, so the grid fills two clean rows of three.
-  const examples = useMemo(
-    () => [t('aiEx1'), t('aiEx2'), t('aiEx3'), t('aiEx4'), t('aiEx5')],
-    [t]
-  );
+  const examples = useMemo(() => [t('aiEx1'), t('aiEx2'), t('aiEx3'), t('aiEx4'), t('aiEx5')], [t]);
 
-  const lastIndex = turns.length - 1;
-
-  // Name the destination when it is a lesson, so Back is a promise about
-  // where it goes rather than a bare arrow.
+  // Back names the lesson it returns to, so it is a promise, not a bare arrow.
+  const origin = originRoute();
   const backLabel = useMemo(() => {
-    const origin = originRoute();
-    const lesson = origin?.params.lessonId ? lessonById(origin.params.lessonId) : undefined;
-    if (lesson) {
-      return lang === 'he' ? `חזרה לשיעור: ${lesson.navLabel.he}` : `Back to lesson: ${lesson.navLabel.en}`;
-    }
-    return lang === 'he' ? 'חזרה לקורס' : 'Back to the course';
-  }, [lang, turns.length]);
+    const id = origin?.params.lessonId;
+    const legacy = id && LESSON_TO_LEGACY[id] ? lessonById(LESSON_TO_LEGACY[id]!) : undefined;
+    const name = legacy ? legacy.navLabel[lang] : id ? curriculumLesson(id)?.title[lang] : undefined;
+    return name ? tx.back(name) : tx.backCourse;
+  }, [lang, origin?.params.lessonId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Where the learner is: the lesson they came from, else their last lesson.
+  const whereId = origin?.params.lessonId ?? learning.lastLesson;
+  const where = whereId ? curriculumLesson(whereId) : undefined;
+  const whereLabel = where ? tx.lessonN(trackById(where.track).title[lang], lessonsOf(where.track).indexOf(where) + 1) : null;
+  const whereStep = where?.steps ? where.steps[lang][learning.lessons[where.id]?.step ?? 0] : undefined;
 
   return (
-    <section className={styles.panel} aria-label={lang === 'he' ? 'עוזר שוק ההון' : 'Market tutor'}>
-      {/* No title strip. The empty state already says what this is, and
-          repeating it above the transcript meant the same sentence appeared
-          twice on the screen a first-time visitor sees.
+    <div className={styles.page}>
+      <aside className={`solid ${styles.history}`} aria-label={tx.history}>
+        <button type="button" className="btnAi" onClick={() => chat.newChat()} aria-label={t('aiRestartLabel')}><Icon name="plus" size={15} />{tx.newChat}</button>
+        {chat.history.some((c) => c.turns.length) && <span className="label">{tx.today}</span>}
+        {chat.history.filter((c) => c.turns.length).slice().reverse().map((c) => (
+          <button key={c.id} type="button" className={styles.histItem} aria-current={c.id === chat.conv.id || undefined} onClick={() => chat.select(c.id)}>
+            <b>{c.title}</b><span className="meta">{c.meta ? c.meta[lang] : tx.general}</span>
+          </button>
+        ))}
+      </aside>
 
-          Back floats over the panel instead, mirroring the launcher that
-          hides itself on this route — this is the only exit. */}
-      <button
-        type="button"
-        className={styles.back}
-        onClick={() => {
-          const origin = originRoute();
-          if (origin) go(origin.route, origin.params);
-          else go('home');
-        }}
-        aria-label={backLabel}
-        title={backLabel}
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path
-            d={lang === 'he' ? 'M5 12h14M13 5l7 7-7 7' : 'M19 12H5M11 5l-7 7 7 7'}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.75"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
+      <section className={`glass ${styles.chat}`} aria-label={tx.region}>
+        <div className={styles.chatHead}>
+          <button type="button" className={`btnQuiet sm ${styles.back}`} onClick={() => (origin ? go(origin.route, origin.params) : go('home'))} aria-label={backLabel} title={backLabel}>
+            <Icon name={lang === 'he' ? 'chevR' : 'chevL'} size={16} />
+          </button>
+          <span className="aiMark" aria-hidden="true"><Icon name="spark" size={15} /></span>
+          <b className={`h3 ${styles.chatTitle}`}>{chat.conv.title || tx.tutor}</b>
+          {chat.conv.meta && <span className={`meta ${styles.pushEnd}`}>{chat.conv.meta[lang]}</span>}
+          <button type="button" className={`iconBtn ${styles.phoneNew}`} onClick={() => chat.newChat()} aria-label={tx.newChat}><Icon name="plus" size={19} /></button>
+        </div>
 
-      {turns.length > 0 && (
-        <button type="button" className={styles.reset} onClick={reset}>
-          <span aria-hidden="true">↺</span> {t('aiRestartLabel')}
-        </button>
-      )}
-
-      <div className={styles.transcript} ref={transcriptRef} role="log" aria-live="polite" aria-atomic="false">
-       <div className={styles.column}>
-        {turns.length === 0 && (
-          <div className={styles.empty}>
-            <div className={styles.mark} aria-hidden="true"><SparkleIcon className={styles.markIcon} /></div>
-            <h2 className={styles.emptyTitle}>{t('aiEmptyTitle')}</h2>
-            <p className={styles.emptyLead}>{t('aiEmptyBody')}</p>
-            <div className={styles.examples}>
-              {examples.map((ex) => (
-                <button key={ex} type="button" className={styles.example} onClick={() => void send(ex)}>
-                  {ex}
+        <div className={styles.transcript} ref={transcriptRef} role="log" aria-live="polite" aria-atomic="false">
+          {chat.turns.length === 0 && (
+            <div className={styles.empty}>
+              <span className={`aiMark ${styles.bigMark}`} aria-hidden="true"><Icon name="spark" size={22} /></span>
+              <h2 className="h2">{t('aiEmptyTitle')}</h2>
+              <p className="txt">{t('aiEmptyBody')}</p>
+              <div className={styles.examples}>
+                {examples.map((ex) => <button key={ex} type="button" className={styles.example} onClick={() => void chat.send(ex)}>{ex}</button>)}
+                {/* The topic browser as a starting point, not only something found by guessing the phrasing. */}
+                <button type="button" className={`${styles.example} ${styles.exampleBrowse}`} onClick={() => void chat.send(lang === 'he' ? 'רשימת נושאים' : 'list of topics')}>
+                  <BarChartIcon className={styles.exampleIcon} />{tx.browse}
                 </button>
-              ))}
-              {/* The topic browser as a starting point, not only as something
-                  you find by guessing the right phrasing. */}
-              <button
-                type="button"
-                className={`${styles.example} ${styles.exampleBrowse}`}
-                onClick={() => void send(lang === 'he' ? 'רשימת נושאים' : 'list of topics')}
-              >
-                <BarChartIcon className={styles.exampleIcon} />
-                {lang === 'he' ? 'עיין בכל הנושאים' : 'Browse every topic'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {turns.map((turn, i) =>
-          turn.role === 'user' ? (
-            <p key={i} className={styles.user}>{turn.text}</p>
-          ) : (
-            <AssistantTurn
-              key={i}
-              turn={turn}
-              isLast={i === lastIndex}
-              lang={lang}
-              openCategory={openCategory?.index === i ? openCategory.cat : null}
-              onOpenCategory={(cat) => setOpenCategory(cat ? { index: i, cat } : null)}
-              onAsk={(q) => void send(q)}
-            />
-          )
-        )}
-
-        {pending && (
-          <p className={styles.thinking} aria-label={lang === 'he' ? 'חושב' : 'Thinking'}>
-            <span /><span /><span />
-          </p>
-        )}
-       </div>
-      </div>
-
-      <form
-        className={styles.composer}
-        onSubmit={(e) => {
-          e.preventDefault();
-          void send(draft);
-        }}
-      >
-        <input
-          ref={inputRef}
-          className={styles.input}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder={t('aiPlaceholder')}
-          aria-label={t('aiPlaceholder')}
-          disabled={pending}
-        />
-        <button
-          type="submit"
-          className={styles.send}
-          disabled={pending || !draft.trim()}
-          aria-label={lang === 'he' ? 'שלח' : 'Send'}
-        >
-          →
-        </button>
-      </form>
-
-      <p className={styles.disclaimer}>{t('aiDisclaimer')}</p>
-    </section>
-  );
-}
-
-/**
- * One assistant turn: the answer, then whatever it invites next.
- *
- * Only the newest turn animates. Clicking anywhere on a revealing answer
- * finishes it immediately — a reveal must never stand between a reader and
- * text they asked for.
- */
-function AssistantTurn({
-  turn,
-  isLast,
-  lang,
-  openCategory,
-  onOpenCategory,
-  onAsk
-}: {
-  turn: Turn;
-  isLast: boolean;
-  lang: 'he' | 'en';
-  openCategory: string | null;
-  onOpenCategory: (cat: string | null) => void;
-  onAsk: (q: string) => void;
-}) {
-  const { shown, done, skip } = useTypewriter(turn.text, !!turn.fresh && isLast);
-
-  return (
-    <div className={styles.assistant}>
-      <div onClick={done ? undefined : skip} className={done ? undefined : styles.revealing}>
-        <AiAnswer text={shown} />
-        {!done && <span className={styles.caret} aria-hidden="true" />}
-      </div>
-
-      {/* Held back until the answer has finished revealing: offering the next
-          question while the current one is still arriving pulls the reader
-          away from what they asked for. */}
-      {done && turn.browse && (
-        <div className={styles.browser}>
-          <div className={styles.chipRow}>
-            {CATEGORY_ORDER.map((cat) => {
-              const label = (CATEGORY_LABELS as Record<string, Record<string, string>>)[cat]?.[lang];
-              if (!label) return null;
-              const open = openCategory === cat;
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  className={open ? `${styles.chip} ${styles.chipOpen}` : styles.chip}
-                  aria-expanded={open}
-                  onClick={() => onOpenCategory(open ? null : cat)}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-
-          {openCategory && (
-            <div className={styles.topicList}>
-              {(topicsInCategory(openCategory) as Array<{ id: string }>).map((entry) => {
-                const label = followupChipsFor(entry.id, lang) as string | null;
-                if (!label) return null;
-                return (
-                  <button
-                    key={entry.id}
-                    type="button"
-                    className={styles.topic}
-                    onClick={() => onAsk(label)}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
+              </div>
             </div>
           )}
+          <Transcript turns={chat.turns} pending={chat.pending} lang={lang} onAsk={(q) => void chat.send(q)} quizById={chat.quizById}
+            onAnswerQuiz={(i, k) => chat.answerQuiz(i, k, (right, q) => `${right ? (lang === 'he' ? 'נכון. ' : 'Correct. ') : (lang === 'he' ? 'לא בדיוק. ' : 'Not quite. ')}${q.explanation[lang]}`)} />
         </div>
-      )}
 
-      {done && !turn.browse && turn.chips && turn.chips.length > 0 && (
-        <div className={styles.followups}>
-          <span className={styles.followupLabel}>
-            {lang === 'he' ? 'להמשיך מכאן' : 'Continue from here'}
-          </span>
-          <div className={styles.chipRow}>
-            {turn.chips.map((chip) => (
-              <button
-                key={chip.id}
-                type="button"
-                className={styles.chip}
-                onClick={() => onAsk(chip.label)}
-              >
-                {chip.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+        <Composer value={draft} onChange={setDraft} onSend={() => { const q = draft; setDraft(''); void chat.send(q); }} pending={chat.pending} placeholder={t('aiPlaceholder')} lang={lang} inputRef={inputRef} />
+        <p className={`meta ${styles.disclaimer}`}>{t('aiDisclaimer')}</p>
+      </section>
+
+      <aside className={`solid ${styles.context}`} aria-label={tx.talking}>
+        <b className="h3">{tx.talking}</b>
+        <div className="ctxCard"><span className={styles.aiIc}><Icon name="book" size={15} /></span><span>{whereLabel ? <>{whereLabel}{whereStep && <> · <b>{whereStep}</b></>}</> : tx.general}</span></div>
+        <span className="label">{tx.knows}</span>
+        <div className={styles.knowRow}><span className="small">{tx.done}</span><b><span className="n">{learningCompleted}</span> {tx.of} <span className="n">{TOTAL_LESSONS}</span></b></div>
+        <div className={styles.knowRow}><span className="small">{tx.curStep}</span><b>{where ? (whereStep ?? where.title[lang]) : tx.none}</b></div>
+        <div className="block caveat"><b className="lead2">{tx.limits} · </b>{tx.limitsBody}</div>
+        <button type="button" className={`btnQuiet ${styles.pushEndCol}`} onClick={() => chat.clearAll()}><Icon name="x" size={14} />{tx.clear}</button>
+      </aside>
     </div>
   );
 }

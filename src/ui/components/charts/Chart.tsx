@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { drawChart, drawPriceRSI, chartColors } from './drawChart.js';
+import { drawChart, drawPriceRSI, chartColors, drawPriceMACD } from './drawChart.js';
 import { useTheme } from '@ui/hooks/useTheme';
 import { useLang } from '@ui/hooks/useLang';
 import styles from './Chart.module.css';
@@ -65,6 +65,20 @@ function resolveChartOptions(options: Record<string, unknown> | undefined, lang:
       label: pick(s.label, lang)
     }));
   }
+  if (Array.isArray(options.links)) {
+    out.links = (options.links as Array<Record<string, unknown>>).map((k) => ({
+      ...k,
+      color: toneLine(k.tone as string),
+      label: pick(k.label, lang)
+    }));
+  }
+  if (Array.isArray(options.subMarks)) {
+    out.subMarks = (options.subMarks as Array<Record<string, unknown>>).map((m) => ({
+      ...m,
+      color: toneLine(m.tone as string),
+      label: pick(m.label, lang)
+    }));
+  }
   if (Array.isArray(options.highlights)) {
     out.highlights = (options.highlights as Array<Record<string, unknown>>).map((h) => ({
       ...h,
@@ -98,7 +112,7 @@ export interface Candle {
 export interface ChartProps {
   candles: Candle[];
   /** Which primitive to use. */
-  variant?: 'price' | 'price-rsi';
+  variant?: 'price' | 'price-rsi' | 'price-macd';
   /** Passed straight through to the drawing primitive. */
   options?: Record<string, unknown>;
   /** Accessible description — canvases are invisible to screen readers
@@ -113,6 +127,8 @@ export interface ChartProps {
    * the chart's internal scale to interpret a click.
    */
   onPriceClick?: (price: number) => void;
+  /** The candle clicked (index into `candles`) — for "when did it happen" exercises. */
+  onIndexClick?: (index: number) => void;
 }
 
 /**
@@ -133,7 +149,7 @@ export interface ChartProps {
  *   · **Accessibility.** A canvas is opaque to assistive tech, so it carries
  *     an explicit role and label.
  */
-export function Chart({ candles, variant = 'price', options, label, height = 320, onPriceClick }: ChartProps) {
+export function Chart({ candles, variant = 'price', options, label, height = 320, onPriceClick, onIndexClick }: ChartProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const tipRef = useRef<HTMLDivElement | null>(null);
   const frame = useRef<number | null>(null);
@@ -183,12 +199,12 @@ export function Chart({ candles, variant = 'price', options, label, height = 320
       if (!ctx) return;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const draw = variant === 'price-rsi' ? drawPriceRSI : drawChart;
+      const draw = variant === 'price-rsi' ? drawPriceRSI : variant === 'price-macd' ? drawPriceMACD : drawChart;
       // The primitive invokes onClick with a price it derived from its own
       // scale, which is exactly the seam the exercises need.
       draw(canvas, tipRef.current, candles, {
         ...resolveChartOptions(options, lang),
-        ...(onPriceClick ? { onClick: onPriceClick } : {})
+        ...(onPriceClick || onIndexClick ? { onClick: (price: number, index: number) => { onPriceClick?.(price); onIndexClick?.(index); } } : {})
       });
     };
 
@@ -212,7 +228,7 @@ export function Chart({ candles, variant = 'price', options, label, height = 320
     };
     // `theme` and `lang` are dependencies because the canvas cannot restyle or
     // relabel itself — it must be repainted.
-  }, [candles, variant, options, height, theme, lang, onPriceClick]);
+  }, [candles, variant, options, height, theme, lang, onPriceClick, onIndexClick]);
 
   return (
     <div className={styles.wrap}>

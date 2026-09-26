@@ -10,6 +10,12 @@ beforeEach(() => {
   __resetChatSessionForTests();
 });
 
+/** From a lesson: open the tutor drawer, then its full-screen link — the way to #/ai from inside a lesson. */
+async function toFullPageFromLesson() {
+  fireEvent.click(screen.getByRole('button', { name: /מורה AI/ }));
+  fireEvent.click(await screen.findByRole('button', { name: 'למסך מלא' }, { timeout: 3000 }));
+}
+
 /**
  * Renders the app and waits for the tutor to be on screen.
  *
@@ -49,7 +55,8 @@ describe('AI tutor route', () => {
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: 'מה זה צלב זהב?' } });
     fireEvent.submit(input.closest('form')!);
-    await waitFor(() => expect(screen.getByText(/צלב זהב/)).toBeTruthy(), { timeout: 3000 });
+    // The question also names the conversation (title + history), so it appears more than once.
+    await waitFor(() => expect(screen.getByRole('log').textContent).toMatch(/צלב זהב/), { timeout: 3000 });
   });
 
   it('a second example differs from the first', async () => {
@@ -102,8 +109,10 @@ describe('the AI tutor is reachable from anywhere', () => {
     }
   });
 
+  // A written lesson has its own tutor button that opens the drawer beside it;
+  // the floating launcher (every other route) goes to the full page.
   it('the launcher navigates to the tutor', () => {
-    location.hash = '#/lesson/l3';
+    location.hash = '#/quiz';
     render(<App />);
     const entries = screen.getAllByRole('button', { name: /מורה AI/ });
     fireEvent.click(entries[entries.length - 1]!);
@@ -116,7 +125,7 @@ describe('the AI tutor is reachable from anywhere', () => {
     // appears in the header nowhere.
     location.hash = '#/';
     render(<App />);
-    const nav = screen.getByRole('navigation', { name: /כלים/ });
+    const nav = screen.getByRole('navigation', { name: /ניווט ראשי/ });
     expect(nav.textContent).not.toMatch(/מורה AI/);
     expect(screen.getAllByRole('button', { name: /מורה AI/ }).length).toBe(1);
   });
@@ -177,17 +186,18 @@ describe('Back returns to where the tutor was opened from', () => {
     // the thing they want to return to.
     location.hash = '#/lesson/l2';
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: /מורה AI/ }));
+    await toFullPageFromLesson();
     cleanup();
     await renderTutor();
     fireEvent.click(screen.getByRole('button', { name: /חזרה לשיעור/ }));
-    expect(location.hash).toBe('#/lesson/l2');
+    // The same lesson, at its curriculum address (l2 now lives at T5).
+    expect(location.hash).toBe('#/lesson/T5');
   });
 
   it('names the lesson it will return to', async () => {
     location.hash = '#/lesson/l6';
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: /מורה AI/ }));
+    await toFullPageFromLesson();
     cleanup();
     await renderTutor();
     expect(screen.getByRole('button', { name: /חזרה לשיעור: RSI/ })).toBeTruthy();
@@ -206,7 +216,7 @@ describe('Back returns to where the tutor was opened from', () => {
   it('never leaves the reader on the tutor route', async () => {
     location.hash = '#/lesson/l5';
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: /מורה AI/ }));
+    await toFullPageFromLesson();
     cleanup();
     await renderTutor();
     fireEvent.click(screen.getByRole('button', { name: /חזרה/ }));
@@ -229,9 +239,11 @@ describe('the conversation survives leaving the AI page and coming back', () => 
     const log = await renderTutor();
     expect(log.textContent).toMatch(/צלב זהב/);
 
-    // New chat is the one thing that is still allowed to clear it.
+    // New chat is the one thing that starts over: the transcript is empty again,
+    // and the previous conversation moves to the history column (Artifact 14.8).
     fireEvent.click(screen.getByRole('button', { name: /התחל שיחה חדשה/ }));
-    expect(screen.queryByText(/צלב זהב/)).toBeNull();
+    expect(screen.getByRole('log').textContent).not.toMatch(/צלב זהב/);
+    expect(screen.getByRole('complementary', { name: 'היסטוריית שיחות' }).textContent).toMatch(/צלב זהב/);
   });
 });
 
@@ -283,12 +295,11 @@ describe('the topic browser scopes its open category per browse turn', () => {
 
 describe('"explain the chart" recognizes the lesson it was opened from', () => {
   it('answers about that lesson\'s own topic, not the generic "scroll to a lesson" fallback', async () => {
-    // l2 is breakout/retest — see lessons.ts.
+    // l2 is breakout/retest — see lessons.ts. Asked in the drawer beside it.
     location.hash = '#/lesson/l2';
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /מורה AI/ }));
-    cleanup();
-    const log = await renderTutor();
+    const log = await screen.findByRole('log', {}, { timeout: 3000 });
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'תסביר לי את הגרף' } });
     fireEvent.submit(screen.getByRole('textbox').closest('form')!);
     await waitFor(

@@ -14,3 +14,9 @@ export declare function drawPriceRSI(
   candles: unknown[],
   opts: Record<string, unknown>
 ): void;
+export declare function drawPriceMACD(
+  canvas: HTMLCanvasElement,
+  tipEl: HTMLElement | null,
+  candles: unknown[],
+  opts: Record<string, unknown>
+): void;

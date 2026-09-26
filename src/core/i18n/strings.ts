@@ -885,6 +885,50 @@ export const STRINGS = {
   "courseName": {
     "en": "Reading the Market",
     "he": "לקרוא את השוק"
+  },
+  "navTracks": {
+    "en": "Tracks",
+    "he": "מסלולים"
+  },
+  "navPractice": {
+    "en": "Practice",
+    "he": "תרגול"
+  },
+  "navTools": {
+    "en": "Tools",
+    "he": "כלים"
+  },
+  "navMainAria": {
+    "en": "Main navigation",
+    "he": "ניווט ראשי"
+  },
+  "toolsNavAria": {
+    "en": "Tools",
+    "he": "כלים"
+  },
+  "langGroupAria": {
+    "en": "Language",
+    "he": "שפה"
+  },
+  "themeGroupAria": {
+    "en": "Theme",
+    "he": "ערכת צבעים"
+  },
+  "themeDark": {
+    "en": "Dark mode",
+    "he": "מצב כהה"
+  },
+  "themeLight": {
+    "en": "Light mode",
+    "he": "מצב בהיר"
+  },
+  "progressChipLessons": {
+    "en": "lessons",
+    "he": "שיעורים"
+  },
+  "progressChipAria": {
+    "en": "Lessons completed",
+    "he": "שיעורים שהושלמו"
   }
 } as const;
 

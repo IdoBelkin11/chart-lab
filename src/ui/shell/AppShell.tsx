@@ -1,37 +1,31 @@
 import type { ReactNode } from 'react';
+import { useRoute } from '@ui/hooks/useRoute';
 import { Header } from './Header';
 import { CourseRail } from './CourseRail';
 import { AiLauncher } from './AiLauncher';
+import { TabBar } from './TabBar';
+import { hasContent } from '@core/curriculum/trackInfo';
 import styles from './AppShell.module.css';
 
 /**
- * The application frame.
+ * The application frame (Artifact: .shell / .work / .rail).
  *
- * Three regions, and only one of them scrolls:
+ *   ┌──────────────────────────┬──────────┐
+ *   │  topbar (glass capsule)  │          │
+ *   ├──────────────────────────┤   rail   │
+ *   │  workspace (scrolls)     │          │
+ *   └──────────────────────────┴──────────┘
  *
- *   ┌──────────────────────┬──────────┐
- *   │  Header              │          │
- *   ├──────────────────────┤  Course  │
- *   │  Workspace (scrolls) │  Rail    │
- *   └──────────────────────┴──────────┘
- *
- * The rail sits at the INLINE-END edge: the left in Hebrew, the right in
- * English. It is second in the DOM as well as last on screen, so reading
- * order and tab order follow what the eye sees — placing it visually last
- * while leaving it first in the markup would make a keyboard user traverse
- * the whole course list before reaching the page they opened.
- *
- * The rail spans the full height with the brand at its top, and the header
- * sits beside it rather than across it — that adjacency is what stops the
- * rail looking sliced off beneath a floating bar.
- *
- * Feature views render inside the workspace, never over the frame. In the
- * previous build they were `position: fixed; inset: 0`, so opening the AI or
- * the quiz painted over the header, brand and rail — which is what made the
- * app feel like a set of separate mini-sites. Here that is structurally
- * impossible: a route simply cannot escape its container.
+ * Only the workspace scrolls. The rail sits at the INLINE-END edge — left in
+ * Hebrew, right in English — and is second in the DOM, so reading order and
+ * tab order follow what the eye sees. Routes render inside the workspace and
+ * can never paint over the frame.
  */
 export function AppShell({ children }: { children: ReactNode }) {
+  const { route, params } = useRoute();
+  // Onboarding, the lesson workspace and the practice questions are full-screen,
+  // with their own bars (Artifact: 04 · Onboarding, 06 · Lesson, 11 · Practice). An unwritten lesson's preview keeps the shell.
+  if (route === 'onboarding' || (route === 'lesson' && hasContent(params.lessonId!)) || (route === 'practice' && params.view === 'run')) return <>{children}</>;
   return (
     <div className={styles.shell}>
       <div className={styles.main}>
@@ -41,10 +35,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
       </div>
       <CourseRail />
-      {/* Outside .main on purpose: it is fixed to the viewport, so nesting it
-          inside a scroll container would only invite a stacking-context bug
-          later. */}
       <AiLauncher />
+      <TabBar />
     </div>
   );
 }

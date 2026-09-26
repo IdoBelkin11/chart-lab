@@ -1,0 +1,11 @@
+/* A visual question's chart, and the lesson's "Apply" check. */
+.qchart { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.qhead { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.qchart > :global(*):last-child { border-radius: 14px; }
+.apply { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 22px; }
+.q { font-size: 15px; line-height: 1.5; }
+.choices { display: flex; flex-direction: column; gap: 8px; }
+.grow { flex-grow: 1; }
+.self { align-self: flex-start; }
+.fbBody { display: flex; flex-direction: column; gap: 4px; flex-grow: 1; }
+.fbBody > :global(.small) { color: var(--text); }

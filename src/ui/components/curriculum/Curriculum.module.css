@@ -1,0 +1,43 @@
+.mono { display: grid; place-items: center; flex: none; font-weight: 800; }
+.art { width: 100%; height: 100%; display: block; }
+
+/* ---- lesson row (Artifact: lessonRow) ---- */
+.row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border-radius: 18px;
+  background: var(--wash);
+}
+.rowCur { background: var(--learn-dim); box-shadow: inset 0 0 0 1.5px var(--learn); }
+.rowDim .rowTitle { color: var(--text-muted); }
+.rowMain {
+  flex-grow: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 3px;
+  border: 0; background: none; padding: 0; font: inherit; color: inherit; text-align: start; cursor: pointer;
+}
+.rowMain:disabled { cursor: not-allowed; }
+.rowTitle { font-size: 15px; font-weight: 560; }
+.rowCur .rowTitle { font-weight: 650; }
+.rowMeta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.rowEnd { min-width: 70px; text-align: end; }
+.proj { color: var(--adv); background: var(--adv-dim); box-shadow: inset 0 0 0 1.5px var(--adv); }
+
+/* ---- track card (Artifact: trackCard) ---- */
+.card {
+  display: flex; flex-direction: column; gap: 14px; padding: 20px;
+  border: 0; font: inherit; color: var(--text); text-align: start; cursor: pointer;
+  transition: transform var(--t-med) var(--ease-out);
+}
+.card:hover { transform: translateY(-2px); }
+.cardLocked { opacity: 0.72; }
+.cardRec { box-shadow: var(--glass-inset), inset 0 0 0 2px var(--learn), var(--glass-shadow); }
+.cardHead { display: flex; align-items: center; gap: 12px; }
+.cardTitle { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex-grow: 1; }
+.cardTitle :global(.h3) { font-size: 17px; }
+.cardDesc { min-height: 40px; }
+.cardStats { display: flex; gap: 14px; font-size: 12px; color: var(--text-faint); flex-wrap: wrap; }
+.cardStats > span { display: inline-flex; gap: 5px; align-items: center; }
+.cardLock { display: flex; align-items: center; gap: 6px; }
+.meterRow { display: flex; align-items: center; gap: 10px; }
+.cardCta { display: flex; justify-content: flex-end; }
+
+@media (prefers-reduced-motion: reduce) { .card:hover { transform: none; } }

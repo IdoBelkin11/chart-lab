@@ -16,8 +16,11 @@ describe('quiz bank ported intact', () => {
   it('every lesson has at least three of its own questions', () => {
     for (const lesson of LESSONS) {
       const own = QUIZ_QUESTIONS.filter((q: QuizQuestion) => q.lesson === lesson.id);
-      expect(own.length, `${lesson.id} own questions`).toBeGreaterThanOrEqual(3);
+      // l6 keeps two: its divergence question moved to T8, where divergence is taught (2026-09-26),
+      // so the old #/quiz/l6 link asks only what the RSI lesson teaches.
+      expect(own.length, `${lesson.id} own questions`).toBeGreaterThanOrEqual(lesson.id === 'l6' ? 2 : 3);
     }
+    expect(QUIZ_QUESTIONS.find((q: QuizQuestion) => q.id === 'q-rsi-3')!.lesson).toBe('T8');
   });
 
   it('a scoped quiz contains ONLY that lesson\'s questions', () => {

@@ -1,6 +1,18 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { App } from '@ui/app/App';
+import { ACTIVITIES } from '@core/lessons/activities';
+import { FOUNDATIONS } from '@core/lessons/content/foundations';
+import { TECHNICAL } from '@core/lessons/content/technical';
+import { T1 } from '@core/lessons/content/t1';
+import { T6 } from '@core/lessons/content/t6';
+import { T7 } from '@core/lessons/content/t7';
+import { T8 } from '@core/lessons/content/t8';
+import { T9 } from '@core/lessons/content/t9';
+import { T10 } from '@core/lessons/content/t10';
+import { T11 } from '@core/lessons/content/t11';
+import { T12 } from '@core/lessons/content/t12';
+import { P8 } from '@core/lessons/content/p7to9';
 import * as series from '@core/charts/series.js';
 import { chartsForLesson, LESSON_CHARTS } from '@core/charts/lessonCharts';
 import { chartColors } from '@ui/components/charts/drawChart.js';
@@ -108,29 +120,42 @@ describe('lesson chart mapping', () => {
     expect(chartsForLesson('l0')).toEqual([]);
   });
 
-  it('every one of the 19 ported series is wired to some lesson', () => {
-    const wiredCandles = new Set(Object.values(LESSON_CHARTS).flat().map((s) => s.candles));
+  it('every series is wired to some lesson chart or lesson activity', () => {
+    const wiredCandles = new Set<unknown>(Object.values(LESSON_CHARTS).flat().map((s) => s.candles));
+    for (const a of Object.values(ACTIVITIES)) if (a.kind === 'chartChoice') wiredCandles.add(a.candles);
+    if (T1.activity?.kind === 'chartChoice') wiredCandles.add(T1.activity.candles);
+    // Lessons written in the content model (Phase 8): their charts, and their comparison lines.
+    // A chart cut before its outcome (T11's questions) is a slice: it starts on the series' own first candle.
+    const firstCandles = new Set<unknown>();
+    for (const s of [...FOUNDATIONS, T1, ...TECHNICAL, T6, T7, T8, T9, T10, T11, T12, P8].flatMap((c) => c.charts)) {
+      wiredCandles.add(s.candles);
+      firstCandles.add((s.candles as unknown[])[0]);
+      for (const l of (s.options?.extraLines as Array<{ values: unknown }> | undefined) ?? []) wiredCandles.add(l.values);
+    }
     const arrays = Object.keys(series).filter((k) => Array.isArray((series as never)[k]));
     for (const key of arrays) {
-      expect(wiredCandles.has((series as never)[key]), key).toBe(true);
+      const arr = (series as never)[key] as unknown[];
+      expect(wiredCandles.has(arr) || firstCandles.has(arr[0]), key).toBe(true);
     }
   });
 });
 
 describe('chart rendering', () => {
   it('renders a labelled canvas, not an opaque one', () => {
-    location.hash = '#/lesson/l1';
+    location.hash = '#/lesson/l4';
     render(<App />);
-    // Every chart on the lesson, not just the first: a canvas is invisible to
-    // assistive tech, so one unlabelled chart among several is one chart that
-    // does not exist for part of the audience.
-    const imgs = screen.getAllByRole('img');
-    expect(imgs.length).toBeGreaterThan(1);
+    // The lesson's examples step shows all five charts. Every one is checked,
+    // not just the first: a canvas is invisible to assistive tech, so one
+    // unlabelled chart among several is one chart that does not exist for
+    // part of the audience.
+    fireEvent.click(screen.getByRole('button', { name: 'חמש תבניות' }));
+    const imgs = screen.getAllByRole('img').filter((el) => el.tagName === 'CANVAS');
+    expect(imgs.length).toBe(5);
     for (const img of imgs) {
       expect(img.tagName).toBe('CANVAS');
       expect(img.getAttribute('aria-label')!.length).toBeGreaterThan(20);
     }
-    expect(imgs[0]!.getAttribute('aria-label')).toMatch(/תמיכה|התנגדות/);
+    expect(imgs[0]!.getAttribute('aria-label')).toMatch(/פטיש/);
   });
 
   it('a lesson with no chart (l0) simply has no analysis workspace section', () => {
@@ -140,12 +165,11 @@ describe('chart rendering', () => {
     expect(screen.queryByText('סביבת ניתוח')).toBeNull();
   });
 
-  it('a lesson with several charts renders one canvas per chart', () => {
-    location.hash = '#/lesson/l4';
+  it('a single-chart step labels its chart by what it shows', () => {
+    location.hash = '#/lesson/l1';
     render(<App />);
-    // 5 candlestick patterns: hammer, shooting star, doji, bullish and
-    // bearish engulfing.
-    expect(screen.getAllByRole('img').length).toBe(5);
+    const canvas = screen.getAllByRole('img').find((el) => el.tagName === 'CANVAS')!;
+    expect(canvas.getAttribute('aria-label')).toMatch(/תמיכה|התנגדות/);
   });
 });
 

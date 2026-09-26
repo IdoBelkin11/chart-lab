@@ -1,26 +1,25 @@
-/* The frame. The page itself never scrolls — only .workspace does.
-   100dvh so collapsing mobile browser chrome cannot clip the shell. */
-/* Workspace first, rail second — the rail lands at the inline-end edge, which
-   is the left in Hebrew and the right in English. Because grid follows
-   document order here, no explicit placement is needed and the DOM order
-   already matches the visual one. */
+/* The frame. The page never scrolls — only .workspace does. 100dvh so a
+   collapsing mobile browser bar cannot clip the shell. Flex row in document
+   order: workspace first, rail second, which puts the rail at the inline-end
+   edge in both directions without any explicit placement. */
 .shell {
   height: 100dvh;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
   overflow: hidden;
 }
 
 .main {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  flex-grow: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
-  overflow: hidden;
 }
 
 /* The single scroll region in the product. */
 .workspace {
   position: relative;
+  flex-grow: 1;
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
@@ -30,25 +29,11 @@
 }
 .workspace::-webkit-scrollbar { width: 9px; }
 .workspace::-webkit-scrollbar-track { background: transparent; }
-.workspace::-webkit-scrollbar-thumb {
-  background: var(--line);
-  border-radius: var(--r-full);
-  border: 2px solid var(--canvas);
-}
+.workspace::-webkit-scrollbar-thumb { background: var(--line); border-radius: var(--r-full); border: 2px solid var(--canvas); }
 .workspace::-webkit-scrollbar-thumb:hover { background: var(--line-strong); }
 
-/* Below the desktop breakpoint the rail collapses to a single column layout.
-   It stays VISIBLE rather than hiding behind a toggle — per the product
-   decision that the course roadmap is permanent context, not a menu. On
-   narrow screens it becomes a horizontal strip above the workspace. */
-@media (max-width: 900px) {
-  .shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
-  /* The rail is SECOND in the DOM — which is what puts it at the inline-end
-     edge on a wide screen, and what keeps tab order following the eye. Left to
-     auto-placement in a two-row grid that same order dropped it into row 2,
-     below a workspace that fills the viewport: the course roadmap was not a
-     strip above the page, it was off the bottom of the screen entirely, on
-     every narrow window. Pinning the workspace to row 2 hands the rail row 1
-     without reordering the markup. */
-  .main { grid-row: 2; }
+
+/* Phone: room at the bottom for the tab bar. */
+@media (max-width: 760px) {
+  .workspace { padding-bottom: 96px; }
 }

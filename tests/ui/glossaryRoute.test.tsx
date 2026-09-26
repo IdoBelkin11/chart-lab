@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup, within } from '@testing-library/react';
 import { App } from '@ui/app/App';
 import { GLOSSARY } from '@core/glossary/terms';
 
@@ -22,8 +22,10 @@ describe('glossary page', () => {
     render(<App />);
     const groups = document.querySelectorAll('dl');
     expect(groups.length).toBeGreaterThan(1);
-    expect(screen.getByText('יסודות השוק')).toBeTruthy();
-    expect(screen.getByText('ניתוח טכני')).toBeTruthy();
+    // Scoped to the page itself: the rail lists tracks with the same names.
+    const page = within(screen.getByRole('main'));
+    expect(page.getByText('יסודות השוק')).toBeTruthy();
+    expect(page.getByText('ניתוח טכני')).toBeTruthy();
   });
 
   it('filters by the term itself', () => {
@@ -52,7 +54,8 @@ describe('glossary page', () => {
   it('is reachable from the header on another route', () => {
     location.hash = '#/';
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: 'מילון' }));
+    // A section in the topbar is a link (it navigates), not a button.
+    fireEvent.click(screen.getByRole('link', { name: 'מילון' }));
     expect(location.hash).toBe('#/glossary');
   });
 

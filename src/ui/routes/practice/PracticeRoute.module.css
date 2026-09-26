@@ -1,0 +1,84 @@
+/* Track practice (Artifact: 11 · Practice). Entry and results sit in the shell;
+   the question view reuses the lesson workspace's frame (LessonWorkspace.module.css). */
+.page { width: 100%; max-width: var(--content-max); margin-inline: auto; padding: 26px 36px 96px; display: flex; flex-direction: column; gap: 20px; }
+.crumbs { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-faint); }
+.crumbs a { color: var(--text-faint); text-decoration: none; }
+.crumbs a:hover { color: var(--text); }
+.crumbs [aria-current] { color: var(--text); }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 20px; align-items: start; }
+.main { border-radius: 32px; padding: 30px; display: flex; flex-direction: column; gap: 18px; }
+.result { padding: 32px; align-items: flex-start; }
+.headRow { display: flex; align-items: center; gap: 14px; }
+.title { font-size: 32px; }
+.selfStart { align-self: flex-start; }
+.stack { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.stack6 { display: flex; flex-direction: column; gap: 6px; }
+.stats4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.stats4 > div { padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+.stats4 b { font-size: 19px; }
+.learnIc { color: var(--learn); display: inline-grid; }
+.mutedIc { color: var(--text-muted); display: inline-grid; }
+.actions { margin-top: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+.side { border-radius: 32px; padding: 20px; display: flex; flex-direction: column; gap: 6px; }
+.sideHead { display: flex; justify-content: space-between; align-items: center; padding: 0 12px 8px; }
+.qRow { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 9px 12px; border-radius: 12px; }
+.qRow[data-todo] { color: var(--text-muted); }
+.qTitle { font-size: 13.5px; }
+.type { display: inline-flex; gap: 6px; align-items: center; }
+
+/* question view */
+.pdots { display: flex; gap: 4px; margin-inline: auto; width: min(380px, 30vw); }
+.pdots > i { flex: 1; height: 8px; border-radius: 99px; background: var(--sunk); box-shadow: inset 0 0 0 1px var(--hair); }
+.pdots > i.ok { background: var(--ok); box-shadow: none; }
+.pdots > i.err { background: var(--err); box-shadow: none; }
+.pdots > i.cur { background: var(--learn-fill); box-shadow: 0 0 0 3px var(--learn-dim); }
+.qhead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.qn { font-size: 12px; font-weight: 700; color: var(--text-faint); }
+.qH { font-size: 25px; line-height: 1.3; }
+.choices { display: flex; flex-direction: column; gap: 8px; }
+.grow { flex-grow: 1; }
+.fbBody { display: flex; flex-direction: column; gap: 4px; flex-grow: 1; }
+.fbBody > b { font-size: 15px; }
+.fbBody > :global(.small) { color: var(--text); }
+
+/* results */
+.scoreRow { display: flex; align-items: center; gap: 22px; }
+.scoreBar { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.barHead { display: flex; justify-content: space-between; }
+.track { position: relative; height: 14px; border-radius: 99px; background: var(--sunk); }
+.track > span { display: block; height: 100%; border-radius: 99px; }
+.track > i { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--text); }
+.stats3 { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.stats3 > div { padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+.miss { padding: 14px 16px; display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.missMark { width: 28px; height: 28px; border-radius: 99px; display: grid; place-items: center; background: var(--err); color: #2b060b; }
+:root[data-theme='light'] .missMark { color: #fff; }
+.missTitle { font-size: 14px; }
+.allGrid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.cell { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: 14px; background: var(--err-dim); color: var(--err); }
+.cell[data-ok='true'] { background: var(--ok-dim); color: var(--ok); }
+.cell > b { font-size: 13px; color: var(--text); }
+
+@media (max-width: 980px) {
+  .grid, .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .stats4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .page { padding: 16px 16px 110px; }
+  .main, .result { padding: 20px; border-radius: 26px; }
+  .title { font-size: 24px; }
+  /* 15.6: the score centred, the lessons to revisit below it. */
+  .result { align-items: center; text-align: center; }
+  .scoreRow { flex-direction: column; align-items: center; gap: 14px; }
+  .result .actions { justify-content: center; }
+  .stats3 { grid-template-columns: minmax(0, 1fr); }
+  .pdots { width: auto; flex-grow: 1; }
+  .qH { font-size: 21px; }
+  .allGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* Phone: the phone bar names the way back, so the breadcrumbs would repeat it. */
+@media (max-width: 760px) { .crumbs { display: none; } }

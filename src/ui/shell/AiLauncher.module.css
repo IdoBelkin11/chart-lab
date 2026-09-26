@@ -1,107 +1,48 @@
-/* The floating tutor launcher.
-
-   Fixed to the viewport rather than the workspace, so it does not scroll away
-   half-way down a long lesson — the moment a reader most wants to ask
-   something is usually mid-lesson, not at the top of it. */
+/* The tutor launcher (Artifact: .launcher.glass + .aiMark). Fixed to the
+   viewport so it never scrolls away mid-lesson — the moment a reader most
+   wants to ask something — and pinned to the inline-START corner, opposite
+   the rail. A glass capsule rather than a filled button: it is a persistent
+   shortcut and must never outrank the page's one primary (gold) action. */
 .launcher {
   position: fixed;
-  inset-block-end: var(--s-5);
-  /* Inline-START, opposite the course rail. The rail moved to the inline-end
-     edge (see AppShell), and a launcher pinned to that same edge lands on top
-     of the lesson list. */
-  inset-inline-start: var(--s-5);
+  inset-block-end: 20px;
+  inset-inline-start: 20px;
   z-index: 40;
-
   display: inline-flex;
   align-items: center;
-  gap: var(--s-2);
-  padding: 12px 20px;
-  border: 1px solid transparent;
-  border-radius: var(--r-btn);
-
-  /* Glass, tinted with the informational accent — deliberately NOT the action
-     fill. The sapphire marks the one primary action on a page, and this is a
-     persistent global shortcut that must never outrank it. Sharing the
-     shell's material is also what makes it read as part of the product rather
-     than a widget dropped on top of it. (It was a blue-to-teal gradient, left
-     over from the palette before the sapphire.) */
-  background:
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05)),
-    var(--accent-dim);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  gap: 9px;
+  min-height: 46px;
+  padding-block: 0;
+  padding-inline: 8px 18px;
+  border: 0;
+  border-radius: var(--r-pill);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 650;
   color: var(--text);
-
-  font-family: inherit;
-  font-size: var(--fs-sm);
-  font-weight: 600;
   cursor: pointer;
-
-  box-shadow:
-    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.38),
-    inset 0 -1px 0 0 rgba(0, 0, 0, 0.10),
-    inset 0 0 0 1px var(--glass-border),
-    var(--glass-shadow);
-  transition: transform var(--t-med) var(--ease-spring),
-              box-shadow var(--t-med) var(--ease),
-              filter var(--t-fast);
+  transition: transform var(--t-med) var(--ease-spring), filter var(--t-fast);
   animation: launcherIn var(--t-slow) var(--ease-spring) both;
 }
+.launcher:hover { transform: translateY(-2px); filter: brightness(1.06); }
+.launcher:active { transform: translateY(0) scale(0.98); }
 
-/* The sheen rides on top of the tinted fill. */
-.launcher::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(to bottom,
-    rgba(255, 255, 255, 0.20),
-    rgba(255, 255, 255, 0) 58%);
-  pointer-events: none;
+.mark {
+  width: 32px; height: 32px; border-radius: 99px;
+  display: grid; place-items: center; flex: none;
+  background: var(--ai-grad); color: var(--ai-ink);
 }
-.glyph, .text { position: relative; z-index: 1; }
-
-.launcher:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow:
-    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.5),
-    inset 0 -1px 0 0 rgba(0, 0, 0, 0.10),
-    inset 0 0 0 1px var(--glass-border),
-    var(--glass-shadow),
-    0 0 34px -10px var(--accent-glow);
-}
-.launcher:active { transform: translateY(0) scale(0.97); }
-.launcher:focus-visible { outline: none; box-shadow: var(--ring), var(--e-3); }
-
-/* This button's background is its own accent-tinted mix rather than
-   --glass-bg (see the comment above it), so the global --glass-bg override in
-   tokens.css does not reach it — the central fix zeroes --glass-blur, which
-   already stops the button from sampling the field behind it, but the fill
-   itself is still low-alpha. Opaque it explicitly. */
-@media (prefers-reduced-transparency: reduce) {
-  .launcher {
-    background: linear-gradient(to bottom,
-      color-mix(in srgb, var(--accent) 22%, var(--surface-2)),
-      color-mix(in srgb, var(--accent) 14%, var(--surface)));
-  }
-}
-
-.glyph { flex: none; width: 15px; height: 15px; }
 .text { white-space: nowrap; }
+.ctx { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 @keyframes launcherIn {
   from { opacity: 0; transform: translateY(12px) scale(0.94); }
   to   { opacity: 1; transform: none; }
 }
 
-/* On a narrow screen it collapses to the mark alone. The accessible name is
-   on the button itself, so nothing is lost by hiding the visible text. */
-@media (max-width: 620px) {
-  .launcher { padding: 13px; }
-  .text { display: none; }
-  .glyph { width: 18px; height: 18px; }
+@media (max-width: 1100px) {
+  .ctx { display: none; }
 }
-
 @media (prefers-reduced-motion: reduce) {
   .launcher { animation: none; }
   .launcher:hover { transform: none; }

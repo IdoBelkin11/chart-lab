@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { App } from '@ui/app/App';
-import { LESSONS } from '@core/lessons/lessons';
+import { TRACKS, lessonById, lessonsOf } from '@core/curriculum/curriculum';
 
 beforeEach(() => {
   localStorage.clear();
@@ -13,13 +13,22 @@ beforeEach(() => {
 });
 
 describe('global shell', () => {
-  it('renders the rail with every lesson, always open', () => {
+  it('renders the rail with every track, always open', () => {
     render(<App />);
     // No toggle to press: the roadmap is permanent context.
     expect(screen.queryByRole('button', { name: /roadmap|מסלול הקורס/i })).toBeNull();
-    for (const lesson of LESSONS) {
-      expect(screen.getAllByText(lesson.navLabel.he).length).toBeGreaterThan(0);
-    }
+    const rail = within(screen.getByRole('navigation', { name: 'המסלולים שלי' }));
+    for (const t of TRACKS) expect(rail.getByText(t.title.he)).toBeTruthy();
+  });
+
+  // A written lesson opens full screen (its own lesson bar, no rail); an
+  // unwritten one's preview sits in the shell with the track's lesson list.
+  it("beside a lesson preview, the rail lists that track's lessons", () => {
+    location.hash = '#/lesson/R2';
+    render(<App />);
+    const rail = within(screen.getByRole('navigation', { name: 'שיעורי המסלול' }));
+    expect(rail.getAllByRole('button').length).toBe(lessonsOf('R').length);
+    expect(rail.getByRole('button', { current: true })).toBeTruthy();
   });
 
   it('has no redundant Overview control — the brand is the way home', () => {
@@ -43,21 +52,22 @@ describe('global shell', () => {
 
 describe('routing', () => {
   it('opens a lesson and shows its authored title', () => {
-    location.hash = '#/lesson/l3';
+    location.hash = '#/lesson/l5';
     render(<App />);
-    expect(screen.getByText(LESSONS[3]!.title.he)).toBeTruthy();
+    // The previous build's l5 is T9 now.
+    expect(screen.getAllByText(lessonById('T9')!.title.he).length).toBeGreaterThan(0);
   });
 
   it('honours legacy bare-id deep links', () => {
-    location.hash = '#l6';
+    location.hash = '#l7';
     render(<App />);
-    expect(screen.getByText(LESSONS[6]!.title.he)).toBeTruthy();
+    expect(screen.getAllByText(lessonById('T10')!.title.he).length).toBeGreaterThan(0);
   });
 
   it('falls back home on an unknown route', () => {
     location.hash = '#/nonsense';
     render(<App />);
-    expect(screen.getByText(/lessons completed|שיעורים הושלמו/)).toBeTruthy();
+    expect(within(screen.getByRole('main')).getByRole('heading', { level: 1, name: /Welcome to Chart Lab|ברוכים הבאים לצ׳ארט לאב/ })).toBeTruthy();
   });
 });
 
@@ -70,13 +80,13 @@ describe('progress', () => {
     expect(stored.completed ?? []).not.toContain('l1');
   });
 
-  it('marking complete persists and toggles back', () => {
+  it('finishing a lesson persists, and can be undone', () => {
     location.hash = '#/lesson/l1';
     render(<App />);
-    const btn = screen.getByRole('button', { name: /סמן כהושלם|Mark as complete/ });
-    fireEvent.click(btn);
+    fireEvent.click(within(screen.getByRole('navigation', { name: 'שלבי השיעור' })).getByRole('button', { name: '3 דברים לזכור' }));
+    fireEvent.click(screen.getByRole('button', { name: /סיום השיעור/ }));
     expect(JSON.parse(localStorage.getItem('chartlab.lessonProgress')!).completed).toContain('l1');
-    fireEvent.click(screen.getByRole('button', { name: /הושלם|Completed/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'ביטול סימון ההשלמה' }));
     expect(JSON.parse(localStorage.getItem('chartlab.lessonProgress')!).completed).not.toContain('l1');
   });
 });
@@ -86,15 +96,19 @@ describe('language and theme are global', () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: 'EN' }));
     expect(document.documentElement.dir).toBe('ltr');
-    fireEvent.click(screen.getByRole('button', { name: 'HE' }));
+    // The Hebrew button carries its own name, as the approved design labels it.
+    fireEvent.click(screen.getByRole('button', { name: 'עב' }));
     expect(document.documentElement.dir).toBe('rtl');
   });
 
   it('theme toggles and persists', () => {
     render(<App />);
+    // Two buttons, dark and light; pressing the one not in use switches.
     const before = document.documentElement.dataset.theme;
-    fireEvent.click(screen.getByRole('button', { name: /Toggle light\/dark|מעבר בין מצב/ }));
+    const other = before === 'light' ? /מצב כהה/ : /מצב בהיר/;
+    fireEvent.click(screen.getByRole('button', { name: other }));
     expect(document.documentElement.dataset.theme).not.toBe(before);
+    expect(screen.getByRole('button', { name: other }).getAttribute('aria-pressed')).toBe('true');
     expect(localStorage.getItem('chartlab.theme')).toBe(document.documentElement.dataset.theme);
   });
 });

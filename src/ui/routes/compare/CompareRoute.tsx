@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { lookupStock } from '@core/ai/market/stockLookup';
 import type { StockSnapshot } from '@core/ai/market/stockLookup';
 import { useLang } from '@ui/hooks/useLang';
+import { ToolCrumbs } from '@ui/routes/tools/ToolCrumbs';
 import styles from './CompareRoute.module.css';
 
 type State =
@@ -78,6 +79,7 @@ export function CompareRoute() {
 
   return (
     <div className={styles.page}>
+      <ToolCrumbs here={t('navCompare')} />
       <div className={styles.head}>
         <h1 className={styles.title}>{t('navCompare')}</h1>
       </div>

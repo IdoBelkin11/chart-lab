@@ -15,3 +15,7 @@ firebase-debug.log
 
 # Editor / OS noise
 .DS_Store
+
+
+# Artifact canvas staging — outside git history, not a build output
+.artifact-canvas/

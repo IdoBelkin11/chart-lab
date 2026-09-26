@@ -1,0 +1,10 @@
+/* The phone's top bar (Artifact 15: .mTop / .mBack). */
+.bar { flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; padding: 12px 12px 6px; min-height: 58px; }
+.root { display: flex; padding: 14px 18px 4px; }
+.rootTitle { font-size: 22px; }
+.back { justify-self: start; display: inline-flex; align-items: center; gap: 4px; min-height: 44px; max-width: 100%; padding: 0 8px; border: 0; border-radius: var(--r-pill); background: none; font: inherit; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+.back:hover { background: var(--wash); color: var(--text); }
+.backLabel { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.title { font-size: 14px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46vw; }
+.ai { justify-self: end; width: 40px; height: 40px; background: var(--ai-grad); color: #06222b; }
+:root[data-theme='light'] .ai { color: #fff; }

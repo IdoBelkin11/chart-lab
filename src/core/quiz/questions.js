@@ -278,7 +278,9 @@ export const QUIZ_QUESTIONS = [
     explanation:{ he:'במגמת עלייה מתמשכת RSI יכול להישאר מעל 70 לאורך זמן רב, כפי שהדוגמה הראשונה בפרק מראה. הזזת הרמות מקטינה את מספר האיתותים המוקדמים.', en:'In a sustained rally RSI can stay above 70 for a long stretch, as the first example in this chapter shows. Shifting the thresholds cuts down the number of premature signals.' }
   },
   {
-    id:'q-rsi-3', lesson:'l6', category:'technical', difficulty:'intermediate',
+    // Divergence is taught in T8 (decided 2026-09-26), not in the RSI lesson — so the
+    // question lives there: the old #/quiz/l6 link no longer asks it before it is taught.
+    id:'q-rsi-3', lesson:'T8', category:'technical', difficulty:'intermediate',
     question:{ he:'מהו דיוורגנס שלילי (Bearish Divergence) בין מחיר ל-RSI?', en:'What is bearish divergence between price and RSI?' },
     options:[
       { key:'a', text:{ he:'המחיר קובע שיא גבוה יותר, אבל ה-RSI קובע שיא נמוך יותר', en:'Price makes a higher high, but RSI makes a lower high' } },

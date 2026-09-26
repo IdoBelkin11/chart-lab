@@ -4,8 +4,10 @@ import { App } from '@ui/app/App';
 import { LESSONS } from '@core/lessons/lessons';
 import { LESSON_PROSE, proseFor } from '@core/lessons/prose';
 import { LESSON_CHARTS } from '@core/charts/lessonCharts';
-import { layoutChartCards, preferredSpan } from '@core/charts/cardLayout';
 import { annotationsFor } from '@core/lessons/exercises';
+import { WORKSPACE } from '@core/lessons/workspace';
+import { LEGACY_TO_LESSON, lessonById } from '@core/curriculum/curriculum';
+import { lessonContent } from '@core/lessons/content';
 
 beforeEach(() => {
   cleanup();
@@ -24,6 +26,12 @@ beforeEach(() => {
  */
 const wholeParagraph = (text: string) => (_: string, el: Element | null) =>
   el?.tagName === 'P' && el.textContent === text;
+
+/** Opens a lesson step from the lesson bar's loop, by the step's own name. */
+function openStep(lessonId: string, index: number) {
+  const name = lessonById(lessonId)!.steps!.he[index]!;
+  fireEvent.click(within(screen.getByRole('navigation', { name: 'שלבי השיעור' })).getByRole('button', { name }));
+}
 
 describe('lesson prose ported verbatim', () => {
   it('every lesson has authored prose', () => {
@@ -47,22 +55,43 @@ describe('lesson prose ported verbatim', () => {
   });
 });
 
-describe('lesson page renders its content', () => {
-  it('shows the intro and the deeper block together, nothing collapsed', () => {
-    location.hash = '#/lesson/l1';
+describe('the lesson workspace carries the authored content', () => {
+  // The 7-step workspace (approved design) spreads a lesson over steps rather
+  // than one long page. Nothing is gated: every step opens from the loop.
+  it('step 1 is the intro, step 2 the "worth knowing" block, both in full', () => {
+    // F1 is the one lesson still read through the previous build's adapter.
+    location.hash = '#/lesson/l0';
     render(<App />);
-    const prose = proseFor('l1')!;
+    const prose = proseFor('l0')!;
     expect(screen.getByText(wholeParagraph(prose.intro.he))).toBeTruthy();
-    // The collapse control was removed — both blocks are visible at once.
+    openStep('F1', 1);
     expect(screen.getByText(wholeParagraph(prose.deeper.he))).toBeTruthy();
     expect(screen.getByText('כדאי לדעת')).toBeTruthy();
   });
 
   it('switches prose language without losing the lesson', () => {
     localStorage.setItem('chartlab.lang', 'en');
-    location.hash = '#/lesson/l2';
+    location.hash = '#/lesson/l0';
     render(<App />);
-    expect(screen.getByText(wholeParagraph(proseFor('l2')!.intro.en))).toBeTruthy();
+    expect(screen.getByText(wholeParagraph(proseFor('l0')!.intro.en))).toBeTruthy();
+  });
+
+  it('every step of every written lesson names itself after its content, not the pedagogy', () => {
+    const generic = /^(לומדים|מבינים|דוגמה|מנסים|משוב|מסכמים|ממשיכים)$/;
+    for (const [legacy, id] of Object.entries(LEGACY_TO_LESSON)) {
+      const steps = lessonById(id)!.steps!;
+      expect(steps.he.length, legacy).toBe(7);
+      expect(steps.en.length, legacy).toBe(7);
+      for (const s of steps.he) expect(s, `${id}: ${s}`).not.toMatch(generic);
+    }
+  });
+
+  it('every step a lesson plan points at is a chart that exists', () => {
+    for (const [legacy, plan] of Object.entries(WORKSPACE)) {
+      const n = LESSON_CHARTS[legacy]?.length ?? 0;
+      for (const i of plan.charts.flat()) expect(i, legacy).toBeLessThan(n);
+      if (plan.notesStep !== undefined) expect(annotationsFor(legacy), legacy).toBeTruthy();
+    }
   });
 });
 
@@ -91,27 +120,19 @@ describe('chart coverage', () => {
 });
 
 describe('chart cards', () => {
-  it('each chart is a captioned card, not a bare canvas', () => {
+  it('a many-chart lesson shows each chart captioned with its own name', () => {
     location.hash = '#/lesson/l4';
     render(<App />);
-    // A five-chart lesson: the pattern name has to be attached to its own
-    // chart. Previously it was a 12px caption floating above a full-width
-    // canvas, so label and chart read as unrelated.
+    openStep('T2', 2);
+    // Five candlestick patterns in the examples step: the pattern name has to
+    // be attached to its own chart, not float above a row of canvases.
     const cards = screen.getAllByRole('figure');
     expect(cards.length).toBe(5);
-    // getAllByText, not getByText: each pattern name appears twice on
-    // purpose — once as the card's caption and once as the label drawn on
-    // the chart itself. Asserting a single match would be asserting that the
-    // on-chart label is missing.
-    expect(screen.getAllByText(/פטיש/).length).toBeGreaterThan(0);
-    // The caption specifically must live inside the card, next to its own
-    // chart, which is the whole point of the card.
     expect(cards[0]!.textContent).toMatch(/פטיש/);
     expect(cards[1]!.textContent).toMatch(/כוכב נופל/);
   });
 
   it('every lesson that teaches from charts shows more than one', () => {
-    // This replaces a pair of tests that used l3 as "the single-chart lesson".
     // l1, l3 and l5 each had exactly one example, which meant the three
     // concepts hardest to believe from one picture — that a level is an area
     // and not a line, that a moving average is meaningless without a trend,
@@ -123,10 +144,14 @@ describe('chart cards', () => {
     }
   });
 
+  it('every chart the lesson has is shown on some step', () => {
+    for (const [legacy, specs] of Object.entries(LESSON_CHARTS)) {
+      const shown = new Set(WORKSPACE[legacy]!.charts.flat());
+      specs.forEach((_, i) => expect(shown.has(i), `${legacy} chart ${i} never shown`).toBe(true));
+    }
+  });
+
   it('charts are sized per content, not one height for all', () => {
-    // A 20-candle single-pattern illustration needs far less vertical room
-    // than a 260-candle trend; giving both the same height is what made the
-    // candlestick charts feel enormous next to the one candle they point at.
     const heights = Object.values(LESSON_CHARTS).flat().map((s) => s.height);
     expect(heights.every((h) => typeof h === 'number')).toBe(true);
     expect(new Set(heights).size).toBeGreaterThan(1);
@@ -146,8 +171,8 @@ describe('chart cards', () => {
 
 describe('moving-averages lesson explains both of its lines', () => {
   it('has a note for the 150 as well as the 20', () => {
-    // The purple 150 line was drawn but never explained — the legend only
-    // covered the 20, so one of the two lines on screen was unaccounted for.
+    // The 150 line was drawn but never explained — the legend only covered
+    // the 20, so one of the two lines on screen was unaccounted for.
     const notes = annotationsFor('l3');
     expect(notes).toBeTruthy();
     expect(notes!.notes.length).toBeGreaterThanOrEqual(2);
@@ -157,82 +182,39 @@ describe('moving-averages lesson explains both of its lines', () => {
   });
 });
 
-describe('finishing the course', () => {
-  it('the last lesson offers Finish, and cannot page forward', () => {
-    location.hash = '#/lesson/l7';
-    render(<App />);
-    expect(screen.getByRole('button', { name: /סיים את הקורס/ })).toBeTruthy();
-    // The forward arrow is DISABLED rather than removed. Removing it used to
-    // need an empty spacer element to stop the page count sliding off centre
-    // — a placeholder holding a hole open. Keeping the real control and
-    // disabling it says the same thing to a screen reader and needs no
-    // phantom sibling.
-    const forward = screen.getByRole('button', { name: /שיעור הבא/ }) as HTMLButtonElement;
-    expect(forward.disabled).toBe(true);
-  });
-
-  it('Finish is locked until every chapter is complete', () => {
-    location.hash = '#/lesson/l7';
-    render(<App />);
-    const finish = screen.getByRole('button', { name: /סיים את הקורס/ }) as HTMLButtonElement;
-    expect(finish.disabled).toBe(true);
-    // The locked state says how many remain rather than only going grey.
-    expect(finish.getAttribute('aria-label')).toMatch(/נותרו/);
-  });
-
-  it('Finish unlocks and celebrates once all chapters are complete', () => {
-    localStorage.setItem(
-      'chartlab.lessonProgress',
-      JSON.stringify({ completed: LESSONS.map((l) => l.id), visited: [], lastVisited: null })
-    );
-    location.hash = '#/lesson/l7';
-    render(<App />);
-    const finish = screen.getByRole('button', { name: /סיים את הקורס/ }) as HTMLButtonElement;
-    expect(finish.disabled).toBe(false);
-    fireEvent.click(finish);
-    expect(screen.getByRole('dialog')).toBeTruthy();
-    expect(screen.getByText(/סיימת את הלימוד הבסיסי/)).toBeTruthy();
-  });
-
-  it('a middle lesson still pages forward normally', () => {
-    location.hash = '#/lesson/l3';
-    render(<App />);
-    const forward = screen.getByRole('button', { name: /שיעור הבא/ }) as HTMLButtonElement;
-    expect(forward.disabled).toBe(false);
-    expect(screen.queryByRole('button', { name: /סיים את הקורס/ })).toBeNull();
-  });
-
-  it('the primary action names the chapter it leads to, not just "next"', () => {
-    // The pager arrow and the primary button do the same thing, so if they
-    // also read the same they are two controls saying one word. The button
-    // carries the destination; that is what makes it worth its weight.
-    location.hash = '#/lesson/l3';
-    const { container } = render(<App />);
-    const next = LESSONS[LESSONS.findIndex((l) => l.id === 'l3') + 1]!;
-    // Scoped to the footer: the rail lists every chapter by the same label, so
-    // an unscoped query matches the roadmap entry too.
-    const footer = container.querySelector('footer')!;
-    expect(within(footer).getByRole('button', { name: new RegExp(next.navLabel.he) })).toBeTruthy();
-  });
-});
-
-describe('chart cards lay out as a grid, not one per screen', () => {
-  it('a multi-chart lesson uses the grid track, not a stacked column', () => {
-    location.hash = '#/lesson/l4';
-    const { container } = render(<App />);
-    const stack = container.querySelector('[class*="cardStack"]')!;
-    expect(stack).toBeTruthy();
-    // A single full-width card per chart turned five candlestick examples
-    // into five screens of scrolling, and stretched each chart far wider
-    // than the one candle it points at.
-    expect(stack.className).not.toMatch(/cardStackSingle/);
-  });
-
-  it('the card carrying the practice panel spans the whole row', () => {
+describe('finishing a lesson', () => {
+  // Replaces the previous build's "Finish the course" (8 chapters). The course
+  // is now 6 tracks; a lesson completes at its takeaway step and hands over to
+  // the next lesson by name. Finishing a whole track is the track's practice.
+  it('the takeaway step completes the lesson and names the next one', () => {
     location.hash = '#/lesson/l1';
     render(<App />);
-    const figure = screen.getAllByRole('figure')[0]!;
-    expect(figure.className).toMatch(/spanFull/);
+    openStep('T4', 5);
+    fireEvent.click(screen.getByRole('button', { name: /סיום השיעור/ }));
+    expect(screen.getByText('השיעור הושלם')).toBeTruthy();
+    const v2 = JSON.parse(localStorage.getItem('chartlab.learning.v2')!);
+    expect(v2.lessons.T4.completed).toBe(true);
+    // The previous build's record is kept in step, so nothing reading it breaks.
+    expect(JSON.parse(localStorage.getItem('chartlab.lessonProgress')!).completed).toContain('l1');
+    fireEvent.click(within(screen.getByRole('contentinfo')).getByRole('button', { name: /לשיעור הבא/ }));
+    expect(location.hash).toBe('#/lesson/T5');
+  });
+
+  it("the track's last lesson hands over to track practice, not to another lesson", () => {
+    location.hash = '#/lesson/T12';
+    render(<App />);
+    openStep('T12', 5);
+    expect(screen.getByText(/זה השיעור האחרון במסלול — הצעד הבא הוא תרגול המסלול/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /סיום השיעור/ }));
+    expect(screen.queryByText(/בקרוב/)).toBeNull();
+  });
+
+  it('opens where the learner left off', () => {
+    localStorage.setItem('chartlab.learning.v2', JSON.stringify({ v: 2, lessons: { T6: { step: 2, completed: false } }, practice: {}, onboarding: null, lastLesson: 'T6' }));
+    location.hash = '#/lesson/l3';
+    render(<App />);
+    const cur = within(screen.getByRole('navigation', { name: 'שלבי השיעור' })).getByRole('button', { current: 'step' });
+    expect(cur.textContent).toBe(lessonById('T6')!.steps!.he[2]);
   });
 });
 
@@ -242,107 +224,48 @@ describe('quiz/lesson alignment audit — content added where the quiz tested so
   // either; l4 tested hammer/engulfing shapes without describing either;
   // l6 tested RSI divergence, never mentioned; l7 tested a double bottom's
   // structure, never described. Each now has a real "extra" block for the
-  // gap, additive — the original intro/deeper text is untouched.
-  const cases: Array<[string, RegExp, RegExp]> = [
-    ['l0', /קרן סל/, /שווי שוק/],
-    ['l0', /סימול/, /דיבידנד/],
-    ['l4', /פטיש/, /בליעה עולה/],
-    ['l6', /דיוורגנס/, /RSI/],
-    ['l7', /תחתית כפולה/, /קו הצוואר/],
-    // l2 was added later, on a different criterion than the four above. Its
-    // quiz IS answerable from the lesson — the annotation note explains what a
-    // volume spike signals, which is what the question asks. What the lesson
-    // never did was say what volume IS: the word appears three times in
-    // visible copy (intro and chart note) without once stating that it counts
-    // shares changing hands. A comprehension gap rather than a quiz gap.
-    ['l2', /נפח מסחר/, /עברו יד/]
+  // gap, additive — the original intro/deeper text is untouched. In the
+  // workspace it is step 3, under its own "מושגים נוספים" heading.
+  // [lesson, the teaching step that covers it, …what it must say]. T10 (l7, rewritten
+  // 2026-09-26) teaches the double bottom and its neckline on its first step.
+  const cases: Array<[string, 0 | 1 | 2, RegExp, RegExp]> = [
+    ['l0', 2, /קרן סל/, /שווי שוק/],
+    ['l0', 2, /סימול/, /דיבידנד/],
+    ['l4', 2, /פטיש/, /בליעה עולה/],
+    ['l7', 0, /תחתית כפולה/, /קו הצוואר/],
+    // l2 was added later: its quiz is answerable, but the lesson never said
+    // what volume IS. A comprehension gap rather than a quiz gap.
+    ['l2', 2, /נפח מסחר/, /עברו יד/]
   ];
-  for (const [lessonId, ...patterns] of cases) {
+  for (const [lessonId, step, ...patterns] of cases) {
     it(`${lessonId} now teaches what its own quiz questions test`, () => {
       location.hash = `#/lesson/${lessonId}`;
       render(<App />);
-      const label = screen.getByText('מושגים נוספים');
-      const panel = label.closest('aside')!;
+      if (step) openStep(LEGACY_TO_LESSON[lessonId]!, step);
+      const heading = lessonContent(LEGACY_TO_LESSON[lessonId]!)!.teach[step].heading.he;
+      const pane = screen.getByRole('heading', { name: heading }).closest('section')!;
       for (const p of patterns) {
-        expect(panel.textContent, `${lessonId}: expected to match ${p}`).toMatch(p);
+        expect(pane.textContent, `${lessonId}: expected to match ${p}`).toMatch(p);
       }
     });
   }
 
-  it('lessons with no gap render no extra panel at all', () => {
+  it('divergence moved to T8 (decided 2026-09-26): T7 neither teaches it nor asks about it', () => {
+    const t7 = lessonContent('T7')!;
+    expect(t7.questions.map((q) => q.id)).not.toContain('q-rsi-3');
+    const text = t7.teach.flatMap((t) => [t.heading, ...t.paragraphs]).map((l) => `${l.he} ${l.en}`).join(' ');
+    expect(text).not.toMatch(/דיוורגנס|דייברג׳נס|divergence/i);
+  });
+
+  it('lessons with no gap show no extra-terms step content at all', () => {
     // l1/l3/l5 were audited too and found already covered — by the annotation
-    // notes for l3/l5, and by prose alone for l1. No invented content for
-    // lessons that did not need any: l3 in particular was checked again and
-    // deliberately left alone, because the only undefined terms on it (EMA,
-    // SMA) appear solely in the chart's accessible label, never in copy a
-    // reader sees — explaining acronyms that are not on screen would add
-    // confusion, not clarity.
+    // notes for l3/l5, and by prose alone for l1. No invented content.
     for (const lessonId of ['l1', 'l3', 'l5']) {
       cleanup();
       location.hash = `#/lesson/${lessonId}`;
       render(<App />);
+      openStep(LEGACY_TO_LESSON[lessonId]!, 2);
       expect(screen.queryByText('מושגים נוספים'), lessonId).toBeNull();
     }
-  });
-});
-
-describe('layout fixes from real-use feedback', () => {
-  it('"worth knowing" and the extra block sit in one shared row, not stacked separately', () => {
-    // Both l0 and l4 have a `deeper` AND an `extra` block — either is a
-    // real case of the reported bug (they rendered as two separate stacked
-    // asides before this fix).
-    location.hash = '#/lesson/l0';
-    render(<App />);
-    const deeper = document.querySelector('[class*="deeperLabel"]')!;
-    const extra = document.querySelector('[class*="extraLabel"]')!;
-    expect(deeper).toBeTruthy();
-    expect(extra).toBeTruthy();
-    const deeperRow = deeper.closest('[class*="notesRow"]');
-    const extraRow = extra.closest('[class*="notesRow"]');
-    expect(deeperRow).toBeTruthy();
-    // The real assertion: the SAME row element, not two different ones.
-    expect(deeperRow).toBe(extraRow);
-  });
-
-  it('no card is ever left alone at half width in its row', () => {
-    // These three tests replace a set that pinned `spanFullCentered` — a card
-    // that took the whole row but stayed narrow and centred inside it. It was
-    // added so a leftover card would not sit beside a gap, and it is exactly
-    // what made a lesson read as "one wide chart, and a smaller one underneath
-    // it" with no reason a reader could see. A card that takes the row now
-    // uses it; the guarantee being kept is only that nothing is stranded.
-    for (const lessonId of ['l4', 'l6', 'l7', 'l1', 'l2'] as const) {
-      cleanup();
-      location.hash = `#/lesson/${lessonId}`;
-      render(<App />);
-      const spans = [...document.querySelectorAll('figure[class*="card"]')].map((c) =>
-        /spanFull/.test(c.className) ? 'full' : 'half'
-      );
-      // Walk the rows the grid will build and check no half card is alone.
-      let column = 0;
-      spans.forEach((s, i) => {
-        if (s === 'full') { column = 0; return; }
-        if (column === 0) {
-          expect(spans[i + 1], `${lessonId} card ${i} has no partner`).toBe('half');
-          column = 1;
-        } else {
-          column = 0;
-        }
-      });
-    }
-  });
-
-  it('a chart keeps the same width wherever it appears', () => {
-    // The old rule derived width from position, so the identical chart could
-    // be full-width in one lesson and half in another purely because of how
-    // many siblings it had. Width now comes from the series itself.
-    const longSeries = LESSON_CHARTS.l3![0]!;   // 260 candles — a trend
-    const illustration = LESSON_CHARTS.l4![1]!; // ~20 candles — one pattern
-    expect(preferredSpan(longSeries)).toBe('full');
-    expect(preferredSpan(illustration)).toBe('half');
-  });
-
-  it('the exercise card takes the whole row, since it holds two things', () => {
-    expect(layoutChartCards(LESSON_CHARTS.l1!, { hasAside: true })[0]).toBe('full');
   });
 });
