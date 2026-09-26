@@ -132,6 +132,8 @@
   .gallery { grid-template-columns: minmax(0, 1fr); padding: 10px; }
   .art, .teaser { padding: 16px; }
   .lpane { padding: 4px 0 0; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; border-radius: 0; }
+  /* Flat on a phone means flat: without this the glass edge ring and sheen still draw a square frame hugging the text. */
+  .lpane:not([data-sheet])::before, .lpane:not([data-sheet])::after { display: none; }
   .paneTitle { font-size: 22px; }
   .lfoot { position: fixed; bottom: 12px; inset-inline: 12px; margin: 0; padding: 6px; border-radius: 26px; }
   .lfoot > * { flex: 0 0 auto; }

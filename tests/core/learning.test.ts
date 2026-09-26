@@ -13,7 +13,7 @@ function store(seed: Record<string, string> = {}): StorageAdapter & { data: Reco
   const data = { ...seed };
   return { data, read: (k) => data[k] ?? null, write: (k, v) => { data[k] = v; } };
 }
-const all = (p: LearningProgress, track: 'F' | 'T' | 'P' | 'R' | 'D') => lessonsOf(track).reduce((acc, l) => completeLesson(acc, l.id), p);
+const all = (p: LearningProgress, track: 'F' | 'T' | 'P' | 'R' | 'M' | 'D') => lessonsOf(track).reduce((acc, l) => completeLesson(acc, l.id), p);
 
 describe('migration: nobody loses a completed lesson', () => {
   it('a previous-build record is mapped onto the curriculum on first load', () => {
@@ -112,7 +112,7 @@ describe('practice, tracks and resume', () => {
     expect(practiceOpen(almost, 'T')).toBe(false);
     expect(practiceOpen(completeLesson(almost, 'T12'), 'T')).toBe(true);
     // A track with nothing written has no practice yet.
-    expect(practiceOpen(all(EMPTY_LEARNING, 'R'), 'R')).toBe(false);
+    expect(practiceOpen(all(EMPTY_LEARNING, 'M'), 'M')).toBe(false);
   });
 
   it('a track is done only with all lessons AND a passed practice', () => {

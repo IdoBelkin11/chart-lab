@@ -201,3 +201,14 @@ export declare const T12_Q_PLAN: Breakout;
 export declare const T12_Q_DIV: WithSwings & Tools;
 // Fundamentals P8
 export declare const P8_REPORT: Candle[] & { reportIdx: number; prevClose: number; gapOpen: number };
+// Risk
+export declare function closesToCandles(closes: number[], t: string): Candle[];
+export declare const R1_CALM: Candle[];
+export declare const R1_WILD: Candle[];
+export declare const R1_DD: WithSwings;
+export declare const R1_TRY: WithSwings;
+export declare const R1_Q: WithSwings;
+export declare const R5_TRADE: WithSwings & { entryIdx: number };
+export declare const R5_PLAN: WithSwings;
+export declare const R7_CRASH: WithSwings;
+export declare const R7_BUBBLE: WithSwings;

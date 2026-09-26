@@ -72,6 +72,8 @@ export interface MarkLevelActivity {
   answer: Array<{ range: [number, number]; tone: 'support' | 'resistance'; label: Localized; explanation: Localized }>;
   /** A measured move computed from the level: target = level − (peak − level). */
   measure?: { peak: number; label: Localized; explain: Localized; caveat: Localized };
+  /** Shown on the feedback step once right (R5: what the stop placed means for the trade). */
+  explain?: Localized[];
 }
 /**
  * "When did it happen?" — the learner clicks the chart at a MOMENT (a candle),

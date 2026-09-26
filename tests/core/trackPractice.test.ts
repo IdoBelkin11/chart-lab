@@ -25,6 +25,6 @@ describe('track practice (written lessons only, decided 2026-09-25)', () => {
   });
 
   it('a track with nothing written has no questions', () => {
-    expect(practiceItems('R', 1)).toEqual([]);
+    expect(practiceItems('M', 1)).toEqual([]);
   });
 });

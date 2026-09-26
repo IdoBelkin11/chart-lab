@@ -8,6 +8,7 @@ import type { TranslationKey } from '@core/i18n/strings';
 import { Icon } from '@ui/components/icons/Icons';
 import { useMedia, PHONE } from '@ui/hooks/useMedia';
 import { PhoneBar } from './PhoneBar';
+import { useGlide } from '@ui/components/nav/Glide';
 import styles from './Header.module.css';
 
 /**
@@ -38,6 +39,10 @@ export function Header() {
   const { route, go } = useRoute();
   const total = TOTAL_LESSONS;
   const pct = Math.round((completedCount / total) * 100);
+  // One travelling capsule per group (see Glide): the sections, and each switch.
+  const navGlide = useGlide<HTMLElement>([route, lang]);
+  const langGlide = useGlide<HTMLDivElement>([lang], 'seg');
+  const themeGlide = useGlide<HTMLDivElement>([theme, lang], 'seg');
   const phone = useMedia(PHONE);
 
   // Phone: home keeps this brand bar; every other screen gets its own bar (Artifact 15).
@@ -45,7 +50,8 @@ export function Header() {
 
   return (
     <header className={`${styles.topbar} glass`}>
-      <nav className={styles.nav} aria-label={t('navMainAria')}>
+      <nav className={`${styles.nav} ${navGlide.hostClass}`} aria-label={t('navMainAria')} ref={navGlide.ref}>
+        {navGlide.pill}
         <a
           className={styles.brand}
           href="#/"
@@ -67,6 +73,7 @@ export function Header() {
               className={on ? `${styles.tab} ${styles.tabOn}` : styles.tab}
               href={`#/${s.route === 'home' ? '' : s.route}`}
               aria-current={on ? 'page' : undefined}
+              data-active={on ? 'true' : undefined}
               onClick={(e) => {
                 e.preventDefault();
                 go(s.route);
@@ -89,13 +96,15 @@ export function Header() {
 
         {/* Two languages, two buttons — the one in use is pressed. Each label is
             the language's own short name, marked with its own `lang`. */}
-        <div className="seg" role="group" aria-label={t('langGroupAria')}>
+        <div className={`seg ${langGlide.hostClass}`} role="group" aria-label={t('langGroupAria')} ref={langGlide.ref}>
+          {langGlide.pill}
           {(['he', 'en'] as const).map((code) => (
             <button
               key={code}
               type="button"
               lang={code}
               aria-pressed={lang === code}
+              data-active={lang === code ? 'true' : undefined}
               onClick={() => setLang(code)}
             >
               {code === 'he' ? 'עב' : 'EN'}
@@ -103,12 +112,14 @@ export function Header() {
           ))}
         </div>
 
-        <div className="seg" role="group" aria-label={t('themeGroupAria')}>
+        <div className={`seg ${themeGlide.hostClass}`} role="group" aria-label={t('themeGroupAria')} ref={themeGlide.ref}>
+          {themeGlide.pill}
           {(['dark', 'light'] as const).map((mode) => (
             <button
               key={mode}
               type="button"
               aria-pressed={theme === mode}
+              data-active={theme === mode ? 'true' : undefined}
               aria-label={t(mode === 'dark' ? 'themeDark' : 'themeLight')}
               title={t(mode === 'dark' ? 'themeDark' : 'themeLight')}
               onClick={() => {

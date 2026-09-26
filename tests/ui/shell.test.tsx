@@ -24,10 +24,10 @@ describe('global shell', () => {
   // A written lesson opens full screen (its own lesson bar, no rail); an
   // unwritten one's preview sits in the shell with the track's lesson list.
   it("beside a lesson preview, the rail lists that track's lessons", () => {
-    location.hash = '#/lesson/R2';
+    location.hash = '#/lesson/M2';
     render(<App />);
     const rail = within(screen.getByRole('navigation', { name: 'שיעורי המסלול' }));
-    expect(rail.getAllByRole('button').length).toBe(lessonsOf('R').length);
+    expect(rail.getAllByRole('button').length).toBe(lessonsOf('M').length);
     expect(rail.getByRole('button', { current: true })).toBeTruthy();
   });
 

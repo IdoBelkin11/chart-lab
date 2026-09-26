@@ -899,3 +899,26 @@ P8_REPORT[P8_REPORT.reportIdx].v *= 3.5;
 P8_REPORT.prevClose = P8_REPORT[P8_REPORT.reportIdx-1].c;
 P8_REPORT.gapOpen = P8_REPORT[P8_REPORT.reportIdx].o;
 P8_REPORT[P8_REPORT.reportIdx].h = Math.min(P8_REPORT[P8_REPORT.reportIdx].h, P8_REPORT.gapOpen + 0.6);
+
+/* ---------- Risk (R1, R2, R5, R7) ---------- */
+/** Candles from a path of closes (R2's simulated prices): each opens where the last one closed. */
+export function closesToCandles(closes, t){
+  const start = new Date(t);
+  return closes.slice(1).map((c, i) => { const o = closes[i], d = new Date(start); d.setDate(d.getDate() + i); return { t: d, o, c, h: Math.max(o, c) * 1.002, l: Math.min(o, c) * 0.998, v: 1000000 }; });
+}
+// R1 · the same start and end, a calm path and a wild one.
+export const R1_CALM = genCandles(1601, [{f:0,p:100,t:'2024-01-02'},{f:1,p:112,t:''}], 120, 18000000, 0.006);
+export const R1_WILD = genCandles(1602, [{f:0,p:100,t:'2024-01-02'},{f:0.2,p:122,t:''},{f:0.4,p:94,t:''},{f:0.6,p:124,t:''},{f:0.8,p:97,t:''},{f:1,p:112,t:''}], 120, 18000000, 0.03);
+// R1 · a drawdown: a peak, a trough, and a partial recovery.
+export const R1_DD = pinned(1603, '2024-01-02', [{f:0,p:100},{f:0.4,p:140},{f:0.7,p:91},{f:1,p:118}], [[0.4,'high'],[0.7,'low']], 110, [140, 91]);
+export const R1_TRY = pinned(1604, '2024-03-01', [{f:0,p:60},{f:0.35,p:80},{f:0.7,p:50},{f:1,p:58}], [[0.35,'high'],[0.7,'low']], 100, [80, 50]);
+export const R1_Q = pinned(1605, '2024-05-01', [{f:0,p:30},{f:0.4,p:40},{f:0.75,p:30},{f:1,p:36}], [[0.4,'high'],[0.75,'low']], 100, [40, 30]);
+// R5 · the Artifact's trade: a pullback to a low, an entry on the way back up, and a target above the last high.
+export const R5_TRADE = pinned(1611, '2024-02-01', [{f:0,p:92},{f:0.35,p:108},{f:0.55,p:101.6},{f:0.62,p:104},{f:1,p:112.5}], [[0.35,'high'],[0.55,'low']], 100, [108, 101.4]);
+R5_TRADE.entryIdx = R5_TRADE.findIndex((x, i) => i > R5_TRADE.swings[1].idx && x.c >= 104);
+// R5 · the Try: the chart stops where the trade would be entered.
+export const R5_PLAN = pinned(1612, '2024-04-01', [{f:0,p:44},{f:0.4,p:52.8},{f:0.72,p:47.6},{f:1,p:49.6}], [[0.4,'high'],[0.72,'low']], 90, [52.8, 47.6]);
+// R7 · a 30% fall from the peak, and the recovery after it.
+export const R7_CRASH = pinned(1621, '2024-01-02', [{f:0,p:100},{f:0.3,p:125},{f:0.5,p:87.5},{f:1,p:121}], [[0.3,'high'],[0.5,'low']], 160, [125, 87.5]);
+// R7 · a bubble: a steady rise, a near-vertical one, and the collapse.
+export const R7_BUBBLE = pinned(1622, '2024-01-02', [{f:0,p:20},{f:0.45,p:26},{f:0.62,p:40},{f:0.75,p:70},{f:0.85,p:40},{f:1,p:28}], [[0.75,'high']], 120, [70]);

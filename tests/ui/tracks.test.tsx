@@ -39,9 +39,9 @@ describe('track page', () => {
   });
 
   it('a track still being written marks every unwritten lesson as coming soon', () => {
-    location.hash = '#/track/R';
+    location.hash = '#/track/M';
     render(<App />);
-    expect(within(screen.getByRole('main')).getAllByText('בקרוב').length).toBe(lessonsOf('R').length);
+    expect(within(screen.getByRole('main')).getAllByText('בקרוב').length).toBe(lessonsOf('M').length);
   });
 
   it('its main action opens the first lesson that can actually be learned', () => {
@@ -52,7 +52,7 @@ describe('track page', () => {
   });
 
   it('a track with nothing written yet offers a preview, never a fake start', () => {
-    location.hash = '#/track/R';
+    location.hash = '#/track/M';
     render(<App />);
     const page = within(screen.getByRole('main'));
     expect(page.queryByRole('button', { name: /להתחיל/ })).toBeNull();
@@ -70,11 +70,11 @@ describe('track page', () => {
 
 describe('a lesson not written yet', () => {
   it('says so honestly, shows what it will teach, and points to a lesson that is ready', () => {
-    location.hash = '#/lesson/R2';
+    location.hash = '#/lesson/M2';
     render(<App />);
     const page = within(screen.getByRole('main'));
     expect(page.getByText(/השיעור הזה עוד נכתב/)).toBeTruthy();
-    // Nothing in Risk is written yet, so there is no lesson to point to — only the tutor.
+    // Nothing in Macro is written yet, so there is no lesson to point to — only the tutor.
     expect(page.queryByRole('button', { name: /^לשיעור \d+:/ })).toBeNull();
     // And every TA lesson opens as a lesson, not a preview.
     cleanup();

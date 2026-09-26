@@ -197,7 +197,7 @@ export const GLOSSARY: GlossaryTerm[] = [
   {
     id: 'divergence',
     cat: 'technical',
-    he: ['דיברגנץ'],
+    he: ['דייברג׳נס', 'הדייברג׳נס', 'בדייברג׳נס', 'לדייברג׳נס', 'דיברגנץ'],
     en: ['divergence'],
     def: {
       en: 'When price and an indicator (like RSI) move in opposite directions — often an early warning that a trend is losing strength.',
@@ -372,7 +372,7 @@ export const GLOSSARY: GlossaryTerm[] = [
   {
     id: 'eps',
     cat: 'fundamentals',
-    he: ['רווח למניה'],
+    he: ['רווח למניה', 'EPS'],
     en: ['EPS', 'earnings per share'],
     def: {
       en: 'Profit divided by the number of shares — the per-share slice of what the company earned.',
@@ -419,6 +419,206 @@ export const GLOSSARY: GlossaryTerm[] = [
     def: {
       en: 'How far a holding or a portfolio has fallen from its peak. The maths is unforgiving: a 50% loss needs a 100% gain just to break even.',
       he: 'כמה החזקה או תיק ירדו מהשיא שלהם. המתמטיקה אכזרית: הפסד של 50% דורש רווח של 100% רק כדי לחזור לאיזון.'
+    }
+  },
+  {
+    id: 'bond',
+    cat: 'basics',
+    he: ['אג״ח', 'אגרות חוב', 'ואג״ח', 'לאג״ח', 'באג״ח', 'האג״ח', 'אגרת חוב'],
+    en: ['bond', 'bonds'],
+    def: {
+      en: 'A loan you give a government or a company in exchange for interest and your money back at a set date. Usually calmer than stocks, with less upside.',
+      he: 'הלוואה שנותנים לממשלה או לחברה, תמורת ריבית והחזר הכסף במועד קבוע. לרוב רגועה יותר ממניה, עם פחות פוטנציאל.'
+    }
+  },
+  {
+    id: 'broker',
+    cat: 'basics',
+    he: ['ברוקר', 'הברוקר', 'בברוקר', 'לברוקר', 'וברוקר', 'שברוקר', 'מברוקר'],
+    en: ['broker', 'brokers'],
+    def: {
+      en: 'The licensed firm that passes your orders to the exchange and holds your shares for you.',
+      he: 'הגוף המורשה שמעביר את הפקודות שלכם לבורסה ומחזיק עבורכם את המניות.'
+    }
+  },
+  {
+    id: 'spread',
+    cat: 'basics',
+    he: ['מרווח', 'המרווח', 'והמרווח', 'כשהמרווח', 'למרווח'],
+    en: ['spread', 'bid-ask spread'],
+    def: {
+      en: 'The gap between the best price buyers offer (bid) and the best price sellers ask. A cost you pay without seeing it; wide in thinly traded stocks.',
+      he: 'הפער בין המחיר הטוב ביותר שקונים מציעים (Bid) לבין המחיר הטוב ביותר שמוכרים מבקשים (Ask). עלות שמשלמים בלי לראות; רחב במניות דלות מסחר.'
+    }
+  },
+  {
+    id: 'limit-order',
+    cat: 'basics',
+    he: ['פקודת לימיט', 'פקודת הלימיט', 'בפקודת לימיט', 'לימיט'],
+    en: ['limit order', 'limit orders'],
+    def: {
+      en: 'An order to buy or sell only at a price you set or better. It controls the price, but it may never be filled.',
+      he: 'פקודה לקנות או למכור רק במחיר שקבעתם או טוב ממנו. שולטת במחיר, אבל ייתכן שלא תתבצע.'
+    }
+  },
+  {
+    id: 'macd',
+    cat: 'technical',
+    he: ['MACD'],
+    en: ['MACD'],
+    def: {
+      en: 'The gap between a fast and a slow moving average, with a signal line of its own. It shows momentum building or fading, late by design.',
+      he: 'הפער בין ממוצע נע מהיר לאיטי, עם קו סיגנל משלו. מראה מומנטום שמתחזק או נחלש — ובאיחור, מעצם הבנייה.'
+    }
+  },
+  {
+    id: 'operating-income',
+    cat: 'fundamentals',
+    he: ['רווח תפעולי', 'הרווח התפעולי', 'ברווח התפעולי', 'לרווח התפעולי'],
+    en: ['operating income'],
+    def: {
+      en: 'What the business itself earns: revenue minus the costs of making and running it, before interest and tax.',
+      he: 'מה שהעסק עצמו מרוויח: הכנסות פחות עלויות הייצור וההפעלה, לפני ריבית ומס.'
+    }
+  },
+  {
+    id: 'margin',
+    cat: 'fundamentals',
+    he: ['שולי רווח', 'שולי הרווח', 'בשולי הרווח', 'שוליים', 'השוליים'],
+    en: ['margin', 'margins'],
+    def: {
+      en: 'Profit as a share of revenue: how much of each unit of sales the company keeps.',
+      he: 'רווח כאחוז מההכנסות: כמה מכל שקל מכירות החברה משאירה אצלה.'
+    }
+  },
+  {
+    id: 'roe',
+    cat: 'fundamentals',
+    he: ['ROE'],
+    en: ['ROE'],
+    def: {
+      en: 'Return on equity: net profit divided by shareholders’ equity. How much the owners’ money earns — high is good, unless debt is doing the work.',
+      he: 'תשואה על ההון: רווח נקי חלקי ההון העצמי. כמה רווח מייצר הכסף של הבעלים — גבוה זה טוב, אלא אם החוב עושה את העבודה.'
+    }
+  },
+  {
+    id: 'free-cash-flow',
+    cat: 'fundamentals',
+    he: ['תזרים חופשי', 'התזרים החופשי', 'תזרים מזומנים חופשי', 'בתזרים החופשי', 'לתזרים החופשי'],
+    en: ['free cash flow'],
+    def: {
+      en: 'Cash from operations minus the investment needed to keep the business going. The cash that is actually left over.',
+      he: 'מזומן מפעילות פחות ההשקעות הנדרשות כדי להמשיך לפעול. המזומן שבאמת נשאר.'
+    }
+  },
+  {
+    id: 'dcf',
+    cat: 'fundamentals',
+    he: ['DCF', 'היוון תזרימים'],
+    en: ['DCF', 'discounted cash flow'],
+    def: {
+      en: 'Valuing a company by the cash it is expected to produce, discounted back to today. Only as good as its assumptions.',
+      he: 'הערכת שווי לפי המזומן שהחברה צפויה לייצר, מהוון להיום. טובה בדיוק כמו ההנחות שלה.'
+    }
+  },
+  {
+    id: 'margin-of-safety',
+    cat: 'fundamentals',
+    he: ['מרווח ביטחון', 'מרווח הביטחון', 'ומרווח ביטחון', 'למרווח הביטחון', 'במרווח ביטחון'],
+    en: ['margin of safety'],
+    def: {
+      en: 'The gap between what you estimate a stock is worth and the price you pay — room for your estimate to be wrong.',
+      he: 'הפער בין השווי שהערכתם למניה לבין המחיר שמשלמים — מקום לכך שההערכה תטעה.'
+    }
+  },
+  {
+    id: 'risk',
+    cat: 'risk',
+    he: ['סיכון', 'הסיכון', 'בסיכון', 'לסיכון', 'וסיכון', 'שהסיכון'],
+    en: ['risk'],
+    def: {
+      en: 'How much, and how often, an investment can go against you — measured in several ways (volatility, drawdown), not only by how far it fell.',
+      he: 'כמה, וכמה פעמים, השקעה יכולה ללכת נגדכם — נמדד בכמה דרכים (תנודתיות, ירידה מהשיא), לא רק בכמה ירדה.'
+    }
+  },
+  {
+    id: 'correlation',
+    cat: 'risk',
+    he: ['מתאם', 'המתאם', 'במתאם', 'ומתאם', 'שהמתאם'],
+    en: ['correlation', 'correlations'],
+    def: {
+      en: 'How closely two assets move together, from +1 (in step) to −1 (opposite). Diversification works through low or negative correlation, not through the number of holdings.',
+      he: 'כמה שני נכסים זזים יחד, מ־1+ (באותו כיוון) עד 1− (בכיוון הפוך). פיזור עובד דרך מתאם נמוך או שלילי, לא דרך מספר ההחזקות.'
+    }
+  },
+  {
+    id: 'rebalancing',
+    cat: 'risk',
+    he: ['איזון מחדש', 'האיזון מחדש', 'ואיזון מחדש', 'באיזון מחדש'],
+    en: ['rebalancing', 'rebalance'],
+    def: {
+      en: 'Returning a portfolio to its planned weights after the market moved them — buying what fell and trimming what rose, by rule.',
+      he: 'החזרת התיק למשקלים שתוכננו אחרי שהשוק הזיז אותם — לקנות את מה שירד ולקצץ את מה שעלה, לפי כלל.'
+    }
+  },
+  {
+    id: 'take-profit',
+    cat: 'risk',
+    he: ['טייק פרופיט', 'יעד רווח', 'יעד הרווח'],
+    en: ['take-profit', 'take profit'],
+    def: {
+      en: 'A price set in advance at which you close a winning trade. Together with the stop, it fixes the risk/reward before you enter.',
+      he: 'מחיר שנקבע מראש שבו סוגרים עסקה מרוויחה. יחד עם הסטופ, הוא קובע את יחס הסיכון-סיכוי לפני הכניסה.'
+    }
+  },
+  {
+    id: 'compound-interest',
+    cat: 'risk',
+    he: ['ריבית דריבית', 'בריבית דריבית', 'הריבית דריבית'],
+    en: ['compound interest', 'compounding'],
+    def: {
+      en: 'Earning returns on past returns, not only on what you put in. Slow at first, then steep — which is why time matters more than timing.',
+      he: 'תשואה על תשואות קודמות, לא רק על מה שהפקדתם. איטית בהתחלה, ואז תלולה — ולכן הזמן חשוב יותר מהתזמון.'
+    }
+  },
+  {
+    id: 'dca',
+    cat: 'risk',
+    he: ['הפקדה קבועה', 'בהפקדה קבועה', 'והפקדה קבועה', 'הפקדות קבועות'],
+    en: ['dollar-cost averaging'],
+    def: {
+      en: 'Investing the same amount at regular intervals whatever the price. You buy more units when prices are low, and stop trying to time the market.',
+      he: 'השקעת סכום קבוע במרווחי זמן קבועים, בלי קשר למחיר. קונים יותר יחידות כשהמחיר נמוך, ומפסיקים לנסות לתזמן את השוק.'
+    }
+  },
+  {
+    id: 'asset-allocation',
+    cat: 'risk',
+    he: ['הקצאה', 'ההקצאה', 'בהקצאה', 'והקצאה', 'הקצאת נכסים'],
+    en: ['asset allocation', 'allocation'],
+    def: {
+      en: 'How a portfolio is split between asset types — stocks, bonds, gold, cash. It sets most of the portfolio’s risk, more than any single pick.',
+      he: 'איך התיק מתחלק בין סוגי נכסים — מניות, אג״ח, זהב, מזומן. היא קובעת את רוב הסיכון של התיק, יותר מכל בחירה בודדת.'
+    }
+  },
+  {
+    id: 'disposition-effect',
+    cat: 'risk',
+    he: ['אפקט הנטייה', 'אפקט הדיספוזיציה'],
+    en: ['disposition effect'],
+    def: {
+      en: 'The habit of selling winners too early and holding losers too long, because realising a loss hurts. One of the costliest investor biases.',
+      he: 'הנטייה למכור מרוויחות מוקדם מדי ולהחזיק מפסידות זמן רב מדי, כי מימוש הפסד כואב. אחת ההטיות היקרות ביותר של משקיעים.'
+    }
+  },
+  {
+    id: 'bubble',
+    cat: 'risk',
+    he: ['בועה', 'הבועה', 'בבועה', 'בועות', 'הבועות'],
+    en: ['bubble', 'bubbles'],
+    def: {
+      en: 'Prices rising far beyond what earnings can justify, driven by the expectation that someone will pay even more. It ends with a sharp fall.',
+      he: 'מחירים שעולים הרבה מעבר למה שהרווחים מצדיקים, מתוך ציפייה שמישהו ישלם עוד יותר. זה נגמר בנפילה חדה.'
     }
   }
 ];

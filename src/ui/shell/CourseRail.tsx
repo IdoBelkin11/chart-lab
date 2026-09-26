@@ -7,6 +7,7 @@ import { useAppState } from '@ui/app/AppState';
 import { useRoute } from '@ui/hooks/useRoute';
 import { Icon } from '@ui/components/icons/Icons';
 import { trackColor } from '@ui/components/curriculum/Curriculum';
+import { useGlide } from '@ui/components/nav/Glide';
 import styles from './CourseRail.module.css';
 
 const TX = {
@@ -76,7 +77,8 @@ function TrackRail({ track, current }: { track: TrackId; current: string | null 
   const tx = TX[lang];
   const ls = lessonsOf(track), done = completedIn(learning, track);
   const locked = trackStatus(learning, track) === 'locked';
-  const list = useRef<HTMLElement>(null);
+  const glide = useGlide<HTMLElement>([current, lang, track]);
+  const list = glide.ref;
 
   // Keep the open lesson in view. `nearest` does nothing when the row is
   // already visible, so this never yanks the list while someone is reading.
@@ -97,7 +99,8 @@ function TrackRail({ track, current }: { track: TrackId; current: string | null 
         </div>
       </div>
       <hr className="hr" />
-      <nav className={styles.rows} aria-label={tx.lessonsAria} ref={list}>
+      <nav className={`${styles.rows} ${glide.hostClass}`} aria-label={tx.lessonsAria} ref={list}>
+        {glide.pill}
         {ls.map((l, i) => {
           const st = lessonStatus(learning, l.id), isCur = l.id === current;
           const num = st === 'completed' ? 'num done' : isCur ? 'num cur' : l.kind === 'project' ? `num ${styles.proj}` : st === 'in-progress' ? `num ${styles.learning}` : 'num';

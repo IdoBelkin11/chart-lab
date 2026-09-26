@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { highlightGlossary } from '@core/glossary/highlight';
 import { GLOSSARY, GLOSSARY_CATEGORY_ORDER, glossaryTerm, searchGlossary } from '@core/glossary/terms';
+import { TRACK_INFO } from '@core/curriculum/trackInfo';
+import { lessonsOf } from '@core/curriculum/curriculum';
+import { lessonContent } from '@core/lessons/content';
+import type { TrackId } from '@core/curriculum/data';
 
 describe('glossary terms', () => {
   it('every term is bilingual with at least one surface form per language', () => {
@@ -167,5 +171,26 @@ describe('measured move', () => {
     );
     const marked = segments.find((s) => s.termId === 'measured-move');
     expect(marked?.text).toBe('התנועה הנמדדת');
+  });
+});
+
+describe('the glossary keeps up with the curriculum', () => {
+  // A finished track's completion screen says "Now in your glossary" and lists
+  // terms; each written track must actually deliver them. Unwritten tracks are
+  // exempt until their lessons land — then this fails until the terms do too.
+  const norm = (s: string) => s.toLowerCase().replace(/[-/]/g, ' ');
+  const has = (w: string, lang: 'he' | 'en') => GLOSSARY.some((g) => g[lang].some((f) => norm(f) === norm(w)));
+  const written = Object.keys(TRACK_INFO).filter((t) => lessonsOf(t as TrackId).every((l) => lessonContent(l.id)));
+
+  it.each(written)('track %s: every term its completion screen promises is in the glossary', (t) => {
+    const { terms } = TRACK_INFO[t as TrackId];
+    for (const lang of ['he', 'en'] as const) expect(terms[lang].filter((w) => !has(w, lang)), lang).toEqual([]);
+  });
+
+  it('Risk prose meets its new terms where it teaches them', () => {
+    expect(highlightGlossary('המתאם בין שתי המניות גבוה', 'he').find((s) => s.termId)?.termId).toBe('correlation');
+    expect(highlightGlossary('Rebalancing means buying what fell', 'en')[0]?.termId).toBe('rebalancing');
+    // "מרווח ביטחון" is its own idea, not the bid–ask spread.
+    expect(highlightGlossary('ומשאירים מרווח ביטחון', 'he').find((s) => s.termId)?.termId).toBe('margin-of-safety');
   });
 });

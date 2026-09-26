@@ -38,6 +38,9 @@
 }
 .row:hover { background: var(--wash); }
 .on { background: var(--wash-2); font-weight: 650; box-shadow: inset 0 0 0 1px var(--hair); }
+/* In the lesson list, the current row's glass is the travelling capsule (Glide). */
+.rows > .on { background: none; box-shadow: none; }
+.rows > .on:hover { background: none; }
 .locked { color: var(--text-faint); }
 .label { flex-grow: 1; min-width: 0; line-height: 1.3; }
 .end { font-size: 11px; color: var(--text-faint); flex: none; }

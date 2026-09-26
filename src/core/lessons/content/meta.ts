@@ -35,7 +35,15 @@ export const LESSON_META: Readonly<Record<string, LessonMeta>> = {
   P6: { topic: 'pe' },
   P7: { topic: 'debt-equity' },
   P8: { topic: 'guidance' },
-  P9: { topic: 'dcf' }
+  P9: { topic: 'dcf' },
+  R1: { topic: 'risk' },
+  R2: { topic: 'diversification' },
+  R3: { topic: 'compound-interest' },
+  R4: { topic: 'position-sizing' },
+  R5: { topic: 'risk-reward-ratio' },
+  R6: { topic: 'behavioral-biases' },
+  R7: { topic: 'market-bubbles-crashes' },
+  R8: { topic: 'portfolio' }
 };
 
 /** Whether a lesson is written (has content to open). */

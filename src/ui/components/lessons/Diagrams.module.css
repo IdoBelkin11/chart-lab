@@ -98,7 +98,7 @@
 /* stacks */
 .stacks { display: grid; gap: 22px; }
 .stackCol { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.stackHead { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; }
+.stackHead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 8px; font-size: 14px; }
 .stackArea { height: 300px; display: flex; align-items: flex-end; }
 .stack { width: 100%; display: flex; flex-direction: column; gap: 4px; }
 .block { min-height: 30px; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 10px; font-size: 13px; background: color-mix(in srgb, var(--tone) 18%, transparent); box-shadow: inset 0 0 0 1px var(--hair); }

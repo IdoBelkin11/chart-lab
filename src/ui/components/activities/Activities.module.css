@@ -75,7 +75,8 @@
 
 /* chart-sorting drill (T3 · Artifact 3.2) */
 .rules { display: flex; gap: 8px; flex-wrap: wrap; }
-.rules > :global(.chip) { font-size: 12.5px; padding: 7px 12px; white-space: normal; }
+/* On a surface, not a wash: the rules carry coloured text, and a wash over a flat phone pane leaves it short of 4.5:1. */
+.rules > :global(.chip) { font-size: 12.5px; padding: 7px 12px; white-space: normal; background: var(--surface); box-shadow: inset 0 0 0 1px var(--hair); }
 .cgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .ccard { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 22px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--hair); }
 .ccard[data-state='right'] { box-shadow: inset 0 0 0 2px var(--ok); }

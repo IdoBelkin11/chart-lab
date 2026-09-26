@@ -25,7 +25,8 @@ export default defineConfig({
     // load order — only where the bundler cuts them.
     rolldownOptions: { output: { codeSplitting: { groups: [
       { name: 'lessons-fundamentals', test: /src[\/]core[\/](fundamentals[\/]|lessons[\/]content[\/](p\d|fundamentalsKit))/ },
-      { name: 'lessons-technical', test: /src[\/]core[\/](lessons[\/]content[\/](t\d+|technical)\.ts|charts[\/]series)/ }
+      { name: 'lessons-technical', test: /src[\/]core[\/](lessons[\/]content[\/](t\d+|technical)\.ts|charts[\/]series)/ },
+      { name: 'lessons-risk', test: /src[\/]core[\/](risk[\/]|lessons[\/]content[\/](r\d|riskKit))/ }
     ] } } }
   },
   test: {

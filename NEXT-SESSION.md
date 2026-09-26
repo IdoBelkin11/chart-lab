@@ -345,6 +345,31 @@ Do NOT start Macro/Risk/Derivatives until the user says so.**
 - Build: lesson content is split per track by the bundler (`vite.config.ts` codeSplitting groups),
   so no chunk passes 500 kB; the shell still loads none of it.
 
+**Phase 8 — Risk R1–R8: WRITTEN (2026-09-26), AWAITING USER REVIEW. Not committed.
+Do NOT start Macro/Derivatives until the user says so.**
+- Data: `core/risk/scenarios.ts` — every figure in R1–R8 (account 50,000, R4/R5 trades, assets and
+  profiles, simulated daily returns with seed 1701 for the correlation matrix, the loss limit…);
+  R-lesson price series are appended to `charts/series.js` (`closesToCandles`). All illustrative,
+  labelled as such; no live data. `tests/ui/riskTrack.test.tsx` checks each claim against the data.
+- Content: `content/r1to3.ts`, `r4to6.ts`, `r7to8.ts` (+ `riskKit.ts`). R4/R5 run the Tools'
+  own `positionSize` / `riskReward`. New step titles for R1 and R3 (in the scratchpad outline →
+  `data.ts`). `MarkLevelActivity.explain` (optional) is the only activity-model change.
+- Tries: R1/R3/R4 calculate · R2/R6/R7/R8 checklist · R5 markLevel (place the stop on the chart).
+- Practice: 8 questions, pass 7; passing completes R and unlocks D (tested end to end).
+- Bundle: `lessons-risk` codeSplitting group (136 kB); `content` chunk back to 90 kB.
+- Glossary: 20 terms added so every WRITTEN track delivers the terms its completion screen promises
+  ("Now in your glossary"); `tests/core/glossary.test.ts` fails when a track is written without
+  them. Divergence's Hebrew form now matches the lessons' spelling (דייברג׳נס), so it highlights.
+- Liquid Glass nav: `ui/components/nav/Glide.tsx` — one capsule travels between the active items of
+  the header tabs, the lang/theme switches and the course rail; leading edge 240 ms, trailing
+  470 ms on a slight spring, so it stretches toward the target and settles. It keeps its place
+  while the item is momentarily not laid out (clearing it there lost the capsule for good).
+- Phone lesson pane: the flat pane no longer draws the glass edge ring and sheen as a square frame.
+  Knock-on: activity rule chips (T3/T11) sit on `--surface` now — on the bare phone pane in light
+  theme the wash left their coloured text at 4.45:1. Stacks headers wrap (R8 English overflowed).
+- Verified: 630 tests, tsc, build; matrix TA+F+P+R × 1440/390 × dark/light × he/en with axe = 0;
+  35 route checks clean; production preview clean on 20 routes incl. R and the glossary.
+
 ## Backlog (user, 2026-09-26: a small shared UX fix, later — not now)
 - ~~After a wrong answer, the AI tutor's help-offer card can cover part of the Apply check on phones.~~
   Fixed in the consolidation pass (2026-09-26).
